@@ -73,7 +73,7 @@ public class SignUpActivity extends AppCompatActivity {
         btnlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                Intent intent = new Intent(SignUpActivity.this, SignInActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -169,7 +169,7 @@ public class SignUpActivity extends AppCompatActivity {
                                         public void onSuccess() {
                                             Toast.makeText(SignUpActivity.this, "User registered successfully. Please verify your email.", Toast.LENGTH_SHORT).show();
                                             mAuth.signOut();
-                                            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                                            Intent intent = new Intent(SignUpActivity.this, SignInActivity.class);
                                             startActivity(intent);
                                             finish();
                                         }
