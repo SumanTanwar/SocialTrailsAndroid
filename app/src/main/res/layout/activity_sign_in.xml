@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".SignInActivity">
+
+    <ImageView
+        android:layout_marginTop="20dp"
+        android:id="@+id/logo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/socialtrails_logo"
+        android:layout_gravity="center"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Discover new experiences, share moments, and stay updated with the latest news from those who matter most."
+        android:layout_margin="15dp"
+        android:textColor="@color/purple_color"
+        android:fontFamily="cursive"
+        android:textStyle="bold"
+        android:textSize="18dp" />
+
+    <EditText
+        android:id="@+id/txtloginusername"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:minHeight="45dp"
+        android:hint="Email Address"
+        android:inputType="textEmailAddress"
+        android:layout_margin="10dp"
+        android:maxLength="50"
+        android:background="@drawable/edit_text_border"
+        android:padding="12dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        >
+
+        <EditText
+            android:id="@+id/txtloginpwd"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:minHeight="45dp"
+            android:paddingEnd="45dp"
+            android:maxLength="10"
+            android:background="@drawable/edit_text_border"
+            android:padding="12dp"/>
+
+        <ImageView
+            android:id="@+id/eye_loginpwd"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/eye" />
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="10dp"
+        android:gravity="end">
+
+        <CheckBox
+            android:id="@+id/chkrememberMe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remember Me"
+            android:checked="false"
+            android:layout_gravity="start" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnforgotpwd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Forgot password"
+            android:textColor="@color/link_color"
+            android:textSize="14sp"
+            android:layout_gravity="end" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnsignin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign in"
+        android:layout_margin="5dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't have a profile?"
+            android:textSize="16dp" />
+
+        <TextView
+            android:id="@+id/btnregister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create new one"
+            android:textColor="@color/link_color"
+            android:textSize="16dp" />
+    </LinearLayout>
+
+</LinearLayout>
