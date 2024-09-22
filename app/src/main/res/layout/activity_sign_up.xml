@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SignUpActivity"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ImageView
+        android:layout_marginTop="20dp"
+        android:id="@+id/logo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/socialtrails_logo"
+        android:layout_gravity="center"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Your Journey"
+        android:textSize="20dp"
+        android:textColor="@color/theme_color"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:fontFamily="cursive"
+        android:padding="10dp"
+       />
+
+    <EditText
+        android:id="@+id/txtusername"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:minHeight="45dp"
+        android:hint="User name"
+        android:inputType="text"
+        android:layout_margin="10dp"
+        android:maxLength="20"
+        android:background="@drawable/edit_text_border"
+        android:padding="12dp"/>
+
+    <EditText
+        android:id="@+id/txtemail"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:hint="Email Address"
+        android:inputType="textEmailAddress"
+        android:layout_margin="10dp"
+        android:maxLength="50"
+        android:background="@drawable/edit_text_border"
+        android:padding="12dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+       >
+
+        <EditText
+            android:id="@+id/txtpwd"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:minHeight="45dp"
+            android:paddingEnd="45dp"
+            android:maxLength="10"
+            android:background="@drawable/edit_text_border"
+            android:padding="12dp"/>
+
+        <ImageView
+            android:id="@+id/eye_password"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/eye" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <EditText
+            android:id="@+id/txtconfpwd"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:minHeight="48dp"
+            android:paddingEnd="48dp"
+            android:maxLength="10"
+            android:background="@drawable/edit_text_border"
+            android:padding="12dp"/>
+
+        <ImageView
+            android:id="@+id/eye_confpassword"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/eye" />
+    </RelativeLayout>
+
+
+
+    <CheckBox
+        android:id="@+id/chkterms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="I accept the terms and conditions!"
+        android:layout_margin="8dp"/>
+
+    <Button
+        android:id="@+id/btnsignup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign up"
+        android:layout_margin="8dp"/>
+
+    <TextView
+        android:id="@+id/btnlogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/link_color"
+        android:text="Got a profile? Sign in"
+        android:textStyle="italic"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:padding="8dp"
+        android:layout_marginTop="35dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="By registering, I acknowledge that I have read and accept the General Terms and conditions of Use and the privacy policy."
+        android:textSize="12sp"
+        />
+</LinearLayout>
+
