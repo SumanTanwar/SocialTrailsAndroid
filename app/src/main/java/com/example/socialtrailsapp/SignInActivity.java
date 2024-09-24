@@ -21,6 +21,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.socialtrailsapp.Interface.DataOperationCallback;
+import com.example.socialtrailsapp.ModelData.Users;
+import com.example.socialtrailsapp.Utility.SessionManager;
+import com.example.socialtrailsapp.Utility.UserService;
 import com.example.socialtrailsapp.Utility.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -35,7 +39,8 @@ public class SignInActivity extends AppCompatActivity {
     ImageView eye_loginpwd;
     CheckBox chkrememberMe;
     FirebaseAuth mAuth ;
-
+    UserService userService;
+    private SessionManager sessionManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +59,8 @@ public class SignInActivity extends AppCompatActivity {
         eye_loginpwd = findViewById(R.id.eye_loginpwd);
         chkrememberMe = findViewById(R.id.chkrememberMe);
         mAuth = FirebaseAuth.getInstance();
+        userService = new UserService();
+        sessionManager = SessionManager.getInstance(this);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String savedEmail = preferences.getString("email", "");
@@ -134,9 +141,33 @@ public class SignInActivity extends AppCompatActivity {
                     FirebaseUser user = mAuth.getCurrentUser();
                     if (user != null) {
                         if (user.isEmailVerified()) {
-                            Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
+
+
+                            userService.getUserByID(user.getUid(), new DataOperationCallback<Users>() {
+
+                                @Override
+                                public void onSuccess(Users data) {
+                                    if(data.getSuspended() == true)
+                                    {
+                                        Toast.makeText(SignInActivity.this, "Your account has been suspended by admin .please contact social trails teams.", Toast.LENGTH_SHORT).show();
+                                        mAuth.signOut();
+                                    }
+                                    else {
+                                        sessionManager.loginUser(data.getUserId(), data.getUsername(), data.getEmail(), data.getNotification(), data.getRoles());
+                                        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(String errMessage) {
+                                    txtloginpwd.setText("");
+                                    Toast.makeText(SignInActivity.this, "Invalid email address and password", Toast.LENGTH_SHORT).show();
+                                    mAuth.signOut();
+                                }
+                            });
+
                         } else {
                             // Email not verified
                             Toast.makeText(SignInActivity.this, "Please verify your email before logging in.", Toast.LENGTH_SHORT).show();
@@ -147,12 +178,14 @@ public class SignInActivity extends AppCompatActivity {
                     {
                         txtloginpwd.setText("");
                         Toast.makeText(SignInActivity.this, "Invalid email address and password", Toast.LENGTH_SHORT).show();
+                        mAuth.signOut();
                     }
                 }
                 else
                 {
                     txtloginpwd.setText("");
                     Toast.makeText(SignInActivity.this, "Invalid email address and password", Toast.LENGTH_SHORT).show();
+                    mAuth.signOut();
                 }
             }
         });

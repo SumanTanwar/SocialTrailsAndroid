@@ -10,8 +10,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.socialtrailsapp.Utility.SessionManager;
+
 public class SplashScreenActivity extends AppCompatActivity {
     private static final int splashtimeout = 3000;
+    private SessionManager sessionManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,13 +26,22 @@ public class SplashScreenActivity extends AppCompatActivity {
             return insets;
         });
 
-        new Handler(getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(SplashScreenActivity.this, SignInActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        }, splashtimeout);
+        sessionManager = SessionManager.getInstance(this);
+
+        if (sessionManager.userLoggedIn()) {
+
+            Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            new Handler(getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(SplashScreenActivity.this, SignInActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }, splashtimeout);
+        }
     }
 }

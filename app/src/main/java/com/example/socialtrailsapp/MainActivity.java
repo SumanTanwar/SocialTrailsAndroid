@@ -1,6 +1,7 @@
 package com.example.socialtrailsapp;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,8 +9,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.socialtrailsapp.Utility.SessionManager;
 
+public class MainActivity extends AppCompatActivity {
+    private SessionManager sessionManager;
+    TextView txtmains;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,5 +24,9 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        txtmains = findViewById(R.id.txtdata);
+        sessionManager = SessionManager.getInstance(this);
+
+        txtmains.setText("name " + sessionManager.getUsername() + " email : " + sessionManager.getEmail() + " role : " + sessionManager.getroleType());
     }
 }
