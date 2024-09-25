@@ -6,4 +6,18 @@
     </style>
 
     <style name="Theme.SocialTrailsApp" parent="Base.Theme.SocialTrailsApp" />
+    <style name="CustomBottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="itemIconSize">24dp</item>
+        <item name="itemIconTint">@color/bottom_nav_icon_color</item>
+        <item name="itemTextColor">@color/bottom_nav_text_color</item>
+        <item name="backgroundTint">@color/bottom_nav_background_color</item> <!-- Light background color -->
+        <item name="labelVisibilityMode">labeled</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 </resources>
