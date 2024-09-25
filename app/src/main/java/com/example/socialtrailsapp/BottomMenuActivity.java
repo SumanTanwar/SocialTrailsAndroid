@@ -44,6 +44,11 @@ public class BottomMenuActivity extends AppCompatActivity {
                     startActivity(new Intent(BottomMenuActivity.this, MainActivity.class));
                     return true;
                 }
+                else if(R.id.navigation_setting == item.getItemId())
+                {
+                    startActivity(new Intent(BottomMenuActivity.this, userSettingActivity.class));
+                    return true;
+                }
                 return false;
             }
         });
