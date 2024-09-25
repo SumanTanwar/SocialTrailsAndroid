@@ -30,7 +30,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         if (sessionManager.userLoggedIn()) {
 
-            Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
+            Intent intent = new Intent(SplashScreenActivity.this, changePassword.class);
             startActivity(intent);
             finish();
         } else {
