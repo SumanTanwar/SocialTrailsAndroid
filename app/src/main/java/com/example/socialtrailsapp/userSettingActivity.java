@@ -58,5 +58,16 @@ public class userSettingActivity extends BottomMenuActivity {
             }
         });
 
+        txtLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sessionManager.logoutUser();
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(userSettingActivity.this, SignInActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
     }
 }
