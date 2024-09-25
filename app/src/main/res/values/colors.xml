@@ -6,4 +6,12 @@
     <color name="link_color">#2196F3</color>
     <color name="green_color">#4CAF50</color>
     <color name="purple_color">#673AB7</color>
+
+    <color name="bottom_nav_icon_color">#075E54</color> <!-- Dark icon color -->
+    <color name="bottom_nav_text_color">#075E54</color> <!-- Dark text color -->
+    <color name="bottom_nav_background_color">#F5F5F5</color> <!-- Light background color -->
+
+    <color name="colorPrimary">#FF6200EE</color> <!-- Replace with your primary color -->
+    <color name="colorPrimaryDark">#FF3700B3</color> <!-- Darker shade for status bar -->
+    <color name="colorAccent">#FF03DAC5</color>
 </resources>
