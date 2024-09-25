@@ -3,6 +3,7 @@ package com.example.socialtrailsapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,7 +11,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.Utility.SessionManager;
+import com.example.socialtrailsapp.adminpanel.DashBoardActivity;
 
 public class SplashScreenActivity extends AppCompatActivity {
     private static final int splashtimeout = 3000;
@@ -29,10 +32,20 @@ public class SplashScreenActivity extends AppCompatActivity {
         sessionManager = SessionManager.getInstance(this);
 
         if (sessionManager.userLoggedIn()) {
+          
+            if(sessionManager.getroleType().equals(UserRole.ADMIN.getRole()))
+            {
+                Intent intent = new Intent(SplashScreenActivity.this, DashBoardActivity.class);
+                startActivity(intent);
+                finish();
+            }
+            else
+            {
+                Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
 
-            Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
         } else {
             new Handler(getMainLooper()).postDelayed(new Runnable() {
                 @Override

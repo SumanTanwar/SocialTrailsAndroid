@@ -22,10 +22,12 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
+import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserService;
 import com.example.socialtrailsapp.Utility.Utils;
+import com.example.socialtrailsapp.adminpanel.DashBoardActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -108,7 +110,12 @@ public class SignInActivity extends AppCompatActivity {
                     txtloginpwd.requestFocus();
                     return;
                 }
-                validateUser();
+                if (txtloginusername.getText().toString().trim().equalsIgnoreCase("socialtrails2024@gmail.com")) {
+                    validateAdmin();
+                }
+                else {
+                    validateUser();
+                }
             }
         });
         eye_loginpwd.setOnClickListener(new View.OnClickListener() {
@@ -121,6 +128,45 @@ public class SignInActivity extends AppCompatActivity {
         //endregion
     }
     //region validate user in database
+    private void validateAdmin()
+    {
+        String usernameEmailLogin = txtloginusername.getText().toString().trim();
+        String password = txtloginpwd.getText().toString().trim();
+        mAuth.signInWithEmailAndPassword(usernameEmailLogin,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+
+                if(task.isSuccessful()) {
+
+                    if (chkrememberMe.isChecked()) {
+                        Utils.saveCredentials(SignInActivity.this, usernameEmailLogin, true);
+                    } else {
+                        Utils.saveCredentials(SignInActivity.this, "", false);
+                    }
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null) {
+                        sessionManager.logoutUser();
+                        sessionManager.loginUser(user.getUid(), "Admin", user.getEmail(), true, UserRole.ADMIN.getRole());
+                        Intent intent = new Intent(SignInActivity.this, DashBoardActivity.class);
+                        startActivity(intent);
+                        finish();
+
+                    } else {
+                        Toast.makeText(SignInActivity.this, "Invalid email address and password", Toast.LENGTH_SHORT).show();
+                        mAuth.signOut();  // Optionally sign out the user
+                    }
+                }
+
+                else
+                {
+                    txtloginpwd.setText("");
+                    Toast.makeText(SignInActivity.this, "Invalid email address and password", Toast.LENGTH_SHORT).show();
+                    mAuth.signOut();
+                }
+            }
+        });
+    }
+
     private void validateUser()
     {
         String usernameEmailLogin = txtloginusername.getText().toString().trim();
@@ -140,6 +186,8 @@ public class SignInActivity extends AppCompatActivity {
                     }
                     FirebaseUser user = mAuth.getCurrentUser();
                     if (user != null) {
+
+
                         if (user.isEmailVerified()) {
 
 
@@ -153,6 +201,7 @@ public class SignInActivity extends AppCompatActivity {
                                         mAuth.signOut();
                                     }
                                     else {
+                                        sessionManager.logoutUser();
                                         sessionManager.loginUser(data.getUserId(), data.getUsername(), data.getEmail(), data.getNotification(), data.getRoles());
                                         Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                                         startActivity(intent);
