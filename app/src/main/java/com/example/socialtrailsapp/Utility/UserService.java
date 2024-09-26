@@ -30,30 +30,25 @@ public class UserService implements IUserInterface {
     public void createUser(Users user, OperationCallback callback) {
         Log.d("UserDetails", user.getAdmindeleted().toString());
         reference.child(_collectionName).child(user.getUserId()).setValue(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        if (callback != null) {
-                            callback.onSuccess();
-                        }
-
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.onSuccess();
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (callback != null) {
-                            callback.onFailure(e.getMessage());
-                        }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
                     }
                 });
     }
+
     @Override
     public void getUserByID(String uid, DataOperationCallback<Users> callback) {
         reference.child(_collectionName).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Users user = snapshot.getValue(Users.class);
-                if (user != null && user.getAdmindeleted() == false && user.getProfiledeleted() == false) {
+                if (user != null && !user.getAdmindeleted() && !user.getProfiledeleted()) {
                     callback.onSuccess(user);
                 }
             }
@@ -72,23 +67,31 @@ public class UserService implements IUserInterface {
     }
 
     public void deleteProfile(String userID, OperationCallback callback) {
-
         reference.child(_collectionName).child(userID).removeValue()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        if (callback != null) {
-                            callback.onSuccess();
-                        }
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.onSuccess();
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (callback != null) {
-                            callback.onFailure(e.getMessage());
-                        }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
                     }
                 });
     }
 
+
+    public void setNotification(String userID, boolean isEnabled, OperationCallback callback) {
+        reference.child(_collectionName).child(userID).child("notification").setValue(isEnabled)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
+                    }
+                });
+    }
 }
