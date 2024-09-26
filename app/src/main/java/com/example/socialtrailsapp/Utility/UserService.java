@@ -66,4 +66,29 @@ public class UserService implements IUserInterface {
             }
         });
     }
+
+    public void setbackdeleteProfile(String userID) {
+        Log.d("UserService", "Setback delete profile for user: " + userID);
+    }
+
+    public void deleteProfile(String userID, OperationCallback callback) {
+
+        reference.child(_collectionName).child(userID).removeValue()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (callback != null) {
+                            callback.onFailure(e.getMessage());
+                        }
+                    }
+                });
+    }
+
 }
