@@ -36,7 +36,7 @@ public class SplashScreenActivity extends AppCompatActivity {
             Log.d("admin1", "onCreate: " + UserRole.ADMIN.getRole());
             if(sessionManager.getroleType().equals(UserRole.ADMIN.getRole()))
             {
-                Intent intent = new Intent(SplashScreenActivity.this, DashBoardActivity.class);
+                Intent intent = new Intent(SplashScreenActivity.this, ForgotPasswordActivity.class);
                 startActivity(intent);
                 finish();
             }
