@@ -16,6 +16,9 @@
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
         <activity
+            android:name=".userSettingActivity"
+            android:exported="false" />
+        <activity
             android:name=".BottomMenuActivity"
             android:exported="false" />
         <activity
