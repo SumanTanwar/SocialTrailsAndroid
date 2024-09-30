@@ -48,7 +48,7 @@ public class changePassword extends BottomMenuActivity {
         eye_newpwd = findViewById(R.id.eye_newpwd);
         eye_newconfpwd = findViewById(R.id.eye_newconfpwd);
         btnchangepwd = findViewById(R.id.btnchangepwd);
-        //  txtbackprofile = findViewById(R.id.txtbackprofile);
+        txtbackprofile = findViewById(R.id.txtbackprofile);
 
         mAuth = FirebaseAuth.getInstance();
         sessionManager = SessionManager.getInstance(this);
@@ -113,6 +113,15 @@ public class changePassword extends BottomMenuActivity {
                     return;
                 }
                 changepassword(currentpwd, newpwd);
+            }
+        });
+
+        txtbackprofile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(changePassword.this,userSettingActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 
