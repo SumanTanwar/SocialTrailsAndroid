@@ -13,6 +13,9 @@
         android:theme="@style/Theme.SocialTrailsApp"
         tools:targetApi="31">
         <activity
+            android:name=".PrivacyPolicy"
+            android:exported="false" />
+        <activity
             android:name=".adminpanel.AdminChangePasswordActivity"
             android:exported="false" />
         <activity
