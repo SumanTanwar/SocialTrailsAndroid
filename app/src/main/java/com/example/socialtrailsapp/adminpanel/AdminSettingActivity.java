@@ -43,7 +43,7 @@ public class AdminSettingActivity extends AppCompatActivity {
 
         txtChangePassword.setOnClickListener(view -> {
             // Start the Change Password Activity
-            Intent intent = new Intent(AdminSettingActivity.this, changePassword.class);
+            Intent intent = new Intent(AdminSettingActivity.this, AdminChangePasswordActivity.class);
             startActivity(intent);
         });
 
