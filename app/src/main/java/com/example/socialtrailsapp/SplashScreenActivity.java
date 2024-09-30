@@ -23,11 +23,11 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash_screen);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splash), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splash), (v, insets) -> {
+//            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+//            return insets;
+//        });
 
         sessionManager = SessionManager.getInstance(this);
 
@@ -35,7 +35,7 @@ public class SplashScreenActivity extends AppCompatActivity {
           
             if(sessionManager.getroleType().equals(UserRole.ADMIN.getRole()))
             {
-                Intent intent = new Intent(SplashScreenActivity.this, ForgotPasswordActivity.class);
+                Intent intent = new Intent(SplashScreenActivity.this, DashBoardActivity.class);
                 startActivity(intent);
                 finish();
             }
