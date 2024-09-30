@@ -37,7 +37,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class SignInActivity extends AppCompatActivity {
     EditText txtloginusername,txtloginpwd;
     Button btnsignin;
-    TextView btnregister;
+    TextView btnregister,resetPassword;
     ImageView eye_loginpwd;
     CheckBox chkrememberMe;
     FirebaseAuth mAuth ;
@@ -57,6 +57,7 @@ public class SignInActivity extends AppCompatActivity {
         txtloginusername = findViewById(R.id.txtloginusername);
         txtloginpwd = findViewById(R.id.txtloginpwd);
         btnsignin = findViewById(R.id.btnsignin);
+        resetPassword = findViewById(R.id.btnforgotpwd);
         btnregister = findViewById(R.id.btnregister);
         eye_loginpwd = findViewById(R.id.eye_loginpwd);
         chkrememberMe = findViewById(R.id.chkrememberMe);
@@ -79,6 +80,16 @@ public class SignInActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        resetPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SignInActivity.this, ForgotPasswordActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
         btnsignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

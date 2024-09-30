@@ -130,15 +130,44 @@
         android:textColor="@color/link_color"
         android:text="Got a profile? Sign in"
         android:textStyle="italic"
+        android:layout_marginBottom="20dp"
         android:layout_gravity="center"/>
 
+
+
     <TextView
-        android:padding="8dp"
-        android:layout_marginTop="35dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="By registering, I acknowledge that I have read and accept the General Terms and conditions of Use and the privacy policy."
-        android:textSize="12sp"
-        />
+        android:layout_marginLeft="9dp"
+        android:text="By registering, I acknowledge that I have read and accept General"
+        android:textColor="@color/black"
+        android:textSize="13dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="left">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Terms and conditions of Use and the "
+            android:textColor="@color/black"
+            android:layout_marginLeft="9dp"
+            android:textSize="13dp" />
+
+        <TextView
+            android:id="@+id/privacyPolicy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="privacy policy"
+            android:textColor="@color/purple_color"
+            android:textStyle="bold"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
 </LinearLayout>
 

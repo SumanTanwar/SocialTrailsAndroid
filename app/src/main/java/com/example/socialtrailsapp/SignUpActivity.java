@@ -34,7 +34,7 @@ public class SignUpActivity extends AppCompatActivity {
     EditText txtpwd,txtconfpwd,txtusername,txtemail;
     ImageView eye_password,eye_confpassword;
     Button btnsignup;
-    TextView btnlogin;
+    TextView btnlogin, privacyPolicy;
     CheckBox chkterms;
     FirebaseAuth mAuth;
     UserService userService;
@@ -59,6 +59,7 @@ public class SignUpActivity extends AppCompatActivity {
         eye_password = findViewById(R.id.eye_password);
         eye_confpassword = findViewById(R.id.eye_confpassword);
         chkterms = findViewById(R.id.chkterms);
+        privacyPolicy = findViewById(R.id.privacyPolicy);
 
         userService = new UserService();
         mAuth = FirebaseAuth.getInstance();
@@ -74,6 +75,15 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(SignUpActivity.this, SignInActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        privacyPolicy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(SignUpActivity.this,PrivacyPolicy.class);
                 startActivity(intent);
                 finish();
             }
