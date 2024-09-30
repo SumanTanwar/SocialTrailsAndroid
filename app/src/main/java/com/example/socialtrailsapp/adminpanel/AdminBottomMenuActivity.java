@@ -52,7 +52,7 @@ public class AdminBottomMenuActivity extends AppCompatActivity {
                 }
                 else if(R.id.navigation_setting == item.getItemId())
                 {
-                    startActivity(new Intent(AdminBottomMenuActivity.this, userSettingActivity.class));
+                    startActivity(new Intent(AdminBottomMenuActivity.this, AdminSettingActivity.class));
                     return true;
                 }
                 return false;
