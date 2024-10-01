@@ -36,7 +36,7 @@ public class BottomMenuActivity extends AppCompatActivity {
                 }
                 else if(R.id.navigation_post == item.getItemId())
                 {
-                    startActivity(new Intent(BottomMenuActivity.this, MainActivity.class));
+                    startActivity(new Intent(BottomMenuActivity.this, CreatePostActivity.class));
                     return true;
                 }
                 else if(R.id.navigation_profile == item.getItemId())
