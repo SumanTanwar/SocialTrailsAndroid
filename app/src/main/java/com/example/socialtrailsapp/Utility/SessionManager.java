@@ -30,6 +30,13 @@ public class SessionManager {
         sessioneditor.putString("roleType", roles);
         sessioneditor.apply();
     }
+
+    public void updateUserInfo(String username, String email) {
+        sessioneditor.putString("userName", username);
+        sessioneditor.putString("email", email);
+        sessioneditor.apply();
+    }
+
     public String getUserID() {
         return sessionsharedPreferences.getString("userID", "");
     }

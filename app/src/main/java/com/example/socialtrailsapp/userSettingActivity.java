@@ -15,18 +15,18 @@ import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserService;
 import com.example.socialtrailsapp.Utility.Utils;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class userSettingActivity extends BottomMenuActivity {
 
-    TextView txtLogout, txtprofileuser, txtchangepwd, txtdelprofile;
+    TextView txtLogout, txtprofileuser, txtchangepwd,txtEditProfile, txtdelprofile;
     private SessionManager sessionManager;
     UserService userService;
     FirebaseAuth mAuth;
     Switch switchNotify;
+
+    private static final int EDIT_PROFILE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +34,9 @@ public class userSettingActivity extends BottomMenuActivity {
         getLayoutInflater().inflate(R.layout.activity_user_setting, findViewById(R.id.container));
 
         txtLogout = findViewById(R.id.txtLogout);
-        txtprofileuser = findViewById(R.id.txtprofileusername);
+      txtprofileuser = findViewById(R.id.txtprofileusername);
         txtchangepwd = findViewById(R.id.txtchangepwd);
+        txtEditProfile = findViewById(R.id.txtEditProfile);
         txtdelprofile = findViewById(R.id.txtdelprofile);
         switchNotify = findViewById(R.id.switchNotify);
         mAuth = FirebaseAuth.getInstance();
@@ -50,8 +51,25 @@ public class userSettingActivity extends BottomMenuActivity {
         txtchangepwd.setOnClickListener(view -> {
             Intent intent = new Intent(userSettingActivity.this, changePassword.class);
             startActivity(intent);
-            finish();
         });
+
+        txtEditProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(userSettingActivity.this, EditProfileActivity.class);
+                intent.putExtra("name", sessionManager.getUsername());
+                intent.putExtra("email", mAuth.getCurrentUser().getEmail());
+                startActivityForResult(intent, EDIT_PROFILE_REQUEST);
+            }
+        });
+
+//        txtprofileuser.setOnClickListener(view -> {
+//            Intent intent = new Intent(userSettingActivity.this, EditProfileActivity.class);
+//            intent.putExtra("name", sessionManager.getUsername());
+//            intent.putExtra("email", mAuth.getCurrentUser().getEmail());
+//       //     intent.putExtra("bio", sessionManager.getUserBio()); // Assuming you have a method to get bio
+//            startActivityForResult(intent, EDIT_PROFILE_REQUEST);
+//        });
 
         txtLogout.setOnClickListener(view -> {
             sessionManager.logoutUser();
@@ -117,5 +135,25 @@ public class userSettingActivity extends BottomMenuActivity {
                 }
             });
         });
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == EDIT_PROFILE_REQUEST && resultCode == RESULT_OK) {
+            // Check if data is not null
+            if (data != null) {
+                String newName = data.getStringExtra("name");
+                if (newName != null) {
+                    txtprofileuser.setText(newName);
+                    sessionManager.updateUserInfo(newName, sessionManager.getEmail());
+                }
+            }
+        }
+    }
+
+
+    public void showDataUser() {
+        Intent intent = getIntent();
+        txtprofileuser.setText(intent.getStringExtra("name"));
     }
 }
