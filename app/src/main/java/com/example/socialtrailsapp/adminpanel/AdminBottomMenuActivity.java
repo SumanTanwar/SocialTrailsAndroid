@@ -40,12 +40,17 @@ public class AdminBottomMenuActivity extends AppCompatActivity {
                     startActivity(new Intent(AdminBottomMenuActivity.this, DashBoardActivity.class));
                     return true;
                 }
-                else if(R.id.navigation_post == item.getItemId())
+                else if(R.id.navigation_userlist == item.getItemId())
+                {
+                    startActivity(new Intent(AdminBottomMenuActivity.this, AdminListofUsersActivity.class));
+                    return true;
+                }
+                else if(R.id.navigation_usersreport == item.getItemId())
                 {
                     startActivity(new Intent(AdminBottomMenuActivity.this, DashBoardActivity.class));
                     return true;
                 }
-                else if(R.id.navigation_profile == item.getItemId())
+                else if(R.id.navigation_issuewarning == item.getItemId())
                 {
                     startActivity(new Intent(AdminBottomMenuActivity.this, DashBoardActivity.class));
                     return true;

@@ -15,6 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SocialTrailsApp"
         tools:targetApi="31">
+
+        <activity android:name=".adminpanel.AdminListofUsersActivity"
+            android:exported="false" />
+
         <activity
             android:name=".EditProfileActivity"
             android:exported="false" />
