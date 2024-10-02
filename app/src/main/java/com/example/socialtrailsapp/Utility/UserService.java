@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.IUserInterface;
 import com.example.socialtrailsapp.Interface.OperationCallback;
+import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -15,6 +16,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserService implements IUserInterface {
 
@@ -94,4 +98,32 @@ public class UserService implements IUserInterface {
                     }
                 });
     }
+
+    public void getRegularUserList(DataOperationCallback<List<Users>> callback) {
+        reference.child(_collectionName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<Users> usersList = new ArrayList<>();
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    Users user = userSnapshot.getValue(Users.class);
+                    // Check if the user is not marked as deleted
+                    if (user != null && user.getRoles().equals(UserRole.USER.getRole())) {
+                        usersList.add(user);
+                    }
+                }
+                callback.onSuccess(usersList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (callback != null) {
+                    callback.onFailure(error.getMessage());
+                }
+            }
+        });
+    }
+
+
+
 }
+
