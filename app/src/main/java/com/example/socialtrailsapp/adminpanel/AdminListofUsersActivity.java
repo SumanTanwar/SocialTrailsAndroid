@@ -1,7 +1,10 @@
 package com.example.socialtrailsapp.adminpanel;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,6 +24,8 @@ public class AdminListofUsersActivity extends AdminBottomMenuActivity {
     private AdminUserAdapter adminUserAdapter;
     private List<Users> usersList;
     private UserService userService;
+    private LinearLayout moderatorSection;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +47,17 @@ public class AdminListofUsersActivity extends AdminBottomMenuActivity {
 
         // Load user list
         loadUserList();
+        // Handle the click event for the moderator section
+        moderatorSection = findViewById(R.id.moderatorSection);
+        moderatorSection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to AdminCreateModeratorActivity
+                Intent intent = new Intent(AdminListofUsersActivity.this, AdminCreateModeratorActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void loadUserList() {
