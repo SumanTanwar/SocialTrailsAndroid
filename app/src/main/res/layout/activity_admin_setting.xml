@@ -35,7 +35,6 @@
         android:background="@android:color/darker_gray"/>
 
 
-
     <TextView
 
         android:layout_width="match_parent"
@@ -52,7 +51,14 @@
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
 
-
+    <TextView
+        android:id="@+id/txtcreatemoderator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create Moderator"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:padding="12dp"/>
 
     <View
 
