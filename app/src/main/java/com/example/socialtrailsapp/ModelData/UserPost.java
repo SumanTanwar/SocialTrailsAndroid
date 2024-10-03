@@ -10,17 +10,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserPost {
-    private String postId,userId,captiontext,createdon,updatedon;
+    private String postId,userId,captiontext,createdon,updatedon,location;
     private Boolean postdeleted,flagged,moderationstatus;
     private ArrayList<Uri> imageUris;
+    private Double latitude,longitude;
 
     public UserPost() {
     }
 
-    public UserPost(String userId, String captiontext,ArrayList<Uri> imageUris) {
+    public UserPost(String userId, String captiontext, String location, Double latitude, Double longitude, ArrayList<Uri> imageUris) {
         this.userId = userId;
         this.captiontext = captiontext;
+        this.location = location;
         this.imageUris = imageUris;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.createdon = Utils.getCurrentDatetime();
         this.postdeleted = false;
     }
@@ -89,6 +93,30 @@ public class UserPost {
         this.moderationstatus = moderationstatus;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
     public ArrayList<Uri> getImageUris() {
         return imageUris;
     }
@@ -101,8 +129,10 @@ public class UserPost {
         result.put("postId", postId);
         result.put("userId", userId);
         result.put("captiontext", captiontext);
+        result.put("location", location);
+        result.put("latitude", latitude);
+        result.put("longitude", longitude);
         result.put("createdon", createdon);
-        result.put("postdeleted", postdeleted);
         return result;
     }
 }
