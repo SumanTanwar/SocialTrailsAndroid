@@ -28,9 +28,12 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.ImagePagerAdapter;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.UserPost;
+import com.example.socialtrailsapp.Utility.MapDialog;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.adminpanel.DashBoardActivity;
+import com.google.android.gms.maps.model.LatLng;
+
 
 import java.util.ArrayList;
 
@@ -40,12 +43,15 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
     private ArrayList<Uri> imageUris = new ArrayList<>();
     private ImagePagerAdapter adapter;
     private RecyclerView recyclerView;
-    Button btnpost,imgCapture;
-    ImageView profileImage;
-    TextView txtpostuserName;
+
+    ImageView profileImage,icon_add_location,btnpost,imgCapture;
+    TextView txtpostuserName,txtselectedAddress;
     EditText txtpostcaption;
     private LinearLayout myLinearLayout;
     UserPostService userPostService;
+
+    private double latitude,longitude;
+    private String tagLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +64,8 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
         txtpostcaption = findViewById(R.id.txtpostcaption);
         sessionManager = SessionManager.getInstance(this);
         imgCapture = findViewById(R.id.btnCapture);
+        icon_add_location = findViewById(R.id.icon_add_location);
+        txtselectedAddress = findViewById(R.id.txtselectedAddress);
         userPostService = new UserPostService();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -74,6 +82,13 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
 
 
         imgCapture.setOnClickListener(v -> openGallery());
+        icon_add_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MapDialog mapDialog = new MapDialog(CreatePostActivity.this);
+                mapDialog.show();
+            }
+        });
 
         btnpost.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +104,12 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
                     Toast.makeText(getApplicationContext(), "Please select photo", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                UserPost userPost = new UserPost(sessionManager.getUserID(),caption,imageUris);
+                if(tagLocation.isEmpty())
+                {
+                    Toast.makeText(getApplicationContext(), "Please tag the location", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                UserPost userPost = new UserPost(sessionManager.getUserID(),caption,tagLocation,latitude,longitude,imageUris);
                 userPostService.createPost(userPost, new OperationCallback() {
                     @Override
                     public void onSuccess() {
@@ -121,6 +141,13 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
         }
     }
 
+    public void setLocation(LatLng latLng, String selectedLocation) {
+        longitude = latLng.longitude;
+        latitude = latLng.latitude;
+        tagLocation = selectedLocation;
+        txtselectedAddress.setText(tagLocation);
+
+    }
     // region Images
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
