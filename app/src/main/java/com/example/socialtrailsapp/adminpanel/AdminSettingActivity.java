@@ -19,7 +19,7 @@ import com.example.socialtrailsapp.userSettingActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class AdminSettingActivity extends AppCompatActivity {
-    TextView txtLogout, txtChangePassword;
+    TextView txtLogout, txtChangePassword, txtcreatemoderator;
     private SessionManager sessionManager;
     FirebaseAuth mAuth;
 
@@ -37,9 +37,16 @@ public class AdminSettingActivity extends AppCompatActivity {
 
         txtLogout = findViewById(R.id.txtLogout);
         txtChangePassword = findViewById(R.id.txtchangepwd);
+        txtcreatemoderator = findViewById(R.id.txtcreatemoderator);
 
         mAuth = FirebaseAuth.getInstance();
         sessionManager = SessionManager.getInstance(this);
+
+        txtcreatemoderator.setOnClickListener(view -> {
+            // Start the Change Password Activity
+            Intent intent = new Intent(AdminSettingActivity.this, AdminCreateModeratorActivity.class);
+            startActivity(intent);
+        });
 
         txtChangePassword.setOnClickListener(view -> {
             // Start the Change Password Activity

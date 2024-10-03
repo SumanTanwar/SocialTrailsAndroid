@@ -13,6 +13,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.Utility.SessionManager;
+import com.example.socialtrailsapp.adminpanel.AdminCreateModeratorActivity;
+import com.example.socialtrailsapp.adminpanel.AdminListofUsersActivity;
 import com.example.socialtrailsapp.adminpanel.DashBoardActivity;
 
 public class SplashScreenActivity extends AppCompatActivity {
@@ -35,7 +37,7 @@ public class SplashScreenActivity extends AppCompatActivity {
           
             if(sessionManager.getroleType().equals(UserRole.ADMIN.getRole()))
             {
-                Intent intent = new Intent(SplashScreenActivity.this, SignInActivity.class);
+                Intent intent = new Intent(SplashScreenActivity.this, AdminListofUsersActivity.class);
                 startActivity(intent);
                 finish();
             }
