@@ -41,7 +41,7 @@ public class BottomMenuActivity extends AppCompatActivity {
                 }
                 else if(R.id.navigation_profile == item.getItemId())
                 {
-                    startActivity(new Intent(BottomMenuActivity.this, MainActivity.class));
+                    startActivity(new Intent(BottomMenuActivity.this, ViewProfileActivity.class));
                     return true;
                 }
                 else if(R.id.navigation_setting == item.getItemId())

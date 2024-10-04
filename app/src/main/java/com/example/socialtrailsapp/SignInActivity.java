@@ -157,7 +157,7 @@ public class SignInActivity extends AppCompatActivity {
                     FirebaseUser user = mAuth.getCurrentUser();
                     if (user != null) {
                         sessionManager.logoutUser();
-                        sessionManager.loginUser(user.getUid(), "Admin", user.getEmail(), true, UserRole.ADMIN.getRole());
+                        sessionManager.loginUser(user.getUid(), "Admin", user.getEmail(), true, UserRole.ADMIN.getRole(),"bio");
                         Intent intent = new Intent(SignInActivity.this, DashBoardActivity.class);
                         startActivity(intent);
                         finish();
@@ -213,7 +213,7 @@ public class SignInActivity extends AppCompatActivity {
                                     }
                                     else {
                                         sessionManager.logoutUser();
-                                        sessionManager.loginUser(data.getUserId(), data.getUsername(), data.getEmail(), data.getNotification(), data.getRoles());
+                                        sessionManager.loginUser(data.getUserId(), data.getUsername(), data.getEmail(), data.getNotification(), data.getRoles(),data.getBio());
                                         Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                                         startActivity(intent);
                                         finish();

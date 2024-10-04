@@ -3,11 +3,20 @@ package com.example.socialtrailsapp.ModelData;
 import com.example.socialtrailsapp.Utility.Utils;
 
 public class Users {
-    private String userId,username,email,createdon,profilepicture,roles;
+    private String userId,username,email,createdon,profilepicture,roles,bio;
     private Boolean profiledeleted,notification,admindeleted,suspended,isactive;
 
     public Users()
     {
+
+    }
+
+    public Users( String username, String email, String bio)
+    {
+
+        this.username = username;
+        this.email = email;
+        this.bio = bio;
 
     }
     public Users(String userId, String username, String email, String roles) {
@@ -109,5 +118,12 @@ public class Users {
 
     public void setIsactive(Boolean isactive) {
         this.isactive = isactive;
+    }
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 }
