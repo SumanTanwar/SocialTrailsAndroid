@@ -23,10 +23,11 @@ import com.google.firebase.database.FirebaseDatabase;
 public class EditProfileActivity extends BottomMenuActivity {
 
     EditText nameEdit, emailEdit, bioEdit;
-    TextView backText;
+ //   TextView backText;
     Button saveBtn;
     FirebaseAuth mAuth;
     DatabaseReference mDatabase;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,20 +37,20 @@ public class EditProfileActivity extends BottomMenuActivity {
         nameEdit = findViewById(R.id.nameEdit);
         emailEdit = findViewById(R.id.emailEdit);
         bioEdit = findViewById(R.id.bioEdit);
-        backText = findViewById(R.id.backText);
+    //    backText = findViewById(R.id.backText);
         saveBtn = findViewById(R.id.saveBtn);
 
+        sessionManager = SessionManager.getInstance(this);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        Intent intent = getIntent();
-        String name = intent.getStringExtra("name");
-        String email = intent.getStringExtra("email");
-        String bio = intent.getStringExtra("bio");
 
-        nameEdit.setText(name);
-        emailEdit.setText(email);
-        bioEdit.setText(bio);
+        if (sessionManager.userLoggedIn()) {
+            nameEdit.setText(sessionManager.getUsername());
+            emailEdit.setText(sessionManager.getEmail());
+            bioEdit.setText(sessionManager.getBio());
+        }
+
 
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,19 +62,19 @@ public class EditProfileActivity extends BottomMenuActivity {
             }
         });
 
-        backText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(EditProfileActivity.this, userSettingActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-    }
+//        backText.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(EditProfileActivity.this, userSettingActivity.class);
+//                startActivity(intent);
+//                finish();
+//            }
+//        });
+
+  }
 
     private void updateProfile(FirebaseUser user) {
         String newName = nameEdit.getText().toString().trim();
-        String newEmail = emailEdit.getText().toString().trim();
         String newBio = bioEdit.getText().toString().trim();
 
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
@@ -83,33 +84,22 @@ public class EditProfileActivity extends BottomMenuActivity {
         user.updateProfile(profileUpdates)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        if (!user.getEmail().equals(newEmail)) {
-                            user.updateEmail(newEmail).addOnCompleteListener(emailTask -> {
-                                if (emailTask.isSuccessful()) {
-                                    updateUserDataInDatabase(newName, newEmail, newBio);
-                                } else {
-                                    Toast.makeText(EditProfileActivity.this, "Email update failed.", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        } else {
-                            updateUserDataInDatabase(newName, newEmail, newBio);
-                        }
+                        updateUserDataInDatabase(newName, newBio);
                     } else {
                         Toast.makeText(EditProfileActivity.this, "Profile update failed.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private void updateUserDataInDatabase(String name, String email, String bio) {
+    private void updateUserDataInDatabase(String name, String bio) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             String userId = user.getUid();
             mDatabase.child("users").child(userId).child("username").setValue(name);
-            mDatabase.child("users").child(userId).child("email").setValue(email);
             mDatabase.child("users").child(userId).child("bio").setValue(bio);
 
             SessionManager sessionManager = SessionManager.getInstance(this);
-            sessionManager.updateUserInfo(name, email);
+            sessionManager.updateUserInfo(name, bio);
 
             Toast.makeText(this, "Profile updated successfully.", Toast.LENGTH_SHORT).show();
 

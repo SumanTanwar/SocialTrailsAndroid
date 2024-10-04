@@ -58,18 +58,12 @@ public class userSettingActivity extends BottomMenuActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(userSettingActivity.this, EditProfileActivity.class);
                 intent.putExtra("name", sessionManager.getUsername());
-                intent.putExtra("email", mAuth.getCurrentUser().getEmail());
+                intent.putExtra("email",mAuth.getCurrentUser().getEmail());
+                intent.putExtra("bio", sessionManager.getBio());
                 startActivityForResult(intent, EDIT_PROFILE_REQUEST);
             }
         });
 
-//        txtprofileuser.setOnClickListener(view -> {
-//            Intent intent = new Intent(userSettingActivity.this, EditProfileActivity.class);
-//            intent.putExtra("name", sessionManager.getUsername());
-//            intent.putExtra("email", mAuth.getCurrentUser().getEmail());
-//       //     intent.putExtra("bio", sessionManager.getUserBio()); // Assuming you have a method to get bio
-//            startActivityForResult(intent, EDIT_PROFILE_REQUEST);
-//        });
 
         txtLogout.setOnClickListener(view -> {
             sessionManager.logoutUser();
@@ -145,7 +139,6 @@ public class userSettingActivity extends BottomMenuActivity {
                 String newName = data.getStringExtra("name");
                 if (newName != null) {
                     txtprofileuser.setText(newName);
-                    sessionManager.updateUserInfo(newName, sessionManager.getEmail());
                 }
             }
         }
