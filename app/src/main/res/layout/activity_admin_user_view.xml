@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="15dp">
+    android:padding="8dp">
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="10dp">
+       >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -116,14 +116,30 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/bio"
+        android:id="@+id/txtadminbio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
-        android:textColor="@color/black"
-        android:layout_marginBottom="10dp"
-        android:text=""
-        android:textSize="15sp"/>
+        android:layout_marginLeft="10dp"
+
+        android:textSize="12dp"/>
+    <TextView
+        android:id="@+id/txtdetailmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="10dp"
+        android:textSize="12dp"/>
+
+    <TextView
+        android:id="@+id/profilereason"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="10dp"
+        android:visibility="gone"
+        android:textSize="12dp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -132,22 +148,27 @@
         <Button
             android:id="@+id/btnSuspendProfile"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:text="Suspend Profile"
-            android:layout_margin="10dp"/>
+            android:layout_margin="10dp"
+            android:background="@drawable/button_background"
+            android:textColor="@android:color/black" />
 
         <Button
             android:id="@+id/btnDeleteProfile"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:text="Delete Profile"
-            android:layout_margin="10dp"/>
+            android:layout_margin="10dp"
+            android:background="@drawable/button_background"
+            android:textColor="@android:color/black" />
 
     </LinearLayout>
 
-<!--    <androidx.recyclerview.widget.RecyclerView-->
+
+    <!--    <androidx.recyclerview.widget.RecyclerView-->
 <!--        android:id="@+id/recyclerView"-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="0dp"-->

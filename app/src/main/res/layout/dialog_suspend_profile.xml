@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/txtreasontitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:textStyle="bold"
+        android:textColor="@color/purple_color"
+        android:gravity="left"
+        android:text="Please provide a reason for suspending user profile:"/>
+
+    <EditText
+        android:id="@+id/reasonInput"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:padding="12dp"
+        android:maxLength="100"
+        android:background="@drawable/edit_text_border"
+        />
+</LinearLayout>

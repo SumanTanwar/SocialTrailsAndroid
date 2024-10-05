@@ -18,4 +18,5 @@
 
     <color name="background_color">#F5F5F5</color>
     <color name="primary_text">#333333</color>
+    <color name="grey_background">#B0B0B0</color>
 </resources>

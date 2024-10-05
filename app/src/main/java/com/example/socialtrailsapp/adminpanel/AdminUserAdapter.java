@@ -18,9 +18,15 @@ import java.util.List;
 public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.AdminUserViewHolder> {
 
     private List<Users> userList;
+    private OnTextClickListener onTextClickListener;
 
-    public AdminUserAdapter(List<Users> userList) {
+    public interface OnTextClickListener {
+        void redirectToProfilePage(int position);
+    }
+
+    public AdminUserAdapter(List<Users> userList,OnTextClickListener onTextClickListener) {
         this.userList = userList;
+        this.onTextClickListener = onTextClickListener;
     }
 
     @NonNull
@@ -49,6 +55,15 @@ public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.Admi
         } else {
             holder.imgProfilePicture.setImageResource(R.drawable.user);  // Default image if null
         }
+        holder.txtUserName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int adapterPosition = holder.getAdapterPosition();
+                if (adapterPosition != RecyclerView.NO_POSITION && onTextClickListener != null) {
+                    onTextClickListener.redirectToProfilePage(adapterPosition);
+                }
+            }
+        });
     }
 
     @Override
