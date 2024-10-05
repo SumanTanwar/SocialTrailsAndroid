@@ -18,7 +18,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserService implements IUserInterface {
 
@@ -122,8 +124,67 @@ public class UserService implements IUserInterface {
             }
         });
     }
+    @Override
+    public void suspendProfile(String userId,String suspendedBy,String reason, OperationCallback callback)
+    {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("suspended", true);
+        updates.put("suspendedby", suspendedBy);
+        updates.put("suspendedreason", reason);
+        updates.put("isActive", false);
 
+        reference.child(_collectionName).child(userId).updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
+                    }
+                });
+    }
+    @Override
+    public void activateProfile(String userId,OperationCallback callback)
+    {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("suspended", false);
+        updates.put("suspendedby", null);
+        updates.put("suspendedreason", null);
+        updates.put("isactive", true);
 
+        reference.child(_collectionName).child(userId).updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
+                    }
+                });
+    }
+    @Override
+    public void adminGetUserByID(String uid, DataOperationCallback<Users> callback) {
+        reference.child(_collectionName).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Users user = snapshot.getValue(Users.class);
+                if (user != null) {
+                    callback.onSuccess(user);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError e) {
+                if (callback != null) {
+                    callback.onFailure(e.getMessage());
+                }
+            }
+        });
+    }
 
 }
 

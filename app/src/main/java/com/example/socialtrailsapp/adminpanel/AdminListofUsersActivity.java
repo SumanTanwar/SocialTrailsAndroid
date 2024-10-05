@@ -18,7 +18,7 @@ import com.example.socialtrailsapp.Utility.UserService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdminListofUsersActivity extends AdminBottomMenuActivity {
+public class AdminListofUsersActivity extends AdminBottomMenuActivity implements AdminUserAdapter.OnTextClickListener {
 
     private RecyclerView recyclerViewUsers;
     private AdminUserAdapter adminUserAdapter;
@@ -39,7 +39,7 @@ public class AdminListofUsersActivity extends AdminBottomMenuActivity {
 
         // Initialize the list and adapter
         usersList = new ArrayList<>();
-        adminUserAdapter = new AdminUserAdapter(usersList); // Updated constructor call
+        adminUserAdapter = new AdminUserAdapter(usersList,this); // Updated constructor call
         recyclerViewUsers.setAdapter(adminUserAdapter);
 
         // Initialize UserService
@@ -75,5 +75,14 @@ public class AdminListofUsersActivity extends AdminBottomMenuActivity {
                 // Handle error
             }
         });
+    }
+
+    @Override
+    public void redirectToProfilePage(int position) {
+        Users user = usersList.get(position);
+
+        Intent intent = new Intent(AdminListofUsersActivity.this, AdminUserViewActivity.class);
+        intent.putExtra("intentuserId", user.getUserId());
+        startActivity(intent);
     }
 }
