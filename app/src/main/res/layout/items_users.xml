@@ -42,14 +42,23 @@
                     android:layout_marginEnd="8dp"/>
 
                 <TextView
-                    android:id="@+id/txtEmail"
+                    android:id="@+id/txtStatus"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="User email"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"/>
+                    android:layout_height="20dp"
+                    android:text="deleted"
+                    android:textSize="12sp"
+                    android:padding="2dp"
+                    android:gravity="center"
+                   />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/txtEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User email"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"/>
             <TextView
                 android:id="@+id/txtRegisteredDate"
                 android:layout_width="wrap_content"

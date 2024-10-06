@@ -14,4 +14,6 @@ public interface IUserInterface {
     void suspendProfile(String userId,String suspendedBy,String reason, OperationCallback callback);
     void adminGetUserByID(String uid, DataOperationCallback<Users> callback);
     void activateProfile(String userId,OperationCallback callback);
+    void adminDeleteProfile(String userId,OperationCallback callback);
+    void adminUnDeleteProfile(String userId,OperationCallback callback);
 }
