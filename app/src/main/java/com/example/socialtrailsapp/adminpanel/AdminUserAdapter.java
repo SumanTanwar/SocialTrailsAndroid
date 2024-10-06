@@ -1,5 +1,6 @@
 package com.example.socialtrailsapp.adminpanel;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,23 @@ public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.Admi
         holder.txtEmail.setText(user.getEmail());
         holder.txtRegisteredDate.setText("Registered on: " + user.getCreatedon());
 
+        if(user.getProfiledeleted() || user.getAdmindeleted())
+        {
+            holder.txtStatus.setTextColor(Color.WHITE);
+            holder.txtStatus.setBackgroundColor(Color.RED);
+            holder.txtStatus.setText("Deleted");
+
+        }
+        else if(user.getSuspended())
+        {
+            holder.txtStatus.setTextColor(Color.WHITE);
+            holder.txtStatus.setBackgroundColor(Color.parseColor("#FF9800"));
+            holder.txtStatus.setText("Suspended");
+        }
+        else
+        {
+            holder.txtStatus.setVisibility(View.GONE);
+        }
         // Load profile picture (if available)
         if (user.getProfilepicture() != null && !user.getProfilepicture().isEmpty()) {
             Glide.with(holder.itemView.getContext())
@@ -73,13 +91,14 @@ public class AdminUserAdapter extends RecyclerView.Adapter<AdminUserAdapter.Admi
 
     public static class AdminUserViewHolder extends RecyclerView.ViewHolder {
         ImageView imgProfilePicture;
-        TextView txtUserName, txtEmail, txtRegisteredDate;
+        TextView txtUserName, txtEmail, txtRegisteredDate,txtStatus;
 
         public AdminUserViewHolder(@NonNull View itemView) {
             super(itemView);
             imgProfilePicture = itemView.findViewById(R.id.imgProfilePicture);
             txtUserName = itemView.findViewById(R.id.txtUserName);
             txtEmail = itemView.findViewById(R.id.txtEmail);
+            txtStatus = itemView.findViewById(R.id.txtStatus);
             txtRegisteredDate = itemView.findViewById(R.id.txtRegisteredDate);
             // Removed btnSuspend and btnDelete as they are no longer needed
         }

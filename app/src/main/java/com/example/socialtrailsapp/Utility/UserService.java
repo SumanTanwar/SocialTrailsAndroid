@@ -131,6 +131,7 @@ public class UserService implements IUserInterface {
         updates.put("suspended", true);
         updates.put("suspendedby", suspendedBy);
         updates.put("suspendedreason", reason);
+        updates.put("suspendedon", Utils.getCurrentDatetime());
         updates.put("isActive", false);
 
         reference.child(_collectionName).child(userId).updateChildren(updates)
@@ -152,6 +153,7 @@ public class UserService implements IUserInterface {
         updates.put("suspended", false);
         updates.put("suspendedby", null);
         updates.put("suspendedreason", null);
+        updates.put("suspendedon",null);
         updates.put("isactive", true);
 
         reference.child(_collectionName).child(userId).updateChildren(updates)
@@ -185,6 +187,45 @@ public class UserService implements IUserInterface {
             }
         });
     }
+    @Override
+    public void adminDeleteProfile(String userId,OperationCallback callback)
+    {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("admindeleted", true);
+        updates.put("admindeletedon", Utils.getCurrentDatetime());
+        updates.put("isactive", false);
 
+        reference.child(_collectionName).child(userId).updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
+                    }
+                });
+    }
+    @Override
+    public void adminUnDeleteProfile(String userId,OperationCallback callback)
+    {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("admindeleted", false);
+        updates.put("admindeletedon", null);
+        updates.put("isactive", true);
+
+        reference.child(_collectionName).child(userId).updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
+                    }
+                });
+    }
 }
 

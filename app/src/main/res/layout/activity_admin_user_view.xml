@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="8dp">
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -138,34 +139,51 @@
         android:layout_gravity="left"
         android:layout_marginLeft="10dp"
         android:visibility="gone"
+        android:padding="4dp"
         android:textSize="12dp"/>
+    <TextView
+        android:id="@+id/admindeletetxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="3dp"
+        android:layout_marginLeft="10dp"
+        android:visibility="gone"
+        android:padding="4dp"
+        android:textSize="12dp"/>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
+        <TextView
             android:id="@+id/btnSuspendProfile"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
             android:text="Suspend Profile"
             android:layout_margin="10dp"
-            android:background="@drawable/button_background"
-            android:textColor="@android:color/black" />
+            android:gravity="center"
+        android:background="@drawable/button_background"
+        android:padding="10dp"
+        android:textColor="@android:color/black" />
 
-        <Button
+        <TextView
             android:id="@+id/btnDeleteProfile"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
             android:text="Delete Profile"
             android:layout_margin="10dp"
+            android:gravity="center"
             android:background="@drawable/button_background"
+            android:padding="10dp"
             android:textColor="@android:color/black" />
 
     </LinearLayout>
+
 
 
     <!--    <androidx.recyclerview.widget.RecyclerView-->

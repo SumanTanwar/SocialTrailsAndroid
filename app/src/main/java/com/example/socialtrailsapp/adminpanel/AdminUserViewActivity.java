@@ -2,7 +2,10 @@ package com.example.socialtrailsapp.adminpanel;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,15 +29,16 @@ import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.SignInActivity;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserService;
+import com.example.socialtrailsapp.Utility.Utils;
 import com.example.socialtrailsapp.userSettingActivity;
 
 import org.w3c.dom.Text;
 
 public class AdminUserViewActivity extends AdminBottomMenuActivity {
-    Button btnSuspendProfile;
+
     String userId;
     UserService userService;
-    TextView txtprofileusername,txtdetailmail,txtadminbio,profilereason;
+    TextView txtprofileusername,txtdetailmail,txtadminbio,profilereason,admindeletetxt,btnSuspendProfile,btnDeleteProfile;
     private SessionManager sessionManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +48,19 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
         userId =  getIntent().getStringExtra("intentuserId");
         userService = new UserService();
         btnSuspendProfile = findViewById(R.id.btnSuspendProfile);
+        btnDeleteProfile = findViewById(R.id.btnDeleteProfile);
         txtprofileusername = findViewById(R.id.txtprofileusername);
         txtdetailmail = findViewById(R.id.txtdetailmail);
         profilereason = findViewById(R.id.profilereason);
+        admindeletetxt = findViewById(R.id.admindeletetxt);
         txtadminbio = findViewById(R.id.txtadminbio);
         sessionManager = SessionManager.getInstance(this);
 
-        userService.getUserByID(userId, new DataOperationCallback<Users>() {
+
+    //    btnSuspendProfile.setBackgroundResource(R.drawable.button_background);
+       // btnSuspendProfile.setBackgroundColor(Color.LTGRAY);
+       // btnDeleteProfile.setBackgroundColor(Color.LTGRAY);
+        userService.adminGetUserByID(userId, new DataOperationCallback<Users>() {
             @Override
             public void onSuccess(Users data) {
                 setDetail(data);
@@ -103,9 +113,11 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
             @Override
             public void onSuccess() {
                 Toast.makeText(AdminUserViewActivity.this, "suspend profile successfully done.", Toast.LENGTH_SHORT).show();
-                profilereason.setText("suspended profile : " + reason);
+                profilereason.setTextColor(Color.WHITE);
+                profilereason.setBackgroundColor(Color.parseColor("#FF9800"));
+                profilereason.setText("Suspended profile : " + reason);
                 profilereason.setVisibility(View.VISIBLE);
-                btnSuspendProfile.setText("Activate Profile");
+                btnSuspendProfile.setText("UnSuspend Profile");
                 btnSuspendProfile.setOnClickListener(v -> activateProfile(userId));
             }
 
@@ -124,7 +136,7 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
                 Toast.makeText(AdminUserViewActivity.this, "activate profile successfully done.", Toast.LENGTH_SHORT).show();
                 profilereason.setVisibility(View.GONE);
                 profilereason.setText("");
-                btnSuspendProfile.setText("Suspend Profile");
+                btnSuspendProfile.setText("Suspended Profile");
                 btnSuspendProfile.setOnClickListener(v -> showSuspendDialog());
             }
 
@@ -135,6 +147,44 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
         });
 
     }
+private void adminDeleteProfile(String userId)
+{
+    userService.adminDeleteProfile(userId, new OperationCallback() {
+        @Override
+        public void onSuccess() {
+            Toast.makeText(AdminUserViewActivity.this, "profile deleted successfully done.", Toast.LENGTH_SHORT).show();
+            admindeletetxt.setTextColor(Color.WHITE);
+            admindeletetxt.setBackgroundColor(Color.RED);
+            admindeletetxt.setText("Deleted profile by admin on : " + Utils.getCurrentDatetime());
+            admindeletetxt.setVisibility(View.VISIBLE);
+            btnDeleteProfile.setText("Activate Profile");
+            btnDeleteProfile.setOnClickListener(v -> adminUnDeleteProfile(userId));
+        }
+
+        @Override
+        public void onFailure(String errMessage) {
+            Toast.makeText(AdminUserViewActivity.this, "delete profile failed! Please try again later.", Toast.LENGTH_SHORT).show();
+        }
+    });
+}
+private void adminUnDeleteProfile(String userId)
+{
+    userService.adminUnDeleteProfile(userId, new OperationCallback() {
+        @Override
+        public void onSuccess() {
+            Toast.makeText(AdminUserViewActivity.this, "profile activate successfully done.", Toast.LENGTH_SHORT).show();
+            admindeletetxt.setText("");
+            admindeletetxt.setVisibility(View.GONE);
+            btnDeleteProfile.setText("Delete Profile");
+            btnDeleteProfile.setOnClickListener(v -> adminDeleteProfile(userId));
+        }
+        @Override
+        public void onFailure(String errMessage) {
+            Toast.makeText(AdminUserViewActivity.this, "activate profile failed! Please try again later.", Toast.LENGTH_SHORT).show();
+        }
+    });
+}
+
 
     private void setDetail(Users user)
     {
@@ -142,14 +192,38 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
         txtdetailmail.setText(user.getEmail());
         txtadminbio.setText(user.getBio());
         profilereason.setVisibility(View.GONE);
+        admindeletetxt.setVisibility(View.GONE);
         if (user.getSuspended()) {
-            profilereason.setText("suspended profile : " + user.getSuspendedreason());
+
+            profilereason.setTextColor(Color.WHITE);
+            profilereason.setBackgroundColor(Color.parseColor("#FF9800"));
+            profilereason.setText("Suspended profile : " + user.getSuspendedreason());
             profilereason.setVisibility(View.VISIBLE);
-            btnSuspendProfile.setText("Activate Profile");
+            btnSuspendProfile.setText("UnSuspend Profile");
             btnSuspendProfile.setOnClickListener(v -> activateProfile(userId));
         } else {
             btnSuspendProfile.setText("Suspend Profile");
             btnSuspendProfile.setOnClickListener(v -> showSuspendDialog());
+        }
+        if(user.getProfiledeleted())
+        {
+            admindeletetxt.setTextColor(Color.WHITE);
+            admindeletetxt.setBackgroundColor(Color.RED);
+            admindeletetxt.setText("user deleted own profile");
+            admindeletetxt.setVisibility(View.VISIBLE);
+            btnSuspendProfile.setVisibility(View.GONE);
+            btnDeleteProfile.setVisibility(View.GONE);
+        }
+        else if (user.getAdmindeleted()) {
+            admindeletetxt.setTextColor(Color.WHITE);
+            admindeletetxt.setBackgroundColor(Color.RED);
+            admindeletetxt.setText("Deleted profile by admin on : " + user.getAdmindeletedon());
+            admindeletetxt.setVisibility(View.VISIBLE);
+            btnDeleteProfile.setText("Activate Profile");
+            btnDeleteProfile.setOnClickListener(v -> adminUnDeleteProfile(userId));
+        } else {
+            btnDeleteProfile.setText("Delete Profile");
+            btnDeleteProfile.setOnClickListener(v -> adminDeleteProfile(userId));
         }
     }
 }

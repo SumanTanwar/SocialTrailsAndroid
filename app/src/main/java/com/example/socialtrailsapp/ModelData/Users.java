@@ -3,7 +3,7 @@ package com.example.socialtrailsapp.ModelData;
 import com.example.socialtrailsapp.Utility.Utils;
 
 public class Users {
-    private String userId,username,email,createdon,profilepicture,roles,bio,suspendedreason,suspendedby;
+    private String userId,username,email,createdon,profilepicture,roles,bio,suspendedreason,suspendedby,admindeletedon;
     private Boolean profiledeleted,notification,admindeleted,suspended,isactive;
 
     public Users()
@@ -141,5 +141,13 @@ public class Users {
 
     public void setSuspendedby(String suspendedby) {
         this.suspendedby = suspendedby;
+    }
+
+    public String getAdmindeletedon() {
+        return admindeletedon;
+    }
+
+    public void setAdmindeletedon(String admindeletedon) {
+        this.admindeletedon = admindeletedon;
     }
 }
