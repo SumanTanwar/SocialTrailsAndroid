@@ -2,15 +2,19 @@ package com.example.socialtrailsapp;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserService;
@@ -20,8 +24,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class userSettingActivity extends BottomMenuActivity {
 
-    TextView txtLogout, txtprofileuser, txtchangepwd,txtEditProfile, txtdelprofile;
+    TextView txtLogout, txtprofileuser, txtchangepwd, txtdelprofile;
     private SessionManager sessionManager;
+    ImageView profile;
     UserService userService;
     FirebaseAuth mAuth;
     Switch switchNotify;
@@ -36,7 +41,8 @@ public class userSettingActivity extends BottomMenuActivity {
         txtLogout = findViewById(R.id.txtLogout);
       txtprofileuser = findViewById(R.id.txtprofileusername);
         txtchangepwd = findViewById(R.id.txtchangepwd);
-        txtEditProfile = findViewById(R.id.txtEditProfile);
+       // txtEditProfile = findViewById(R.id.txtEditProfile);
+        profile = findViewById(R.id.profileImageView);
         txtdelprofile = findViewById(R.id.txtdelprofile);
         switchNotify = findViewById(R.id.switchNotify);
         mAuth = FirebaseAuth.getInstance();
@@ -46,6 +52,16 @@ public class userSettingActivity extends BottomMenuActivity {
         if (sessionManager.userLoggedIn()) {
             txtprofileuser.setText(sessionManager.getUsername());
             switchNotify.setChecked(sessionManager.getNotificationStatus());
+            String profileImageUriString = sessionManager.getProfileImage();
+            if (profileImageUriString != null) {
+                Uri profileImageUri = Uri.parse(profileImageUriString); // Convert String to Uri
+                Glide.with(this)
+                        .load(profileImageUri)
+                        .transform(new CircleCrop())
+                        .into(profile);
+            } else {
+                profile.setImageResource(R.drawable.user); // Set a placeholder image
+            }
         }
 
         txtchangepwd.setOnClickListener(view -> {
@@ -53,16 +69,16 @@ public class userSettingActivity extends BottomMenuActivity {
             startActivity(intent);
         });
 
-        txtEditProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(userSettingActivity.this, EditProfileActivity.class);
-                intent.putExtra("name", sessionManager.getUsername());
-                intent.putExtra("email",mAuth.getCurrentUser().getEmail());
-                intent.putExtra("bio", sessionManager.getBio());
-                startActivityForResult(intent, EDIT_PROFILE_REQUEST);
-            }
-        });
+//        txtEditProfile.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(userSettingActivity.this, EditProfileActivity.class);
+//                intent.putExtra("name", sessionManager.getUsername());
+//                intent.putExtra("email",mAuth.getCurrentUser().getEmail());
+//                intent.putExtra("bio", sessionManager.getBio());
+//                startActivityForResult(intent, EDIT_PROFILE_REQUEST);
+//            }
+//        });
 
 
         txtLogout.setOnClickListener(view -> {

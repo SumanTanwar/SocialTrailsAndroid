@@ -35,6 +35,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SignInActivity extends AppCompatActivity {
+    private static final int REQUEST_CODE = 1;
+
+
     EditText txtloginusername,txtloginpwd;
     Button btnsignin;
     TextView btnregister,resetPassword;
@@ -157,7 +160,7 @@ public class SignInActivity extends AppCompatActivity {
                     FirebaseUser user = mAuth.getCurrentUser();
                     if (user != null) {
                         sessionManager.logoutUser();
-                        sessionManager.loginUser(user.getUid(), "Admin", user.getEmail(), true, UserRole.ADMIN.getRole(),"bio");
+                        sessionManager.loginUser(user.getUid(), "Admin", user.getEmail(), true, UserRole.ADMIN.getRole(),"bio","");
                         Intent intent = new Intent(SignInActivity.this, DashBoardActivity.class);
                         startActivity(intent);
                         finish();
@@ -213,7 +216,7 @@ public class SignInActivity extends AppCompatActivity {
                                     }
                                     else {
                                         sessionManager.logoutUser();
-                                        sessionManager.loginUser(data.getUserId(), data.getUsername(), data.getEmail(), data.getNotification(), data.getRoles(),data.getBio());
+                                        sessionManager.loginUser(data.getUserId(), data.getUsername(), data.getEmail(), data.getNotification(), data.getRoles(),data.getBio(),data.getProfilepicture());
                                         Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                                         startActivity(intent);
                                         finish();

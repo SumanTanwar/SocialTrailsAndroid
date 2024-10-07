@@ -1,5 +1,6 @@
 package com.example.socialtrailsapp.Utility;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -16,20 +17,25 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class UserService implements IUserInterface {
 
     private DatabaseReference reference;
     private static String _collectionName = "users";
+    private StorageReference storageReference;
 
     public UserService() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         reference = database.getReference();
+        storageReference = FirebaseStorage.getInstance().getReference();
     }
 
     @Override
@@ -124,9 +130,9 @@ public class UserService implements IUserInterface {
             }
         });
     }
+
     @Override
-    public void suspendProfile(String userId,String suspendedBy,String reason, OperationCallback callback)
-    {
+    public void suspendProfile(String userId, String suspendedBy, String reason, OperationCallback callback) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("suspended", true);
         updates.put("suspendedby", suspendedBy);
@@ -146,14 +152,14 @@ public class UserService implements IUserInterface {
                     }
                 });
     }
+
     @Override
-    public void activateProfile(String userId,OperationCallback callback)
-    {
+    public void activateProfile(String userId, OperationCallback callback) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("suspended", false);
         updates.put("suspendedby", null);
         updates.put("suspendedreason", null);
-        updates.put("suspendedon",null);
+        updates.put("suspendedon", null);
         updates.put("isactive", true);
 
         reference.child(_collectionName).child(userId).updateChildren(updates)
@@ -168,6 +174,7 @@ public class UserService implements IUserInterface {
                     }
                 });
     }
+
     @Override
     public void adminGetUserByID(String uid, DataOperationCallback<Users> callback) {
         reference.child(_collectionName).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -187,9 +194,9 @@ public class UserService implements IUserInterface {
             }
         });
     }
+
     @Override
-    public void adminDeleteProfile(String userId,OperationCallback callback)
-    {
+    public void adminDeleteProfile(String userId, OperationCallback callback) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("admindeleted", true);
         updates.put("admindeletedon", Utils.getCurrentDatetime());
@@ -207,9 +214,9 @@ public class UserService implements IUserInterface {
                     }
                 });
     }
+
     @Override
-    public void adminUnDeleteProfile(String userId,OperationCallback callback)
-    {
+    public void adminUnDeleteProfile(String userId, OperationCallback callback) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("admindeleted", false);
         updates.put("admindeletedon", null);
@@ -227,6 +234,7 @@ public class UserService implements IUserInterface {
                     }
                 });
     }
+
     public void getModeratorList(DataOperationCallback<List<Users>> callback) {
         reference.child(_collectionName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -251,5 +259,60 @@ public class UserService implements IUserInterface {
         });
     }
 
+
+    public void addProfilePhoto(String userId, String imageUrl, OperationCallback callback) {
+        // You may want to store image metadata, adjust as necessary
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("profilepicture", imageUrl);
+
+        reference.child(_collectionName).child(userId).updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                }).addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
+                    }
+                });
+             }
+
+    public void uploadProfileImage(String userId, Uri imageUri, OperationCallback callback) {
+        StorageReference fileReference = storageReference.child("userprofile/" + userId + "/" + UUID.randomUUID().toString());
+
+        fileReference.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
+            // Get the download URL of the uploaded image
+            fileReference.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+                // Now add the photo to the user's profile
+                addProfilePhoto(userId, downloadUrl.toString(), new OperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        // Notify success
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(String error) {
+                        // Handle failure in adding the profile photo
+                        if (callback != null) {
+                            callback.onFailure(error);
+                        }
+                    }
+                });
+            }).addOnFailureListener(e -> {
+                if (callback != null) {
+                    callback.onFailure(e.getMessage());
+                }
+            });
+        }).addOnFailureListener(e -> {
+            if (callback != null) {
+                callback.onFailure(e.getMessage());
+            }
+        });
+    }
 }
+
+
 
