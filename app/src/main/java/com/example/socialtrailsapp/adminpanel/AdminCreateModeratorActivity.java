@@ -3,6 +3,7 @@ package com.example.socialtrailsapp.adminpanel;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -46,12 +47,13 @@ public class AdminCreateModeratorActivity extends AdminBottomMenuActivity {
 
             if (validateInputs(name, email)) {
                 String generatedPassword = generateRandomPassword(8); // Generate a random password
+                Log.d("AdminCreateModerator", "Generated Password: " + generatedPassword); // Log the generated password
                 createModerator(name, email, generatedPassword); // Call method to create moderator
             }
         });
     }
 
-    // Validate user inputs
+
     private boolean validateInputs(String name, String email) {
         if (name.isEmpty()) {
             nameEditText.setError("Name is required");
@@ -91,13 +93,13 @@ public class AdminCreateModeratorActivity extends AdminBottomMenuActivity {
                                     sendGeneratedPasswordEmail(email, password); // Send the generated password via email
                                     clearInputs();
 
-                                    // Sign out the current user
+
                                     mAuth.signOut();
 
-                                    // Redirect to SignInActivity after creation
-//                                    Intent intent = new Intent(AdminCreateModeratorActivity.this, SignInActivity.class);
-//                                    startActivity(intent);
-//                                    finish();
+
+                                    Intent intent = new Intent(AdminCreateModeratorActivity.this, ModeratorlistActivity.class);
+                                    startActivity(intent);
+                                    finish();
                                 }
 
                                 @Override
@@ -121,6 +123,8 @@ public class AdminCreateModeratorActivity extends AdminBottomMenuActivity {
 
 
     private void sendGeneratedPasswordEmail(String email, String password) {
+        Log.d("EmailDebug", "Sending email to: " + email + " with password: " + password);
+
         String subject = "Your Moderator Account Creation";
         String message = "Hello,\n\nYour account has been created successfully.\n\n"
                 + "Here are your login details:\n"
@@ -130,6 +134,7 @@ public class AdminCreateModeratorActivity extends AdminBottomMenuActivity {
                 + "Thank you!";
 
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:" + email));
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
         emailIntent.putExtra(Intent.EXTRA_TEXT, message);
 

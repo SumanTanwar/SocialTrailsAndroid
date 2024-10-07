@@ -16,6 +16,7 @@ import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.adminpanel.AdminCreateModeratorActivity;
 import com.example.socialtrailsapp.adminpanel.AdminListofUsersActivity;
 import com.example.socialtrailsapp.adminpanel.DashBoardActivity;
+import com.example.socialtrailsapp.adminpanel.ModeratorlistActivity;
 
 public class SplashScreenActivity extends AppCompatActivity {
     private static final int splashtimeout = 3000;
@@ -37,7 +38,7 @@ public class SplashScreenActivity extends AppCompatActivity {
           
             if(sessionManager.getroleType().equals(UserRole.ADMIN.getRole()))
             {
-                Intent intent = new Intent(SplashScreenActivity.this, AdminListofUsersActivity.class);
+                Intent intent = new Intent(SplashScreenActivity.this, SignInActivity.class);
                 startActivity(intent);
                 finish();
             }
