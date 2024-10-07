@@ -227,5 +227,29 @@ public class UserService implements IUserInterface {
                     }
                 });
     }
+    public void getModeratorList(DataOperationCallback<List<Users>> callback) {
+        reference.child(_collectionName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<Users> moderatorsList = new ArrayList<>();
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    Users user = userSnapshot.getValue(Users.class);
+                    if (user != null && user.getRoles().equals(UserRole.MODERATOR.getRole())) {
+                        // Assuming UserRole.MODERATOR is defined in your roles
+                        moderatorsList.add(user);
+                    }
+                }
+                callback.onSuccess(moderatorsList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (callback != null) {
+                    callback.onFailure(error.getMessage());
+                }
+            }
+        });
+    }
+
 }
 

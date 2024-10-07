@@ -16,4 +16,6 @@ public interface IUserInterface {
     void activateProfile(String userId,OperationCallback callback);
     void adminDeleteProfile(String userId,OperationCallback callback);
     void adminUnDeleteProfile(String userId,OperationCallback callback);
-}
+    void getModeratorList(DataOperationCallback<List<Users>> callback) ;
+
+    }
