@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ImageView;
+import com.bumptech.glide.Glide;
+
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserService;
@@ -14,6 +18,7 @@ public class ViewProfileActivity extends BottomMenuActivity {
 
     Button btnEdit;
     TextView txtprofileuser,bio;
+    ImageView profileImageView;
     SessionManager sessionManager;
     UserService userService;
     FirebaseAuth mAuth;
@@ -28,6 +33,7 @@ public class ViewProfileActivity extends BottomMenuActivity {
         btnEdit = findViewById(R.id.btnEditProfile);
         txtprofileuser = findViewById(R.id.txtprofileusername);
         bio = findViewById(R.id.bio);
+        profileImageView = findViewById(R.id.profileImageView);
         mAuth = FirebaseAuth.getInstance();
         sessionManager = SessionManager.getInstance(this);
         userService = new UserService();
@@ -36,6 +42,7 @@ public class ViewProfileActivity extends BottomMenuActivity {
         {
             txtprofileuser.setText(sessionManager.getUsername());
             bio.setText(sessionManager.getBio());
+            loadProfileImage();
         }
 
         btnEdit.setOnClickListener(new View.OnClickListener() {
@@ -45,6 +52,7 @@ public class ViewProfileActivity extends BottomMenuActivity {
                 intent.putExtra("name", sessionManager.getUsername());
                 intent.putExtra("email",mAuth.getCurrentUser().getEmail());
                 intent.putExtra("bio", sessionManager.getBio());
+                intent.putExtra("image",sessionManager.getProfileImage());
                 startActivityForResult(intent, EDIT_PROFILE_REQUEST);
             }
         });
@@ -65,15 +73,31 @@ public class ViewProfileActivity extends BottomMenuActivity {
                     bio.setText(newBio);
                     sessionManager.updateUserInfo(newName, newBio);
                 }
+                String profileImage = data.getStringExtra("profileImage"); // Get the image URL
+                if (profileImage != null) {
+                    loadProfileImage(profileImage); // Load the new image
+                }
             }
         }
     }
 
+    private void loadProfileImage() {
+        String imageUrl = sessionManager.getProfileImage(); // Assume you save the image URL in session manager
+        if (imageUrl != null) {
+            Glide.with(this)
+                    .load(imageUrl)
+                    .transform(new CircleCrop())
+                    .into(profileImageView);
+        }
+    }
 
 
-    public void showDataUser() {
-        Intent intent = getIntent();
-        txtprofileuser.setText(intent.getStringExtra("name"));
+    private void loadProfileImage(String imageUrl) {
+        Glide.with(this)
+                .load(imageUrl)
+                .transform(new CircleCrop())
+                .into(profileImageView); // Load the new circular image
 
+        sessionManager.saveProfileImage(imageUrl); // Save the new image URL in session manager
     }
 }

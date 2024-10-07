@@ -18,6 +18,7 @@ public class Users {
         this.email = email;
         this.bio = bio;
 
+
     }
     public Users(String userId, String username, String email, String roles) {
         this.userId = userId;
@@ -25,6 +26,19 @@ public class Users {
         this.email = email;
         this.createdon = Utils.getCurrentDatetime();
         this.roles = roles;
+        this.profiledeleted = false;
+        this.notification = true;
+        this.admindeleted = false;
+        this.suspended = false;
+        this.isactive = true;
+    }
+    public Users(String userId, String username, String email, String roles, String profilePicture) {
+        this.userId = userId;
+        this.username = username;
+        this.email = email;
+        this.createdon = Utils.getCurrentDatetime();
+        this.roles = roles;
+        this.profilepicture = profilePicture;
         this.profiledeleted = false;
         this.notification = true;
         this.admindeleted = false;

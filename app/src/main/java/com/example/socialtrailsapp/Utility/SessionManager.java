@@ -21,7 +21,7 @@ public class SessionManager {
         return instance;
     }
 
-    public void loginUser(String userID,String username, String email, Boolean notification,String roles, String bio) {
+    public void loginUser(String userID,String username, String email, Boolean notification,String roles, String bio,String profileimage) {
         sessioneditor.putString("userID", userID);
         sessioneditor.putString("userName", username);
         sessioneditor.putString("email", email);
@@ -29,6 +29,7 @@ public class SessionManager {
         sessioneditor.putBoolean("UserLoggedIn", true);
         sessioneditor.putString("roleType", roles);
         sessioneditor.putString("bio", bio);
+        sessioneditor.putString("profileimage", profileimage);
         sessioneditor.apply();
     }
 
@@ -46,7 +47,7 @@ public class SessionManager {
     }
 
     public String getEmail() {
-        return sessionsharedPreferences.getString("email", "");
+        return sessionsharedPreferences.getString("email", " ");
     }
 
     public  String getBio()
@@ -71,6 +72,17 @@ public class SessionManager {
     public void logoutUser() {
         sessioneditor.clear();
         sessioneditor.apply();
+    }
+
+
+    public void saveProfileImage(String imageUrl) {
+//        SharedPreferences.Editor editor = sessionsharedPreferences.edit();
+        sessioneditor.putString("profileImage", imageUrl);
+        sessioneditor.apply();
+    }
+
+    public String getProfileImage() {
+        return sessionsharedPreferences.getString("profileImage", null);
     }
 
 }
