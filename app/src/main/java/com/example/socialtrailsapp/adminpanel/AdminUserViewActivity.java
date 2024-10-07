@@ -7,11 +7,13 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.app.AlertDialog;
+import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,25 +23,33 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.MainActivity;
+import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.SignInActivity;
 import com.example.socialtrailsapp.Utility.SessionManager;
+import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
 import com.example.socialtrailsapp.Utility.Utils;
 import com.example.socialtrailsapp.userSettingActivity;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AdminUserViewActivity extends AdminBottomMenuActivity {
 
     String userId;
     UserService userService;
-    TextView txtprofileusername,txtdetailmail,txtadminbio,profilereason,admindeletetxt,btnSuspendProfile,btnDeleteProfile;
+    UserPostService userPostService;
+    TextView txtprofileusername,txtdetailmail,txtadminbio,profilereason,admindeletetxt,btnSuspendProfile,btnDeleteProfile,postscount;
     private SessionManager sessionManager;
+    List<UserPost> list ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +57,7 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
       //  setContentView(R.layout.activity_admin_user_view);
         userId =  getIntent().getStringExtra("intentuserId");
         userService = new UserService();
+        userPostService = new UserPostService();
         btnSuspendProfile = findViewById(R.id.btnSuspendProfile);
         btnDeleteProfile = findViewById(R.id.btnDeleteProfile);
         txtprofileusername = findViewById(R.id.txtprofileusername);
@@ -54,6 +65,7 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
         profilereason = findViewById(R.id.profilereason);
         admindeletetxt = findViewById(R.id.admindeletetxt);
         txtadminbio = findViewById(R.id.txtadminbio);
+        postscount = findViewById(R.id.adminpostscount);
         sessionManager = SessionManager.getInstance(this);
 
 
@@ -73,6 +85,34 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
                 finish();
                 Toast.makeText(AdminUserViewActivity.this, "something wrong ! please try again later.", Toast.LENGTH_SHORT).show();
 
+            }
+        });
+    }
+    private void getAllUserPost(String userId)
+    {
+        userPostService.getAllUserPost(userId, new DataOperationCallback<List<UserPost>>() {
+            @Override
+            public void onSuccess(List<UserPost> data) {
+                list = new ArrayList<>(data);
+                Log.d("Post count","count: " + list.size());
+                int size = list.size();
+                postscount.setText("" + size);
+                List<String> imageUrls = new ArrayList<>();
+
+                for (UserPost post : list) {
+                    imageUrls.add(post.getUploadedImageUris().get(0).toString());
+                }
+
+                // Set up the GridView
+                GridView gridView = findViewById(R.id.gallery_grid);
+                GalleryImageAdapter adapter = new GalleryImageAdapter(AdminUserViewActivity.this, imageUrls);
+                gridView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFailure(String error) {
+
+                Toast.makeText(getApplicationContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -225,5 +265,6 @@ private void adminUnDeleteProfile(String userId)
             btnDeleteProfile.setText("Delete Profile");
             btnDeleteProfile.setOnClickListener(v -> adminDeleteProfile(userId));
         }
+        getAllUserPost(user.getUserId());
     }
 }
