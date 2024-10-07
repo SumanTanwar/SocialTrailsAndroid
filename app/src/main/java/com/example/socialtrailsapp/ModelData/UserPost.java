@@ -7,13 +7,15 @@ import com.example.socialtrailsapp.Utility.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserPost {
     private String postId,userId,captiontext,createdon,updatedon,location;
     private Boolean postdeleted,flagged,moderationstatus;
     private ArrayList<Uri> imageUris;
-    private Double latitude,longitude;
+    private Double  latitude,longitude;
+    public List<Uri> uploadedImageUris;
 
     public UserPost() {
     }
@@ -124,6 +126,15 @@ public class UserPost {
     public void setImageUris(ArrayList<Uri> imageUris) {
         this.imageUris = imageUris;
     }
+
+    public List<Uri> getUploadedImageUris() {
+        return uploadedImageUris;
+    }
+
+    public void setUploadedImageUris(List<Uri> uploadedImageUris) {
+        this.uploadedImageUris = uploadedImageUris;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
         result.put("postId", postId);
@@ -133,6 +144,7 @@ public class UserPost {
         result.put("latitude", latitude);
         result.put("longitude", longitude);
         result.put("createdon", createdon);
+        result.put("postdeleted", postdeleted);
         return result;
     }
 }

@@ -4,18 +4,23 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
+import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.IPostImagesInterface;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.PostImages;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,5 +88,47 @@ public class PostImagesService implements IPostImagesInterface {
 
             });
         }
+    }
+    @Override
+    public void getAllPhotosByPostId(String uid, DataOperationCallback<List<Uri>> callback) {
+        reference.child(_collectionName).orderByChild("postId")
+                .equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            List<PostImages> photosList = new ArrayList<>();
+                            for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                                PostImages photo = childSnapshot.getValue(PostImages.class);
+                                if (photo != null) {
+                                    photosList.add(photo);
+                                }
+                            }
+
+                            photosList.sort(Comparator.comparingInt(PostImages::getOrder));
+
+                            List<Uri> imageUrls = new ArrayList<>();
+                            for (PostImages photo : photosList) {
+                                Uri uri = Uri.parse(photo.getImagePath());
+                                imageUrls.add(uri);
+                            }
+
+                            if (callback != null) {
+                                callback.onSuccess(imageUrls);
+
+                            }
+                        } else {
+                            if (callback != null) {
+                                callback.onFailure("Photos not found");
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError e) {
+                        if (callback != null) {
+                            callback.onFailure(e.getMessage());
+                        }
+                    }
+                });
     }
 }
