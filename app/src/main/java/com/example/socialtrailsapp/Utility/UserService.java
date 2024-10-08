@@ -1,6 +1,7 @@
 package com.example.socialtrailsapp.Utility;
 
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -261,7 +262,7 @@ public class UserService implements IUserInterface {
 
 
     public void addProfilePhoto(String userId, String imageUrl, OperationCallback callback) {
-        // You may want to store image metadata, adjust as necessary
+
         Map<String, Object> updates = new HashMap<>();
         updates.put("profilepicture", imageUrl);
 
@@ -275,21 +276,21 @@ public class UserService implements IUserInterface {
                         callback.onFailure(e.getMessage());
                     }
                 });
-             }
+    }
 
-    public void uploadProfileImage(String userId, Uri imageUri, OperationCallback callback) {
+    public void uploadProfileImage(String userId, Uri imageUri, DataOperationCallback<String> callback) {
         StorageReference fileReference = storageReference.child("userprofile/" + userId + "/" + UUID.randomUUID().toString());
 
         fileReference.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
-            // Get the download URL of the uploaded image
+
             fileReference.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
-                // Now add the photo to the user's profile
+
                 addProfilePhoto(userId, downloadUrl.toString(), new OperationCallback() {
                     @Override
                     public void onSuccess() {
                         // Notify success
                         if (callback != null) {
-                            callback.onSuccess();
+                            callback.onSuccess(downloadUrl.toString());
                         }
                     }
 
@@ -311,6 +312,23 @@ public class UserService implements IUserInterface {
                 callback.onFailure(e.getMessage());
             }
         });
+    }
+    public void updateNameandBio(String userId, String bio,String name, OperationCallback callback) {
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("bio", bio);
+        updates.put("username", name);
+
+        reference.child(_collectionName).child(userId).updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.onSuccess();
+                    }
+                }).addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
+                    }
+                });
     }
 }
 

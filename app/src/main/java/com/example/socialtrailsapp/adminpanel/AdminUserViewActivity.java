@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.app.AlertDialog;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +25,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
@@ -50,6 +54,7 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
     TextView txtprofileusername,txtdetailmail,txtadminbio,profilereason,admindeletetxt,btnSuspendProfile,btnDeleteProfile,postscount;
     private SessionManager sessionManager;
     List<UserPost> list ;
+    ImageView profile_pic;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +71,7 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
         admindeletetxt = findViewById(R.id.admindeletetxt);
         txtadminbio = findViewById(R.id.txtadminbio);
         postscount = findViewById(R.id.adminpostscount);
+        profile_pic = findViewById(R.id.profile_pic);
         sessionManager = SessionManager.getInstance(this);
 
 
@@ -264,6 +270,18 @@ private void adminUnDeleteProfile(String userId)
         } else {
             btnDeleteProfile.setText("Delete Profile");
             btnDeleteProfile.setOnClickListener(v -> adminDeleteProfile(userId));
+        }
+        if (user.getProfilepicture() != null) {
+            Uri profileImageUri = Uri.parse(user.getProfilepicture()); // Convert String to Uri
+            Glide.with(this)
+                    .load(profileImageUri)
+                    .transform(new CircleCrop())
+                    .into(profile_pic);
+        } else {
+            Glide.with(this)
+                    .load(R.drawable.user) // Replace with your image URI or resource
+                    .transform(new CircleCrop())
+                    .into(profile_pic);
         }
         getAllUserPost(user.getUserId());
     }

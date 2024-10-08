@@ -53,14 +53,17 @@ public class userSettingActivity extends BottomMenuActivity {
             txtprofileuser.setText(sessionManager.getUsername());
             switchNotify.setChecked(sessionManager.getNotificationStatus());
             String profileImageUriString = sessionManager.getProfileImage();
-            if (profileImageUriString != null) {
-                Uri profileImageUri = Uri.parse(profileImageUriString); // Convert String to Uri
+            if (sessionManager.getProfileImage() != null) {
+                Uri profileImageUri = Uri.parse(sessionManager.getProfileImage()); // Convert String to Uri
                 Glide.with(this)
                         .load(profileImageUri)
                         .transform(new CircleCrop())
                         .into(profile);
             } else {
-                profile.setImageResource(R.drawable.user); // Set a placeholder image
+                Glide.with(this)
+                        .load(R.drawable.user) // Replace with your image URI or resource
+                        .transform(new CircleCrop())
+                        .into(profile);
             }
         }
 

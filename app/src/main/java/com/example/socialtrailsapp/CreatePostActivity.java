@@ -75,11 +75,18 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
             txtpostuserName.setText(sessionManager.getUsername());
         }
         checkPermissions();
-        Glide.with(this)
-                .load(R.drawable.user) // Replace with your image URI or resource
-                .transform(new CircleCrop())
-                .into(profileImage);
-
+        if (sessionManager.getProfileImage() != null) {
+            Uri profileImageUri = Uri.parse(sessionManager.getProfileImage()); // Convert String to Uri
+            Glide.with(this)
+                    .load(profileImageUri)
+                    .transform(new CircleCrop())
+                    .into(profileImage);
+        } else {
+            Glide.with(this)
+                    .load(R.drawable.user) // Replace with your image URI or resource
+                    .transform(new CircleCrop())
+                    .into(profileImage);
+        }
 
         imgCapture.setOnClickListener(v -> openGallery());
         icon_add_location.setOnClickListener(new View.OnClickListener() {

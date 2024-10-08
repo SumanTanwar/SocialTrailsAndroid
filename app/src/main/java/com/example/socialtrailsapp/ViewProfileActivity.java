@@ -1,6 +1,7 @@
 package com.example.socialtrailsapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -42,7 +43,18 @@ public class ViewProfileActivity extends BottomMenuActivity {
         {
             txtprofileuser.setText(sessionManager.getUsername());
             bio.setText(sessionManager.getBio());
-            loadProfileImage();
+            if (sessionManager.getProfileImage() != null) {
+                Uri profileImageUri = Uri.parse(sessionManager.getProfileImage()); // Convert String to Uri
+                Glide.with(this)
+                        .load(profileImageUri)
+                        .transform(new CircleCrop())
+                        .into(profileImageView);
+            } else {
+                Glide.with(this)
+                        .load(R.drawable.user) // Replace with your image URI or resource
+                        .transform(new CircleCrop())
+                        .into(profileImageView);
+            }
         }
 
         btnEdit.setOnClickListener(new View.OnClickListener() {
@@ -58,46 +70,4 @@ public class ViewProfileActivity extends BottomMenuActivity {
         });
     }
 
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == EDIT_PROFILE_REQUEST && resultCode == RESULT_OK) {
-
-            if (data != null) {
-                String newName = data.getStringExtra("name");
-                if (newName != null) {
-                    txtprofileuser.setText(newName);
-                }
-                String newBio = data.getStringExtra("bio");
-                if (newBio != null) {
-                    bio.setText(newBio);
-                    sessionManager.updateUserInfo(newName, newBio);
-                }
-                String profileImage = data.getStringExtra("profileImage"); // Get the image URL
-                if (profileImage != null) {
-                    loadProfileImage(profileImage); // Load the new image
-                }
-            }
-        }
-    }
-
-    private void loadProfileImage() {
-        String imageUrl = sessionManager.getProfileImage(); // Assume you save the image URL in session manager
-        if (imageUrl != null) {
-            Glide.with(this)
-                    .load(imageUrl)
-                    .transform(new CircleCrop())
-                    .into(profileImageView);
-        }
-    }
-
-
-    private void loadProfileImage(String imageUrl) {
-        Glide.with(this)
-                .load(imageUrl)
-                .transform(new CircleCrop())
-                .into(profileImageView); // Load the new circular image
-
-        sessionManager.saveProfileImage(imageUrl); // Save the new image URL in session manager
-    }
 }
