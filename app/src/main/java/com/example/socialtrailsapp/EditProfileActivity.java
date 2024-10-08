@@ -3,6 +3,7 @@
     import android.content.Intent;
     import android.net.Uri;
     import android.os.Bundle;
+    import android.text.TextUtils;
     import android.view.View;
     import android.widget.Button;
     import android.widget.EditText;
@@ -16,6 +17,7 @@
     import com.bumptech.glide.Glide;
     import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 
+    import com.example.socialtrailsapp.Interface.DataOperationCallback;
     import com.example.socialtrailsapp.Interface.OperationCallback;
     import com.example.socialtrailsapp.Utility.SessionManager;
     import com.example.socialtrailsapp.Utility.UserService;
@@ -39,7 +41,7 @@
 
         private static final int PICK_IMAGE_REQUEST = 1;
         private Uri imageUri;
-
+        UserService userService;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +59,7 @@
             mAuth = FirebaseAuth.getInstance();
             mDatabase = FirebaseDatabase.getInstance().getReference();
 
-
+            userService = new UserService();
             if (sessionManager.userLoggedIn()) {
                 nameEdit.setText(sessionManager.getUsername() != null ? sessionManager.getUsername() : "");
                 emailEdit.setText(sessionManager.getEmail() != null ? sessionManager.getEmail() : "");
@@ -72,7 +74,10 @@
                             .transform(new CircleCrop())
                             .into(profile);
                 } else {
-                    profile.setImageResource(R.drawable.user); // Set a placeholder image
+                    Glide.with(this)
+                            .load(R.drawable.user) // Replace with your image URI or resource
+                            .transform(new CircleCrop())
+                            .into(profile);
                 }
             }
 
@@ -88,10 +93,7 @@
             saveBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FirebaseUser currentUser = mAuth.getCurrentUser();
-                    if (currentUser != null) {
-                        updateProfile(currentUser);
-                    }
+                    updateUserProfile();
                 }
             });
         }
@@ -121,63 +123,76 @@
                 }
             }
 
-
-        private void updateProfile(FirebaseUser user) {
+        private void updateUserProfile()
+        {
             String newName = nameEdit.getText().toString().trim();
             String newBio = bioEdit.getText().toString().trim();
+            if (TextUtils.isEmpty(newName)) {
+                nameEdit.setError("User name is required");
+                nameEdit.requestFocus();
+                return;
+            }
+            else
+            {
+                if (imageUri != null) {
+                    userService.uploadProfileImage(sessionManager.getUserID(), imageUri, new DataOperationCallback<String>() {
+                        @Override
+                        public void onSuccess(String imageurl) {
+                            String currentUsername = sessionManager.getUsername();
+                            String currentBio = sessionManager.getBio();
 
-            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                    .setDisplayName(newName)
-                    .build();
-
-            user.updateProfile(profileUpdates)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            if (imageUri != null) {
-                                UserService userService = new UserService();
-                                userService.uploadProfileImage(user.getUid(), imageUri, new OperationCallback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        // Now update user data in the database
-                                        updateUserDataInDatabase(newName, newBio);
-                                    }
-
-                                    @Override
-                                    public void onFailure(String error) {
-                                        Toast.makeText(EditProfileActivity.this, "Image upload failed: " + error, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            } else {
-                                // If no image was selected, just update the user data
-                                updateUserDataInDatabase(newName, newBio);
+                            if(!newName.equals(currentUsername) || !newBio.equals(currentBio))
+                            {
+                                updateNameandBio(imageurl);
                             }
-                        } else {
-                            Toast.makeText(EditProfileActivity.this, "Profile update failed.", Toast.LENGTH_SHORT).show();
+                            else
+                            {
+                                sessionManager.updateUserInfo(newName, newBio,imageurl);
+                                Intent intent = new Intent(EditProfileActivity.this, ViewProfileActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            Toast.makeText(EditProfileActivity.this, "Image upload failed: " + error, Toast.LENGTH_SHORT).show();
                         }
                     });
-        }
-
-        private void updateUserDataInDatabase(String name, String bio) {
-            FirebaseUser user = mAuth.getCurrentUser();
-            if (user != null) {
-                String userId = user.getUid();
-                mDatabase.child("users").child(userId).child("username").setValue(name);
-                mDatabase.child("users").child(userId).child("bio").setValue(bio);
-
-                SessionManager sessionManager = SessionManager.getInstance(this);
-                sessionManager.updateUserInfo(name, bio);
-
-                Toast.makeText(this, "Profile updated successfully.", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent();
-                intent.putExtra("name", name);
-                intent.putExtra("bio", bio);
-                if (imageUri != null) {
-                    intent.putExtra("profileImage", imageUri.toString()); // Convert Uri to String
+                }else
+                {
+                    String currentUsername = sessionManager.getUsername();
+                    String currentBio = sessionManager.getBio();
+                    if(!newName.equals(currentUsername) || !newBio.equals(currentBio))
+                    {
+                        updateNameandBio(sessionManager.getProfileImage());
+                    }
                 }
-
-                setResult(RESULT_OK, intent);
-                finish();
             }
         }
+        private void updateNameandBio(String imageurl)
+        {
+
+            String newName = nameEdit.getText().toString().trim();
+            String newBio = bioEdit.getText().toString().trim();
+            userService.updateNameandBio(sessionManager.getUserID(),newBio,newName , new OperationCallback() {
+                @Override
+                public void onSuccess() {
+
+                    sessionManager.updateUserInfo(newName, newBio,imageurl);
+                    Intent intent = new Intent(EditProfileActivity.this, ViewProfileActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    Toast.makeText(EditProfileActivity.this, "Image upload failed: " + error, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+
+
+
     }

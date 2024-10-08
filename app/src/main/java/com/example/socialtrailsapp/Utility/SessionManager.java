@@ -29,15 +29,10 @@ public class SessionManager {
         sessioneditor.putBoolean("UserLoggedIn", true);
         sessioneditor.putString("roleType", roles);
         sessioneditor.putString("bio", bio);
-        sessioneditor.putString("profileimage", profileimage);
+        sessioneditor.putString("profileImage", profileimage);
         sessioneditor.apply();
     }
 
-    public void updateUserInfo(String username, String bio) {
-        sessioneditor.putString("userName", username);
-        sessioneditor.putString("bio", bio);
-        sessioneditor.apply();
-    }
 
     public String getUserID() {
         return sessionsharedPreferences.getString("userID", "");
@@ -75,16 +70,16 @@ public class SessionManager {
     }
 
 
-    public void saveProfileImage(String imageUrl) {
-//        SharedPreferences.Editor editor = sessionsharedPreferences.edit();
-        sessioneditor.putString("profileImage", imageUrl);
-        sessioneditor.apply();
-    }
-
     public String getProfileImage() {
         return sessionsharedPreferences.getString("profileImage", null);
     }
 
+    public void updateUserInfo(String username, String bio,String imageUrl) {
+        sessioneditor.putString("userName", username);
+        sessioneditor.putString("bio", bio);
+        sessioneditor.putString("profileImage", imageUrl);
+        sessioneditor.apply();
+    }
 }
 
 
