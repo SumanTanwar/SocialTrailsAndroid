@@ -133,13 +133,15 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <GridView
+        android:layout_marginTop="25dp"
+        android:id="@+id/galleryProfile_grid"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="7"
-
-        android:padding="15dp" />
-
+        android:layout_height="450dp"
+        android:numColumns="3"
+        android:verticalSpacing="0dp"
+        android:horizontalSpacing="0dp"
+        android:stretchMode="columnWidth"
+        android:gravity="center"/>
 
 </LinearLayout>
