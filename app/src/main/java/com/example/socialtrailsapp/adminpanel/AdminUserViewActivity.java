@@ -271,7 +271,7 @@ private void adminUnDeleteProfile(String userId)
             btnDeleteProfile.setText("Delete Profile");
             btnDeleteProfile.setOnClickListener(v -> adminDeleteProfile(userId));
         }
-        if (user.getProfilepicture() != null) {
+        if (user.getProfilepicture() != null &&  !user.getProfilepicture().isEmpty()) {
             Uri profileImageUri = Uri.parse(user.getProfilepicture()); // Convert String to Uri
             Glide.with(this)
                     .load(profileImageUri)

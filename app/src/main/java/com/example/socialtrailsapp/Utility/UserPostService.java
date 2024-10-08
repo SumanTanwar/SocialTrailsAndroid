@@ -18,6 +18,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -71,7 +73,9 @@ public class UserPostService implements IUserPostInterface {
                     }
                 }
 
+
                 if (tempList.isEmpty()) {
+                    Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
                     callback.onSuccess(postList);
                     return;
                 }
@@ -83,6 +87,7 @@ public class UserPostService implements IUserPostInterface {
                         public void onSuccess(List<Uri> imageUris) {
                             post.setUploadedImageUris(imageUris);
                             postList.add(post);
+                            Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
                             if (pendingRequests.decrementAndGet() == 0) {
                                 callback.onSuccess(postList);
                             }
