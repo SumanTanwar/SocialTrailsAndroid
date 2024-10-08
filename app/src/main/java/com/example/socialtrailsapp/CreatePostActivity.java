@@ -106,21 +106,22 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
                     txtpostcaption.requestFocus();
                     return ;
                 }
+                if(tagLocation == null || tagLocation.isEmpty())
+                {
+                    Toast.makeText(getApplicationContext(), "Please tag the location", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if(imageUris.size() == 0)
                 {
                     Toast.makeText(getApplicationContext(), "Please select photo", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(tagLocation.isEmpty())
-                {
-                    Toast.makeText(getApplicationContext(), "Please tag the location", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+
                 UserPost userPost = new UserPost(sessionManager.getUserID(),caption,tagLocation,latitude,longitude,imageUris);
                 userPostService.createPost(userPost, new OperationCallback() {
                     @Override
                     public void onSuccess() {
-                        Intent intent = new Intent(CreatePostActivity.this, MainActivity.class);
+                        Intent intent = new Intent(CreatePostActivity.this, ViewProfileActivity.class);
                         startActivity(intent);
                         finish();
                     }
