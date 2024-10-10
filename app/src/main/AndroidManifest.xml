@@ -18,6 +18,9 @@
         android:theme="@style/Theme.SocialTrailsApp"
         tools:targetApi="31">
         <activity
+            android:name=".UserPostDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".adminpanel.ModeratorlistActivity"
             android:exported="false" />
         <activity

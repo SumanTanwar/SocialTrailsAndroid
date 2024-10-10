@@ -104,14 +104,14 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
                 int size = list.size();
                 postscount.setText("" + size);
                 List<String> imageUrls = new ArrayList<>();
-
+                List<String> postIds = new ArrayList<>();
                 for (UserPost post : list) {
                     imageUrls.add(post.getUploadedImageUris().get(0).toString());
                 }
 
                 // Set up the GridView
                 GridView gridView = findViewById(R.id.gallery_grid);
-                GalleryImageAdapter adapter = new GalleryImageAdapter(AdminUserViewActivity.this, imageUrls);
+                GalleryImageAdapter adapter = new GalleryImageAdapter(AdminUserViewActivity.this, imageUrls,postIds);
                 gridView.setAdapter(adapter);
             }
 
