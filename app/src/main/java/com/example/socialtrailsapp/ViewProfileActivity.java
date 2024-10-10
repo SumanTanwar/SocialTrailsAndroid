@@ -60,7 +60,7 @@ public class ViewProfileActivity extends BottomMenuActivity {
             txtprofileuser.setText(sessionManager.getUsername());
             bio.setText(sessionManager.getBio());
             if (sessionManager.getProfileImage() != null) {
-                Uri profileImageUri = Uri.parse(sessionManager.getProfileImage()); // Convert String to Uri
+                Uri profileImageUri = Uri.parse(sessionManager.getProfileImage());
                 Glide.with(this)
                         .load(profileImageUri)
                         .transform(new CircleCrop())
@@ -68,7 +68,7 @@ public class ViewProfileActivity extends BottomMenuActivity {
 
             } else {
                 Glide.with(this)
-                        .load(R.drawable.user) // Replace with your image URI or resource
+                        .load(R.drawable.user)
                         .transform(new CircleCrop())
                         .into(profileImageView);
 
@@ -98,14 +98,16 @@ public class ViewProfileActivity extends BottomMenuActivity {
                 int size = list.size();
                 postscount.setText("" + size);
                 List<String> imageUrls = new ArrayList<>();
+                List<String> postIds = new ArrayList<>();
 
                 for (UserPost post : list) {
                     imageUrls.add(post.getUploadedImageUris().get(0).toString());
+                    postIds.add(post.getPostId());
                 }
 
                 // Set up the GridView
                 GridView gridView = findViewById(R.id.galleryProfile_grid);
-                GalleryImageAdapter adapter = new GalleryImageAdapter(ViewProfileActivity.this, imageUrls);
+                GalleryImageAdapter adapter = new GalleryImageAdapter(ViewProfileActivity.this, imageUrls,postIds);
                 gridView.setAdapter(adapter);
             }
 

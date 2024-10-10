@@ -3,6 +3,7 @@ package com.example.socialtrailsapp.Utility;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.format.DateUtils;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.widget.EditText;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 
 import com.example.socialtrailsapp.R;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -54,5 +56,28 @@ public class Utils {
         editor.putString("email", email);
         editor.putBoolean("rememberMe", rememberMe);
         editor.apply();
+    }
+    public static String getRelativeTime(String dateString) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        try {
+            Date date = format.parse(dateString);
+            if (date != null) {
+                long currentTime = System.currentTimeMillis();
+                long postTime = date.getTime();
+                long diff = currentTime - postTime;
+
+                if (diff < DateUtils.MINUTE_IN_MILLIS) {
+                    return "posted recently";
+                } else if (diff < DateUtils.DAY_IN_MILLIS) {
+                    return DateUtils.getRelativeTimeSpanString(postTime, currentTime, DateUtils.MINUTE_IN_MILLIS).toString();
+                } else {
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
+                    return "on " + outputFormat.format(date);
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }
