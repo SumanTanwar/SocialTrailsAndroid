@@ -20,10 +20,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.R;
+import com.example.socialtrailsapp.SignInActivity;
+import com.example.socialtrailsapp.UserPostDetailActivity;
+import com.example.socialtrailsapp.UserPostEditActivity;
 import com.example.socialtrailsapp.Utility.SessionManager;
+import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.Utils;
+import com.example.socialtrailsapp.userSettingActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
@@ -32,11 +39,13 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
     private Context context;
     private List<UserPost> postList;
     private SessionManager sessionManager;
+    UserPostService userPostService;
 
     public UserPostAdapter(Context context, List<UserPost> postList) {
         this.context = context;
         this.postList = postList;
         sessionManager = SessionManager.getInstance(context);
+        userPostService = new UserPostService();
     }
 
     @NonNull
@@ -54,7 +63,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
             Uri profileImageUri = Uri.parse(sessionManager.getProfileImage());
             Glide.with(context)
                     .load(profileImageUri)
-                    .transform(new com.bumptech.glide.load.resource.bitmap.CircleCrop())
+                    .transform(new CircleCrop())
                     .into(holder.userProfileImage);
 
         } else {
@@ -78,7 +87,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         holder.optionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showPopupMenu(view, post.getPostId());
+                showPopupMenu(view, post.getPostId(),holder.getAdapterPosition());
             }
         });
     }
@@ -96,6 +105,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         TextView detailrelativetime;
         RecyclerView imagesRecyclerView;
         ImageButton optionsButton;
+
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             userProfileImage = itemView.findViewById(R.id.userProfileImage);
@@ -107,45 +117,57 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
             optionsButton = itemView.findViewById(R.id.optionsButton);
         }
     }
-    private void showPopupMenu(View view, String postId) {
+
+    private void showPopupMenu(View view, String postId, int position) {
         PopupMenu popupMenu = new PopupMenu(context, view);
         popupMenu.getMenuInflater().inflate(R.menu.postoptions_menu, popupMenu.getMenu());
 
         popupMenu.setOnMenuItemClickListener(item -> {
-            if(item.getItemId() == R.id.edit_option)
-            {
+            if (item.getItemId() == R.id.edit_option) {
                 editPost(postId);
                 return true;
-            }
-            else  if(item.getItemId() == R.id.delete_option)
-            {
-                confirmDelete(postId);
+            } else if (item.getItemId() == R.id.delete_option) {
+                confirmDelete(postId,position);
                 return true;
-            }
-           else
-            {
-                    return false;
+            } else {
+                return false;
             }
         });
         popupMenu.show();
     }
+
     private void editPost(String postId) {
-        Toast.makeText(context,"edit postid" + postId,Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(context, UserPostEditActivity.class);
+        intent.putExtra("postdetailId", postId);
+        context.startActivity(intent);
 
     }
 
-    private void confirmDelete(String postId) {
+    private void confirmDelete(String postId, int position) {
         new AlertDialog.Builder(context)
                 .setTitle("Confirm Delete")
                 .setMessage("Are you sure you want to delete this post?")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    deletePost(postId);
+                    deletePost(postId,position);
                 })
                 .setNegativeButton("No", null)
                 .show();
     }
 
-    private void deletePost(String postId) {
-        Toast.makeText(context,"edit postid" + postId,Toast.LENGTH_SHORT).show();
+    private void deletePost(String postId,int position) {
+        userPostService.deleteUserPost(postId, new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                postList.remove(position);
+                notifyItemRemoved(position);
+                Toast.makeText(context, "Post deleted successfully", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(String errMessage) {
+                Toast.makeText(context, "Post delete failed! Please try again later.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

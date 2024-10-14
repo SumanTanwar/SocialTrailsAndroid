@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.socialtrailsapp.CreatePostActivity;
+import com.example.socialtrailsapp.Interface.ILocationSetter;
 import com.example.socialtrailsapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,7 +32,6 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
-
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -60,10 +59,18 @@ public class MapDialog extends Dialog implements OnMapReadyCallback {
 
     private LatLng selectedLatLng;
     private String selectedAddress;
+    private boolean isMapReady = false; // Track if the map is ready
 
     public MapDialog(@NonNull FragmentActivity activity) {
         super(activity);
         this.fragmentActivity = activity;
+    }
+
+    public MapDialog(@NonNull FragmentActivity activity, LatLng existingLatLng, String existingAddress) {
+        super(activity);
+        this.fragmentActivity = activity;
+        this.selectedLatLng = existingLatLng;
+        this.selectedAddress = existingAddress;
     }
 
     @Override
@@ -75,6 +82,12 @@ public class MapDialog extends Dialog implements OnMapReadyCallback {
         setupUIElements();
         setupMapFragment();
         setupSearchBox();
+
+        if (isMapReady && selectedLatLng != null && selectedAddress != null) {
+            searchBox.setText(selectedAddress);
+            updateMapWithMarker(selectedLatLng, selectedAddress);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng, 15));
+        }
     }
 
     private void initializePlacesClient() {
@@ -95,7 +108,7 @@ public class MapDialog extends Dialog implements OnMapReadyCallback {
 
         confirmButton.setOnClickListener(v -> {
             if (selectedLatLng != null && selectedAddress != null) {
-                ((CreatePostActivity) fragmentActivity).setLocation(selectedLatLng, selectedAddress);
+                ((ILocationSetter) fragmentActivity).setLocation(selectedLatLng, selectedAddress);
                 dismiss(); // Close the dialog
             }
         });
@@ -214,23 +227,35 @@ public class MapDialog extends Dialog implements OnMapReadyCallback {
     }
 
     private void updateMapWithMarker(LatLng latLng, String address) {
-        if (currentMarker != null) {
-            currentMarker.remove();
+        if (mMap != null) {
+            if (currentMarker != null) {
+                currentMarker.remove();
+            }
+            currentMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(address));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        } else {
+            Log.e("MapDialog", "Map is not ready yet");
         }
-        currentMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(address));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
+        isMapReady = true; // Set map as ready
 
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.setOnMapClickListener(latLng -> {
-            selectedLatLng = latLng; // Store the clicked location
+            selectedLatLng = latLng;
             fetchPlaceFromLatLng(latLng);
         });
+
+        // If existing location is set, update the map
+        if (selectedLatLng != null && selectedAddress != null) {
+            updateMapWithMarker(selectedLatLng, selectedAddress);
+            searchBox.setText(selectedAddress);
+            autocompleteList.setVisibility(View.GONE);
+        }
     }
 
     private void fetchPlaceFromLatLng(LatLng latLng) {
@@ -268,4 +293,3 @@ public class MapDialog extends Dialog implements OnMapReadyCallback {
         }).start();
     }
 }
-

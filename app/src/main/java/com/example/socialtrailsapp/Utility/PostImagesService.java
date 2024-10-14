@@ -1,6 +1,7 @@
 package com.example.socialtrailsapp.Utility;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -14,6 +15,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -131,4 +133,136 @@ public class PostImagesService implements IPostImagesInterface {
                     }
                 });
     }
+    @Override
+    public void deleteImage(String postId, String photoPath, OperationCallback callback) {
+        DatabaseReference photoRef = reference.child(_collectionName);
+
+        photoRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                    String storedPostId = snapshot.child("postId").getValue(String.class);
+                    String storedPhotoPath = snapshot.child("imagePath").getValue(String.class);
+
+                    Log.d("deleteimage", "storedPostId: " + storedPostId + ", storedPhotoPath: " + storedPhotoPath);
+
+                    if (storedPostId.equals(postId) && storedPhotoPath.equals(photoPath)) {
+                        Log.d("deleteimage", "Found matching photoPath, proceeding to delete.");
+                        snapshot.getRef().removeValue().addOnCompleteListener(removeTask -> {
+                            if (removeTask.isSuccessful()) {
+                                Log.d("deleteimage", "Successfully removed from database.");
+                                deleteImageFromStorage(storedPhotoPath);
+                                updatePhotoOrder(postId, new OperationCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        if (callback != null) {
+                                            Log.d("deleteimage", "on success.");
+                                            callback.onSuccess();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(String errMessage) {
+                                        if (callback != null) {
+                                            callback.onFailure("Failed to update photo order: " + errMessage);
+                                        }
+                                    }
+                                });
+                            } else {
+                                if (callback != null) {
+                                    callback.onFailure("Failed to delete database entry. Error: " + removeTask.getException());
+                                }
+                            }
+                        });
+
+
+                    }
+                    else
+                    {
+                        if (callback != null) {
+                            callback.onFailure("Photo path not found in the database.");
+                        }
+                    }
+                }
+
+
+            } else {
+                Log.e("deleteimage", "Task failed: " + task.getException());
+                if (callback != null) {
+                    callback.onFailure("Task failed. Error: " + task.getException());
+                }
+            }
+        });
+    }
+
+
+
+
+
+
+    private void deleteImageFromStorage(String photoPath) {
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(photoPath);
+
+        storageRef.delete().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d("DeleteImage", "Image deleted from Firebase Storage.");
+            } else {
+                Log.e("DeleteImage", "Failed to delete image from Firebase Storage.");
+            }
+        });
+    }
+    @Override
+    public void updatePhotoOrder(String postId, OperationCallback callback) {
+        DatabaseReference photosRef = reference.child(_collectionName);
+
+         Log.d("deleteimage","updatephoto order called");
+        photosRef.orderByChild("postId").equalTo(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    if (callback != null) {
+                        Log.d("deleteimage","no photos found in order photo");
+                        callback.onFailure("No photos found for this postid.");
+                    }
+                    return;
+                }
+
+                int order = 1;
+                boolean[] failureOccurred = {false};  // Track if a failure occurs
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    // Update the order field for each photo
+                    snapshot.getRef().child("order").setValue(order)
+                            .addOnFailureListener(e -> {
+                                // On failure, trigger the callback and set failureOccurred to true
+                                if (!failureOccurred[0]) { // Ensure failure is only handled once
+                                    failureOccurred[0] = true;
+                                    if (callback != null) {
+                                        Log.d("deleteimage","failed order photo" + e.getMessage());
+                                        callback.onFailure("Error updating photo order: " + e.getMessage());
+                                    }
+                                }
+                            });
+
+                    order++;
+                }
+
+                if (!failureOccurred[0]) {
+                    if (callback != null) {
+                        Log.d("deleteimage","success order photos");
+                        callback.onSuccess();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                if (callback != null) {
+                    Log.d("deleteimage","failed order photo database" + databaseError.getMessage());
+                    callback.onFailure("Database operation cancelled: " + databaseError.getMessage());
+                }
+            }
+        });
+    }
+
 }

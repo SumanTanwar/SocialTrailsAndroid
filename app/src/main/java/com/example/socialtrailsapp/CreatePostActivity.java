@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.ImagePagerAdapter;
+import com.example.socialtrailsapp.Interface.ILocationSetter;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.Utility.MapDialog;
@@ -37,7 +38,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
-public class CreatePostActivity extends BottomMenuActivity  implements ImagePagerAdapter.OnImageRemovedListener{
+public class CreatePostActivity extends BottomMenuActivity  implements ImagePagerAdapter.OnImageRemovedListener, ILocationSetter {
     private SessionManager sessionManager;
     private static final int PICK_IMAGE = 1;
     private ArrayList<Uri> imageUris = new ArrayList<>();
@@ -148,11 +149,11 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
             }
         }
     }
-
-    public void setLocation(LatLng latLng, String selectedLocation) {
+    @Override
+    public void setLocation(LatLng latLng, String address) {
         longitude = latLng.longitude;
         latitude = latLng.latitude;
-        tagLocation = selectedLocation;
+        tagLocation = address;
         txtselectedAddress.setText(tagLocation);
 
     }

@@ -79,7 +79,10 @@ public class UserPostDetailActivity extends BottomMenuActivity {
 
             @Override
             public void onFailure(String error) {
-                Toast.makeText(UserPostDetailActivity.this, "Error loading post: " + error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(UserPostDetailActivity.this, "Post load failed! Please try again later.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(UserPostDetailActivity.this, ViewProfileActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }
