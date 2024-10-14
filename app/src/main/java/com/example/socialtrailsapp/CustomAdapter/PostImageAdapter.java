@@ -42,8 +42,8 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.Imag
         try {
             Glide.with(context)
                     .load(imageUri)
-                    .placeholder(R.drawable.user)
-                    .error(R.drawable.user)
+                    .placeholder(R.drawable.noimage)
+                    .error(R.drawable.noimage)
                     .into(holder.imageView);
         } catch (Exception e) {
             Log.e("GlideError", "Error loading image: " + e.getMessage());

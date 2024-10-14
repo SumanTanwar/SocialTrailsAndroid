@@ -57,6 +57,7 @@ public class UserPostService implements IUserPostInterface {
                     }
                 });
     }
+    @Override
     public void getAllUserPost(String userId, final DataOperationCallback<List<UserPost>> callback) {
         reference.child(_collectionName).addValueEventListener(new ValueEventListener() {
             @Override
@@ -67,7 +68,7 @@ public class UserPostService implements IUserPostInterface {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Log.d("FirebaseData", snapshot.toString());
                     UserPost post = snapshot.getValue(UserPost.class);
-                    if (post != null && userId.equals(post.getUserId())) {
+                    if (post != null && userId.equals(post.getUserId()) && post.getPostdeleted() == false && (post.getAdmindeleted() == null || post.getAdmindeleted() == false)) {
                         post.setPostId(snapshot.getKey());
                         tempList.add(post);
                     }
@@ -130,5 +131,79 @@ public class UserPostService implements IUserPostInterface {
         });
 
 
+    }
+    @Override
+    public void deleteUserPost(String postId,OperationCallback callback)
+    {
+        reference.child(_collectionName).child(postId).child("postdeleted").setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                if (callback != null) {
+                    callback.onSuccess();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (callback != null) {
+                    callback.onFailure(e.getMessage());
+                }
+            }
+        });
+    }
+    @Override
+    public void getPostByPostId(String postId, final DataOperationCallback<UserPost> callback) {
+        reference.child(_collectionName).child(postId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                UserPost post = dataSnapshot.getValue(UserPost.class);
+                if (post != null) {
+                    post.setPostId(postId);
+                    getAllPhotos(post.getPostId(), new DataOperationCallback<List<Uri>>() {
+                        @Override
+                        public void onSuccess(List<Uri> imageUris) {
+                            post.setUploadedImageUris(imageUris);
+                            callback.onSuccess(post);
+
+                        }
+                        @Override
+                        public void onFailure(String error) {
+                            callback.onFailure(error);
+                        }
+                    });
+                }
+                else
+                {
+                    callback.onFailure("Post not found");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                callback.onFailure(databaseError.getMessage());
+            }
+        });
+    }
+    @Override
+    public void updateUserPost(UserPost post, OperationCallback callback) {
+        post.setUpdatedon(Utils.getCurrentDatetime());
+        reference.child(_collectionName).child(post.getPostId()).updateChildren(post.toMapUpdate())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (callback != null) {
+                            callback.onFailure(e.getMessage());
+                        }
+                    }
+                });
     }
 }

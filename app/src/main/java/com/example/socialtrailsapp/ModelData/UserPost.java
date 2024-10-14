@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class UserPost {
     private String postId,userId,captiontext,createdon,updatedon,location;
-    private Boolean postdeleted,flagged,moderationstatus;
+    private Boolean postdeleted,flagged,moderationstatus,admindeleted;
     private ArrayList<Uri> imageUris;
     private Double  latitude,longitude;
     public List<Uri> uploadedImageUris;
@@ -29,6 +29,15 @@ public class UserPost {
         this.longitude = longitude;
         this.createdon = Utils.getCurrentDatetime();
         this.postdeleted = false;
+        this.admindeleted = false;
+    }
+
+    public UserPost(String postId, String captiontext, String location, Double latitude, Double longitude) {
+        this.postId = postId;
+        this.captiontext = captiontext;
+        this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public String getPostId() {
@@ -135,6 +144,14 @@ public class UserPost {
         this.uploadedImageUris = uploadedImageUris;
     }
 
+    public Boolean getAdmindeleted() {
+        return admindeleted;
+    }
+
+    public void setAdmindeleted(Boolean admindeleted) {
+        this.admindeleted = admindeleted;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
         result.put("postId", postId);
@@ -145,6 +162,17 @@ public class UserPost {
         result.put("longitude", longitude);
         result.put("createdon", createdon);
         result.put("postdeleted", postdeleted);
+        result.put("admindeleted", admindeleted);
+        return result;
+    }
+    public Map<String, Object> toMapUpdate() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("captiontext", captiontext);
+        result.put("location", location);
+        result.put("latitude", latitude);
+        result.put("longitude", longitude);
+        result.put("updatedon", updatedon);
+
         return result;
     }
 }
