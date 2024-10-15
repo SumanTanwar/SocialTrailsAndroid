@@ -163,9 +163,4 @@ public class userSettingActivity extends BottomMenuActivity {
         }
     }
 
-
-    public void showDataUser() {
-        Intent intent = getIntent();
-        txtprofileuser.setText(intent.getStringExtra("name"));
-    }
 }

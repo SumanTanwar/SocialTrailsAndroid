@@ -217,9 +217,16 @@ public class SignInActivity extends AppCompatActivity {
                                     else {
                                         sessionManager.logoutUser();
                                         sessionManager.loginUser(data.getUserId(), data.getUsername(), data.getEmail(), data.getNotification(), data.getRoles(),data.getBio(),data.getProfilepicture());
-                                        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
+                                        if(data.getRoles().equals(UserRole.MODERATOR.getRole()))
+                                        {
+                                            Toast.makeText(SignInActivity.this, "Moderators is coming soon.", Toast.LENGTH_SHORT).show();
+                                            mAuth.signOut();
+                                        }
+                                        else {
+                                            Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
                                     }
                                 }
 

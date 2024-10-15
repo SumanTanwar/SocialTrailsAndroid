@@ -75,25 +75,6 @@ public class UserService implements IUserInterface {
         });
     }
 
-    public void setbackdeleteProfile(String userID) {
-        Log.d("UserService", "Setback delete profile for user: " + userID);
-    }
-
-    public void deleteProfile(String userID, OperationCallback callback) {
-        reference.child(_collectionName).child(userID).removeValue()
-                .addOnSuccessListener(aVoid -> {
-                    if (callback != null) {
-                        callback.onSuccess();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (callback != null) {
-                        callback.onFailure(e.getMessage());
-                    }
-                });
-    }
-
-
     public void setNotification(String userID, boolean isEnabled, OperationCallback callback) {
         reference.child(_collectionName).child(userID).child("notification").setValue(isEnabled)
                 .addOnSuccessListener(aVoid -> {
@@ -243,8 +224,7 @@ public class UserService implements IUserInterface {
                 List<Users> moderatorsList = new ArrayList<>();
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                     Users user = userSnapshot.getValue(Users.class);
-                    if (user != null && user.getRoles().equals(UserRole.MODERATOR.getRole())) {
-                        // Assuming UserRole.MODERATOR is defined in your roles
+                    if (user != null && user.getRoles().equals(UserRole.MODERATOR.getRole()) && user.getProfiledeleted() == false) {
                         moderatorsList.add(user);
                     }
                 }
@@ -329,6 +309,40 @@ public class UserService implements IUserInterface {
                         callback.onFailure(e.getMessage());
                     }
                 });
+    }
+    @Override
+    public void deleteProfile(String uid,OperationCallback callback)
+    {
+        reference.child(_collectionName).child(uid).child("profiledeleted").setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                if (callback != null) {
+                    callback.onSuccess();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (callback != null) {
+                    callback.onFailure(e.getMessage());
+                }
+            }
+        });
+    }
+    @Override
+    public void setbackdeleteProfile(String uid)
+    {
+        reference.child(_collectionName).child(uid).child("profiledeleted").setValue(false).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
     }
 }
 
