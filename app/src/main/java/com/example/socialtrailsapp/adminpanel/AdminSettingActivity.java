@@ -18,7 +18,7 @@ import com.example.socialtrailsapp.changePassword;
 import com.example.socialtrailsapp.userSettingActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class AdminSettingActivity extends AppCompatActivity {
+public class AdminSettingActivity extends AdminBottomMenuActivity {
     TextView txtLogout, txtChangePassword, txtcreatemoderator;
     private SessionManager sessionManager;
     FirebaseAuth mAuth;
@@ -27,13 +27,9 @@ public class AdminSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_admin_setting);
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-//            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-//            return insets;
-//        });
+       // EdgeToEdge.enable(this);
+    //   setContentView(R.layout.activity_admin_setting);
+        getLayoutInflater().inflate(R.layout.activity_admin_setting, findViewById(R.id.container));
 
         txtLogout = findViewById(R.id.txtLogout);
         txtChangePassword = findViewById(R.id.txtchangepwd);
