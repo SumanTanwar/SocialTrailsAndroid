@@ -82,8 +82,8 @@ public class ModeratorAdapter extends RecyclerView.Adapter<ModeratorAdapter.Mode
     // ViewHolder class to hold references to the views
     static class ModeratorViewHolder extends RecyclerView.ViewHolder {
         TextView moderatorNumber, moderatorName, moderatorEmail;
-        Button removeButton;
-        ImageView imgProfilePicture;
+      //  Button removeButton;
+        ImageView imgProfilePicture,removeButton;
         public ModeratorViewHolder(@NonNull View itemView) {
             super(itemView);
             imgProfilePicture = itemView.findViewById(R.id.imgProfilePicture);
