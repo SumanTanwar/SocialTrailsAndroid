@@ -54,14 +54,20 @@
                 android:textSize="14sp"
                 android:textColor="@android:color/darker_gray"/>
         </LinearLayout>
-        <Button
+
+        <ImageView
             android:id="@+id/removemoderator"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="remove"
-            android:layout_marginEnd="15dp">
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="Remove Moderator"
+        android:layout_marginEnd="15dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp" />
 
-        </Button>
+
+
     </LinearLayout>
 
     <!-- Separator line -->
