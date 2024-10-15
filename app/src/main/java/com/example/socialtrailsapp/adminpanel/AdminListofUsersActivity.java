@@ -53,7 +53,7 @@ public class AdminListofUsersActivity extends AdminBottomMenuActivity implements
             @Override
             public void onClick(View v) {
                 // Navigate to AdminCreateModeratorActivity
-                Intent intent = new Intent(AdminListofUsersActivity.this, AdminCreateModeratorActivity.class);
+                Intent intent = new Intent(AdminListofUsersActivity.this, ModeratorlistActivity.class);
                 startActivity(intent);
             }
         });

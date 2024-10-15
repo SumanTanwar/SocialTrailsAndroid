@@ -111,9 +111,9 @@ public class UserPostService implements IUserPostInterface {
             }
         });
     }
-    private void getAllPhotos(String donationId, DataOperationCallback<List<Uri>> callback)
+    private void getAllPhotos(String postId, DataOperationCallback<List<Uri>> callback)
     {
-        postImagesService.getAllPhotosByPostId(donationId, new DataOperationCallback<List<Uri>>() {
+        postImagesService.getAllPhotosByPostId(postId, new DataOperationCallback<List<Uri>>() {
             @Override
             public void onSuccess(List<Uri> imageUri) {
 
