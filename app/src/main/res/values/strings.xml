@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SocialTrailsApp</string>
+    <string name="profile_image_desc">Profile Image</string>
 </resources>
