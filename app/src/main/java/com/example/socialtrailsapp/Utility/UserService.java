@@ -1,7 +1,6 @@
 package com.example.socialtrailsapp.Utility;
 
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -63,6 +62,8 @@ public class UserService implements IUserInterface {
                 Users user = snapshot.getValue(Users.class);
                 if (user != null && !user.getAdmindeleted() && !user.getProfiledeleted()) {
                     callback.onSuccess(user);
+                }else {
+                    callback.onFailure("User not found or deleted");
                 }
             }
 
@@ -344,6 +345,32 @@ public class UserService implements IUserInterface {
             }
         });
     }
+
+    public void getActiveUserList(DataOperationCallback<List<Users>> callback) {
+        reference.child(_collectionName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<Users> activeUsersList = new ArrayList<>();
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    Users user = userSnapshot.getValue(Users.class);
+                    // Check if the user is active, not marked as deleted, and not suspended
+                    if (user != null && user.getRoles().equals(UserRole.USER.getRole())
+                            && !user.getAdmindeleted() && !user.getProfiledeleted() && user.getIsactive()) {
+                        activeUsersList.add(user);
+                    }
+                }
+                callback.onSuccess(activeUsersList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (callback != null) {
+                    callback.onFailure(error.getMessage());
+                }
+            }
+        });
+    }
+
 }
 
 

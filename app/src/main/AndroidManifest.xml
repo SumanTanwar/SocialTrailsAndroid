@@ -18,6 +18,9 @@
         android:theme="@style/Theme.SocialTrailsApp"
         tools:targetApi="31">
         <activity
+            android:name=".FollowUnfollowActivity"
+            android:exported="false" />
+        <activity
             android:name=".UserPostEditActivity"
             android:exported="false" />
         <activity
@@ -43,7 +46,6 @@
         <activity
             android:name=".adminpanel.AdminCreateModeratorActivity"
             android:exported="false" />
-
         <activity
             android:name=".EditProfileActivity"
             android:exported="false" />
@@ -92,6 +94,7 @@
         <activity
             android:name=".adminpanel.DashBoardActivity"
             android:exported="false" />
+        <activity android:name=".SearchUserActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />

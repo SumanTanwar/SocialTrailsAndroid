@@ -4,12 +4,18 @@ import com.example.socialtrailsapp.Utility.Utils;
 
 public class Users {
     private String userId,username,email,createdon,profilepicture,roles,bio,suspendedreason,suspendedby,admindeletedon;
-    private Boolean profiledeleted,notification,admindeleted,suspended,isactive;
+    private Boolean profiledeleted,notification,admindeleted,suspended,isactive,isFollowing;
 
     public Users()
     {
 
     }
+
+    public Users(String userId, Boolean isFollowing) {
+        this.userId = userId;
+        this.isFollowing = isFollowing;
+    }
+
 
     public Users( String username, String email, String bio)
     {
@@ -31,6 +37,7 @@ public class Users {
         this.admindeleted = false;
         this.suspended = false;
         this.isactive = true;
+        this.isFollowing = false;
     }
     public Users(String userId, String username, String email, String roles, String profilePicture) {
         this.userId = userId;
@@ -44,6 +51,7 @@ public class Users {
         this.admindeleted = false;
         this.suspended = false;
         this.isactive = true;
+        this.isFollowing = false;
     }
 
     public String getUserId() {
@@ -164,4 +172,6 @@ public class Users {
     public void setAdmindeletedon(String admindeletedon) {
         this.admindeletedon = admindeletedon;
     }
+
+
 }
