@@ -17,5 +17,6 @@ public interface IUserInterface {
     void getModeratorList(DataOperationCallback<List<Users>> callback) ;
     void deleteProfile(String uid,OperationCallback callback);
     void setbackdeleteProfile(String uid);
+    public void getActiveUserList(DataOperationCallback<List<Users>> callback);
 
     }
