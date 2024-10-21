@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.ModelData.Users;
+import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserService;
 import com.example.socialtrailsapp.CustomAdapter.SearchUserAdapter;
 
@@ -20,6 +21,7 @@ public class SearchUserActivity extends BottomMenuActivity implements SearchUser
     private SearchUserAdapter searchUserAdapter;
     private List<Users> usersList;
     private UserService userService;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,7 @@ public class SearchUserActivity extends BottomMenuActivity implements SearchUser
         recyclerViewUsers.setAdapter(searchUserAdapter);
 
         userService = new UserService();
+        sessionManager = SessionManager.getInstance(this);
 
         loadUserList();
     }
@@ -42,8 +45,15 @@ public class SearchUserActivity extends BottomMenuActivity implements SearchUser
         userService.getActiveUserList(new DataOperationCallback<List<Users>>() {
             @Override
             public void onSuccess(List<Users> data) {
+                String currentUserId = sessionManager.getUserID();
                 usersList.clear();
-                usersList.addAll(data);
+
+                for (Users user : data) {
+                    if (!user.getUserId().equals(currentUserId)) {
+                        usersList.add(user);
+                    }
+                }
+
                 searchUserAdapter.notifyDataSetChanged();
             }
 
