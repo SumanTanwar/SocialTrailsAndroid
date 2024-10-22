@@ -16,7 +16,8 @@ public class UserPost {
     private ArrayList<Uri> imageUris;
     private Double  latitude,longitude;
     public List<Uri> uploadedImageUris;
-
+    private int likecount;
+    private boolean isliked;
     public UserPost() {
     }
 
@@ -150,6 +151,22 @@ public class UserPost {
 
     public void setAdmindeleted(Boolean admindeleted) {
         this.admindeleted = admindeleted;
+    }
+
+    public int getLikecount() {
+        return likecount;
+    }
+
+    public void setLikecount(int likecount) {
+        this.likecount = likecount;
+    }
+
+    public boolean isLiked() {
+        return isliked;
+    }
+
+    public void setLiked(boolean liked) {
+        this.isliked = liked;
     }
 
     public Map<String, Object> toMap() {

@@ -48,7 +48,9 @@
             android:contentDescription="Options"
             android:background="@null"
             android:scaleType="fitCenter"
-            android:layout_marginStart="5dp"/>
+            android:layout_marginStart="5dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
     </LinearLayout>
 
@@ -74,14 +76,16 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/likeButton"
+            android:id="@+id/postlikeButton"
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:src="@drawable/like"
             android:layout_marginRight="5dp"
             android:contentDescription="Like"
             android:background="@null"
-            android:scaleType="fitCenter"/>
+            android:scaleType="fitCenter"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
         <TextView
             android:id="@+id/postlikecnt"
@@ -100,7 +104,9 @@
             android:contentDescription="Comment"
             android:background="@null"
             android:layout_marginRight="5dp"
-            android:scaleType="fitCenter"/>
+            android:scaleType="fitCenter"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
         <TextView
             android:id="@+id/cmtcnt"

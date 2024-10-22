@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.IUserPostInterface;
@@ -15,6 +16,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -205,5 +208,34 @@ public class UserPostService implements IUserPostInterface {
                         }
                     }
                 });
+    }
+    @Override
+    public void updateLikeCount(String postId, int change, DataOperationCallback<Integer> callback) {
+        reference.child(_collectionName).child(postId).child("likecount").runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                Integer currentCount = mutableData.getValue(Integer.class);
+                if (currentCount == null) {
+                    currentCount = 0;
+                }
+                currentCount += change;
+                mutableData.setValue(currentCount);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError error, boolean committed, @Nullable DataSnapshot dataSnapshot) {
+                if (error != null) {
+                    if (callback != null) {
+                        callback.onFailure(error.getMessage());
+                    }
+                } else {
+                    if (callback != null) {
+                        callback.onSuccess(dataSnapshot.getValue(Integer.class));
+                    }
+                }
+            }
+        });
     }
 }
