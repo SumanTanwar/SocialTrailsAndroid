@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -23,15 +25,18 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.LikeResult;
+import com.example.socialtrailsapp.ModelData.PostComment;
 import com.example.socialtrailsapp.ModelData.PostLike;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.UserPostEditActivity;
+import com.example.socialtrailsapp.Utility.PostCommentService;
 import com.example.socialtrailsapp.Utility.PostLikeService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostViewHolder> {
@@ -41,13 +46,15 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
     private SessionManager sessionManager;
     UserPostService userPostService;
     PostLikeService postLikeService;
-
+    PostCommentService postCommentService;
+    TextView noCommentsTextView;
     public UserPostAdapter(Context context, List<UserPost> postList) {
         this.context = context;
         this.postList = postList;
         sessionManager = SessionManager.getInstance(context);
         userPostService = new UserPostService();
         postLikeService = new PostLikeService();
+        postCommentService = new PostCommentService();
         setHasStableIds(true);
     }
 
@@ -113,6 +120,12 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         });
 
         holder.postlikecnt.setText(String.valueOf(post.getLikecount()));
+
+        //comment
+        holder.cmtpostcnt.setText(String.valueOf(post.getCommentcount()));
+        holder.commentButton.setOnClickListener(view -> {
+            openCommentDialog(post.getPostId());
+        });
     }
     @Override
     public long getItemId(int position) {
@@ -128,9 +141,9 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         TextView userName;
         TextView userLocation;
         TextView postCaption;
-        TextView detailrelativetime, postlikecnt;
+        TextView detailrelativetime, postlikecnt,cmtpostcnt;
         RecyclerView imagesRecyclerView;
-        ImageButton optionsButton, postlikeButton;
+        ImageButton optionsButton, postlikeButton,commentButton;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -143,6 +156,8 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
             optionsButton = itemView.findViewById(R.id.optionsButton);
             postlikeButton = itemView.findViewById(R.id.postlikeButton);
             postlikecnt = itemView.findViewById(R.id.postlikecnt);
+            cmtpostcnt = itemView.findViewById(R.id.cmtpostcnt);
+            commentButton = itemView.findViewById(R.id.commentButton);
         }
     }
 
@@ -216,7 +231,106 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
 
             }
         });
+    }
+
+    private void openCommentDialog(String postId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_comments, null);
+
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        ImageView cancelIcon = dialogView.findViewById(R.id.cmtcancelButton);
+        cancelIcon.setOnClickListener(v -> dialog.dismiss());
+
+        RecyclerView commentsRecyclerView = dialogView.findViewById(R.id.commentsRecyclerView);
+        EditText commentInput = dialogView.findViewById(R.id.commentInput);
+        Button sendCommentButton = dialogView.findViewById(R.id.sendCommentButton);
+         noCommentsTextView = dialogView.findViewById(R.id.noCommentsTextView);
+
+        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        CommentAdapter commentAdapter = new CommentAdapter(context, new ArrayList<>(),postId, this::updateCommentCount);
+        commentsRecyclerView.setAdapter(commentAdapter);
+
+        // Fetch comments
+        fetchComments(postId, commentAdapter,noCommentsTextView);
+
+        sendCommentButton.setOnClickListener(v -> {
+            String commentText = commentInput.getText().toString().trim();
+            if (commentText.isEmpty()) {
+                Toast.makeText(context, "Please enter a comment before sending.", Toast.LENGTH_SHORT).show();
+            } else {
+                addComment(postId, commentText, commentAdapter,noCommentsTextView);
+                commentInput.setText("");
+            }
+        });
+
+        dialog.show();
+    }
+    private void fetchComments(String postId, CommentAdapter commentAdapter, TextView noCommentsTextView) {
+        postCommentService.retrieveComments(postId, new DataOperationCallback<List<PostComment>>() {
+            @Override
+            public void onSuccess(List<PostComment> comments) {
+                commentAdapter.updateComments(comments);
+                int commentCount = comments.size();
+
+                if (commentCount == 0) {
+                    noCommentsTextView.setVisibility(View.VISIBLE);
+                } else {
+                    noCommentsTextView.setVisibility(View.GONE);
+                }
 
 
+                for (int i = 0; i < postList.size(); i++) {
+                    UserPost post = postList.get(i);
+                    if (post.getPostId().equals(postId)) {
+                        post.setCommentcount(commentCount);
+                        notifyItemChanged(i);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(context, "Failed to load comments: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    private void addComment(String postId, String commentText,CommentAdapter commentAdapter,TextView noCommentsTextView) {
+        String userId = sessionManager.getUserID();
+
+        PostComment newComment = new PostComment(postId,userId, commentText);
+
+        postCommentService.addPostComment(newComment, new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(context, "Comment added", Toast.LENGTH_SHORT).show();
+                fetchComments(postId, commentAdapter,noCommentsTextView);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(context, "Failed to add comment", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void updateCommentCount(String postId) {
+        for (UserPost post : postList) {
+            if (post.getPostId().equals(postId)) {
+                int newCommentCount = post.getCommentcount() - 1;
+                post.setCommentcount(newCommentCount);
+                notifyItemChanged(postList.indexOf(post));
+
+                if (post.getCommentcount() == 0) {
+                    noCommentsTextView.setVisibility(View.VISIBLE);
+                } else {
+                    noCommentsTextView.setVisibility(View.GONE);
+                }
+                break;
+            }
+        }
     }
 }

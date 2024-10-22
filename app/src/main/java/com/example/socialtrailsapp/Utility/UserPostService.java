@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.IUserPostInterface;
 import com.example.socialtrailsapp.Interface.OperationCallback;
+import com.example.socialtrailsapp.ModelData.PostComment;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,11 +32,12 @@ public class UserPostService implements IUserPostInterface {
     private DatabaseReference reference;
     private static String _collectionName = "post";
     private PostImagesService postImagesService;
-
+    private PostCommentService postCommentService;
     public UserPostService() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         reference = database.getReference();
         postImagesService = new PostImagesService();
+        postCommentService = new PostCommentService();
     }
     @Override
     public void createPost(UserPost userPost, OperationCallback callback) {
@@ -77,7 +79,6 @@ public class UserPostService implements IUserPostInterface {
                     }
                 }
 
-
                 if (tempList.isEmpty()) {
                     Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
                     callback.onSuccess(postList);
@@ -91,15 +92,26 @@ public class UserPostService implements IUserPostInterface {
                         public void onSuccess(List<Uri> imageUris) {
                             post.setUploadedImageUris(imageUris);
                             postList.add(post);
-                            Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
-                            if (pendingRequests.decrementAndGet() == 0) {
-                                callback.onSuccess(postList);
-                            }
+                            countCommentsForPost(post.getPostId(), new DataOperationCallback<Integer>() {
+                                @Override
+                                public void onSuccess(Integer data) {
+                                    post.setCommentcount(data);  // Assuming UserPost has setCommentCount method
+                                    Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
+                                    if (pendingRequests.decrementAndGet() == 0) {
+                                        callback.onSuccess(postList);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+
+                                }
+                            });
+
                         }
 
                         @Override
                         public void onFailure(String error) {
-
                             if (pendingRequests.decrementAndGet() == 0) {
                                 callback.onSuccess(postList);
                             }
@@ -238,4 +250,20 @@ public class UserPostService implements IUserPostInterface {
             }
         });
     }
+    private void countCommentsForPost(String postId, DataOperationCallback<Integer> callback) {
+        postCommentService.retrieveComments(postId, new DataOperationCallback<List<PostComment>>() {
+            @Override
+            public void onSuccess(List<PostComment> data) {
+                int commentCount = (int) data.size();
+                callback.onSuccess(commentCount);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                callback.onFailure(error);
+            }
+        });
+
+    }
+
 }
