@@ -25,12 +25,13 @@ public class PostLikeService implements IPostLike {
     private DatabaseReference reference;
     private static String _collectionName = "postlike";
     private UserPostService userPostService;
+    private UserService userService;
 
     public PostLikeService() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         reference = database.getReference();
         userPostService = new UserPostService();
-
+        userService = new UserService();
     }
 
     @Override
@@ -133,6 +134,46 @@ public class PostLikeService implements IPostLike {
             }
         });
     }
+    @Override
+    public void getLikesForPost(String postId, DataOperationCallback<List<Users>> callback) {
+        List<Users> likesWithUsers = new ArrayList<>();
 
+        reference.child(_collectionName).orderByChild("postId").equalTo(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot likeSnapshot : snapshot.getChildren()) {
+                    PostLike postLike = likeSnapshot.getValue(PostLike.class);
+                    if (postLike != null) {
+                        // Fetch user details based on userId from the postLike
+                        userService.getUserByID(postLike.getUserId(), new DataOperationCallback<Users>() {
+                            @Override
+                            public void onSuccess(Users user) {
+
+                                likesWithUsers.add(user);
+
+                                // Check if we've processed all likes
+                                if (likesWithUsers.size() == snapshot.getChildrenCount()) {
+                                    callback.onSuccess(likesWithUsers);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(String error) {
+                                callback.onFailure(error);
+                            }
+                        });
+                    }
+                }
+                if (likesWithUsers.isEmpty()) {
+                    callback.onSuccess(likesWithUsers);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure(error.getMessage());
+            }
+        });
+    }
 
 }

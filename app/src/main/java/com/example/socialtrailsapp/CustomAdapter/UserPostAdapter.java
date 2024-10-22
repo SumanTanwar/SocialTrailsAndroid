@@ -22,13 +22,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.example.socialtrailsapp.FollowUnfollowActivity;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.LikeResult;
 import com.example.socialtrailsapp.ModelData.PostComment;
 import com.example.socialtrailsapp.ModelData.PostLike;
 import com.example.socialtrailsapp.ModelData.UserPost;
+import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
+import com.example.socialtrailsapp.SearchUserActivity;
 import com.example.socialtrailsapp.UserPostEditActivity;
 import com.example.socialtrailsapp.Utility.PostCommentService;
 import com.example.socialtrailsapp.Utility.PostLikeService;
@@ -120,7 +123,12 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         });
 
         holder.postlikecnt.setText(String.valueOf(post.getLikecount()));
-
+        holder.postlikecnt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showLikesDialog(post.getPostId());
+            }
+        });
         //comment
         holder.cmtpostcnt.setText(String.valueOf(post.getCommentcount()));
         holder.commentButton.setOnClickListener(view -> {
@@ -333,4 +341,39 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
             }
         }
     }
+    private void showLikesDialog(String postId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_likes, null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        RecyclerView likesRecyclerView = dialogView.findViewById(R.id.likesRecyclerView);
+        likesRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+        List<Users> likesWithUsers = new ArrayList<>();
+        SearchUserAdapter searchUserAdapter = new SearchUserAdapter(likesWithUsers, position -> {
+            Users user = likesWithUsers.get(position);
+            Intent intent = new Intent(context, FollowUnfollowActivity.class);
+            intent.putExtra("intentuserId", user.getUserId());
+            context.startActivity(intent);
+        });
+        likesRecyclerView.setAdapter(searchUserAdapter);
+
+        postLikeService.getLikesForPost(postId, new DataOperationCallback<List<Users>>() {
+            @Override
+            public void onSuccess(List<Users> likes) {
+                likesWithUsers.clear();
+                likesWithUsers.addAll(likes);
+                searchUserAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(context, "Failed to load likes: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
+    }
+
 }
