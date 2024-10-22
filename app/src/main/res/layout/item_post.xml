@@ -109,7 +109,7 @@
             android:focusableInTouchMode="false"/>
 
         <TextView
-            android:id="@+id/cmtcnt"
+            android:id="@+id/cmtpostcnt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

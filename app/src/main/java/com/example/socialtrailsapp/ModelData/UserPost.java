@@ -18,6 +18,7 @@ public class UserPost {
     public List<Uri> uploadedImageUris;
     private int likecount;
     private boolean isliked;
+    private int commentcount;
     public UserPost() {
     }
 
@@ -169,6 +170,14 @@ public class UserPost {
         this.isliked = liked;
     }
 
+    public int getCommentcount() {
+        return commentcount;
+    }
+
+    public void setCommentcount(int commentcount) {
+        this.commentcount = commentcount;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
         result.put("postId", postId);
@@ -192,4 +201,5 @@ public class UserPost {
 
         return result;
     }
+
 }
