@@ -17,6 +17,7 @@ public class FollowService {
     }
 
     public void addFollow(UserFollow userFollow) {
+        userFollow.setCreatedOn(Utils.getCurrentDatetime());
         String followId = databaseReference.push().getKey();
         userFollow.setFollowId(followId);
         databaseReference.child(followId).setValue(userFollow)

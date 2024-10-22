@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
+import com.example.socialtrailsapp.ModelData.Notification;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.UserFollow;
 import com.example.socialtrailsapp.ModelData.Users;
@@ -24,7 +25,6 @@ import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
 import com.example.socialtrailsapp.Utility.FollowService;
-import com.example.socialtrailsapp.Utility.Utils;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -37,15 +37,15 @@ import java.util.List;
 
 public class FollowUnfollowActivity extends BottomMenuActivity {
 
-    String userId;
-    UserService userService;
-    UserPostService userPostService;
-    TextView txtprofileusername, txtuserbio, postscount;
-    Button btnFollowUnfollow;
+    private String userId;
+    private UserService userService;
+    private UserPostService userPostService;
+    private TextView txtprofileusername, txtuserbio, postscount;
+    private Button btnFollowUnfollow;
     private SessionManager sessionManager;
-    List<UserPost> list;
-    ImageView profile_pic;
-    FollowService followService; // Declare FollowService
+    private List<UserPost> list;
+    private ImageView profile_pic;
+    private FollowService followService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         btnFollowUnfollow = findViewById(R.id.btnFollowUnfollow);
         profile_pic = findViewById(R.id.profile_pic);
         sessionManager = SessionManager.getInstance(this);
-        followService = new FollowService(this); // Initialize FollowService
+        followService = new FollowService(this);
 
         userService.adminGetUserByID(userId, new DataOperationCallback<Users>() {
             @Override
@@ -136,9 +136,13 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                             UserFollow userFollow = new UserFollow();
                             userFollow.setUserId(userId);
                             userFollow.setFollowersId(followersId);
-                            userFollow.setFollowingId(followersId); // Set to the follower's ID if needed
+                            userFollow.setFollowingId(followersId);
                             followService.addFollow(userFollow);
                             btnFollowUnfollow.setText("Unfollow");
+
+                            // Create notification
+                            Notification notification = new Notification(sessionManager.getUsername(), sessionManager.getProfileImage(), false);
+                            sendNotificationToUser(userId, notification);
                         }
                     }
 
@@ -147,6 +151,39 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                         Toast.makeText(FollowUnfollowActivity.this, "Error toggling follow status: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+
+    private void sendNotificationToUser(String userId, Notification notification) {
+        DatabaseReference notificationRef = FirebaseDatabase.getInstance().getReference("notifications").child(userId);
+        String notificationId = notificationRef.push().getKey();
+        if (notificationId != null) {
+            notificationRef.child(notificationId).setValue(notification)
+                    .addOnSuccessListener(aVoid -> Log.d("Notification", "Notification sent successfully."))
+                    .addOnFailureListener(e -> Log.e("Notification", "Failed to send notification: " + e.getMessage()));
+        }
+    }
+
+
+    private void fetchNotifications(String userId) {
+        DatabaseReference notificationRef = FirebaseDatabase.getInstance().getReference("notifications").child(userId);
+        notificationRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Notification notification = snapshot.getValue(Notification.class);
+                    if (notification != null && !notification.isRead()) {
+                        // Display notification (e.g., in a Toast or ListView)
+                        Toast.makeText(FollowUnfollowActivity.this, notification.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("Notification", "Error fetching notifications: " + databaseError.getMessage());
+            }
+        });
     }
 
     private void getAllUserPost(String userId) {
