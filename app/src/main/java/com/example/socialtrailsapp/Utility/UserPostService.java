@@ -365,46 +365,46 @@ public class UserPostService implements IUserPostInterface {
     }
     @Override
     public void retrievePostsForFollowedUsers(String currentUserId, final DataOperationCallback<List<UserPost>> callback) {
-        followService.getPostsFromFollowedUsers(currentUserId, new DataOperationCallback<List<String>>() {
-            @Override
-            public void onSuccess(List<String> followedUserIds) {
-
-                if (followedUserIds.isEmpty()) {
-                    Log.d("followers", "No followed users");
-                    callback.onSuccess(new ArrayList<>()); // Return an empty list
-                    return;
-                }
-
-                Log.d("followers","Follower List " + followedUserIds.get(0));
-
-                List<UserPost> postList = new ArrayList<>();
-                AtomicInteger pendingRequests = new AtomicInteger(followedUserIds.size());
-
-                for (String userId : followedUserIds) {
-                    getAllUserPostDetail(userId, new DataOperationCallback<List<UserPost>>() {
-                        @Override
-                        public void onSuccess(List<UserPost> posts) {
-                            postList.addAll(posts);
-                            if (pendingRequests.decrementAndGet() == 0) {
-                                callback.onSuccess(postList);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(String error) {
-                            if (pendingRequests.decrementAndGet() == 0) {
-                                callback.onSuccess(postList);
-                            }
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(String error) {
-                callback.onFailure(error); // Handle error in fetching followed user IDs
-            }
-        });
+//        followService.getPostsFromFollowedUsers(currentUserId, new DataOperationCallback<List<String>>() {
+//            @Override
+//            public void onSuccess(List<String> followedUserIds) {
+//
+//                if (followedUserIds.isEmpty()) {
+//                    Log.d("followers", "No followed users");
+//                    callback.onSuccess(new ArrayList<>()); // Return an empty list
+//                    return;
+//                }
+//
+//                Log.d("followers","Follower List " + followedUserIds.get(0));
+//
+//                List<UserPost> postList = new ArrayList<>();
+//                AtomicInteger pendingRequests = new AtomicInteger(followedUserIds.size());
+//
+//                for (String userId : followedUserIds) {
+//                    getAllUserPostDetail(userId, new DataOperationCallback<List<UserPost>>() {
+//                        @Override
+//                        public void onSuccess(List<UserPost> posts) {
+//                            postList.addAll(posts);
+//                            if (pendingRequests.decrementAndGet() == 0) {
+//                                callback.onSuccess(postList);
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(String error) {
+//                            if (pendingRequests.decrementAndGet() == 0) {
+//                                callback.onSuccess(postList);
+//                            }
+//                        }
+//                    });
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(String error) {
+//                callback.onFailure(error); // Handle error in fetching followed user IDs
+//            }
+//        });
     }
 
 }
