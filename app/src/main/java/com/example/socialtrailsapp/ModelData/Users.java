@@ -5,6 +5,7 @@ import com.example.socialtrailsapp.Utility.Utils;
 public class Users {
     private String userId,username,email,createdon,profilepicture,roles,bio,suspendedreason,suspendedby,admindeletedon;
     private Boolean profiledeleted,notification,admindeleted,suspended,isactive,isFollowing;
+    private int followerCount;
 
     public Users()
     {
@@ -174,4 +175,11 @@ public class Users {
     }
 
 
+    public int getFollowerCount() {
+        return followerCount;
+    }
+
+    public void setFollowerCount(int followerCount) {
+        this.followerCount = followerCount;
+    }
 }
