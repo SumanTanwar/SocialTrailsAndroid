@@ -19,6 +19,8 @@ public class UserPost {
     private int likecount;
     private boolean isliked;
     private int commentcount;
+    private  String username;
+    private String userprofilepicture;
     public UserPost() {
     }
 
@@ -176,6 +178,22 @@ public class UserPost {
 
     public void setCommentcount(int commentcount) {
         this.commentcount = commentcount;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUserprofilepicture() {
+        return userprofilepicture;
+    }
+
+    public void setUserprofilepicture(String userprofilepicture) {
+        this.userprofilepicture = userprofilepicture;
     }
 
     public Map<String, Object> toMap() {

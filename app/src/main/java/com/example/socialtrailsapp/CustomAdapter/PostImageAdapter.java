@@ -36,9 +36,6 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.Imag
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         Uri imageUri = imageUris.get(position);
-        Log.d("PostImageAdapter", "Image count: " + imageUris.size());
-        Log.d("postimage","image url : " + imageUri);
-
         try {
             Glide.with(context)
                     .load(imageUri)
@@ -55,7 +52,12 @@ public class PostImageAdapter extends RecyclerView.Adapter<PostImageAdapter.Imag
 
     @Override
     public int getItemCount() {
-        return imageUris.size();
+        if (imageUris != null) {
+            return imageUris.size();
+        } else{
+            return 0;
+        }
+
     }
 
     static class ImageViewHolder extends RecyclerView.ViewHolder {

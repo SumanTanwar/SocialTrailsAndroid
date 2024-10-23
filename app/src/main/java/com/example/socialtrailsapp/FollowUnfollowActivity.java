@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
+import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.Notification;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.UserFollow;
@@ -61,7 +62,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         btnFollowUnfollow = findViewById(R.id.btnFollowUnfollow);
         profile_pic = findViewById(R.id.profile_pic);
         sessionManager = SessionManager.getInstance(this);
-        followService = new FollowService(this);
+        followService = new FollowService();
 
         userService.adminGetUserByID(userId, new DataOperationCallback<Users>() {
             @Override
@@ -128,7 +129,17 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                         if (isFollowing) {
                             // Unfollow
                             if (existingFollowKey != null) {
-                                followService.removeFollow(existingFollowKey);
+                                followService.removeFollow(existingFollowKey, new OperationCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Toast.makeText(FollowUnfollowActivity.this, "Unfollowed successfully!", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onFailure(String error) {
+                                        Toast.makeText(FollowUnfollowActivity.this, "Failed to unfollow: " + error, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                                 btnFollowUnfollow.setText("Follow");
                             }
                         } else {
@@ -137,7 +148,17 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                             userFollow.setUserId(userId);
                             userFollow.setFollowersId(followersId);
                             userFollow.setFollowingId(followersId);
-                            followService.addFollow(userFollow);
+                            followService.addFollow(userFollow, new OperationCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    Toast.makeText(FollowUnfollowActivity.this, "Followed successfully!", Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+                                    Toast.makeText(FollowUnfollowActivity.this, "Failed to follow: " + error, Toast.LENGTH_SHORT).show();
+                                }
+                            });
                             btnFollowUnfollow.setText("Unfollow");
 
                             // Create notification

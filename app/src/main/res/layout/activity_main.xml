@@ -6,29 +6,54 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    android:layout_marginTop="180dp"
+    android:layout_marginTop="20dp"
     >
 
-    <TextView
-        android:id="@+id/txtdata"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:gravity="center"
-        android:layout_marginBottom="50dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="5dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
 
-    <Button
-        android:id="@+id/btnNotify"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Notification"
-        tools:layout_editor_absoluteX="154dp"
-        tools:layout_editor_absoluteY="276dp"
-        tools:ignore="MissingConstraints" />
+        <ImageView
+            android:id="@+id/profileImageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/profile_image_desc" />
 
+        <TextView
+            android:id="@+id/userNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Unknown"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_weight="1" /> <!-- Use layout_weight to push the button to the end -->
+
+        <ImageView
+            android:id="@+id/btnNotify"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/like"  >
+
+        </ImageView>
+    </LinearLayout>
+
+    <View
+
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dashpostsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:nestedScrollingEnabled="false"/>
 </LinearLayout>

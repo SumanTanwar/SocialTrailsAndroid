@@ -71,9 +71,10 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         UserPost post = postList.get(position);
+        String userId = sessionManager.getUserID();
 
-        if (sessionManager.getProfileImage() != null) {
-            Uri profileImageUri = Uri.parse(sessionManager.getProfileImage());
+        if (post.getUserprofilepicture() != null) {
+            Uri profileImageUri = Uri.parse(post.getUserprofilepicture());
             Glide.with(context)
                     .load(profileImageUri)
                     .transform(new CircleCrop())
@@ -85,7 +86,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
                     .into(holder.userProfileImage);
         }
 
-        holder.userName.setText(sessionManager.getUsername());
+        holder.userName.setText(post.getUsername());
         holder.userLocation.setText(post.getLocation());
         holder.postCaption.setText(post.getCaptiontext());
         holder.detailrelativetime.setText(Utils.getRelativeTime(post.getCreatedon()));
@@ -93,10 +94,14 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         holder.imagesRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
         PostImageAdapter imageAdapter = new PostImageAdapter(context, post.getUploadedImageUris());
         holder.imagesRecyclerView.setAdapter(imageAdapter);
-
+        if (post.getUserId().equals(userId)) {
+            holder.optionsButton.setVisibility(View.VISIBLE); // Show delete button
+        } else {
+            holder.optionsButton.setVisibility(View.GONE); // Hide delete button
+        }
         holder.optionsButton.setOnClickListener(view -> showPopupMenu(view, post.getPostId(), holder.getAdapterPosition()));
 
-        String userId = sessionManager.getUserID();
+
         //update the like
         postLikeService.getPostLikeByUserandPostId(post.getPostId(), userId, new DataOperationCallback<PostLike>() {
             @Override
