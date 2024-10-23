@@ -129,6 +129,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                         if (isFollowing) {
                             // Unfollow
                             if (existingFollowKey != null) {
+
                                 followService.removeFollow(existingFollowKey, new OperationCallback() {
                                     @Override
                                     public void onSuccess() {
@@ -141,6 +142,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                                     }
                                 });
                                 btnFollowUnfollow.setText("Follow");
+                                followService.deleteNotificationForUser(userId, sessionManager.getUserID());
                             }
                         } else {
                             // Follow
@@ -163,7 +165,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
 
                             // Create notification
                             Notification notification = new Notification(sessionManager.getUsername(), sessionManager.getProfileImage(), false);
-                            sendNotificationToUser(userId, notification);
+                            followService.sendNotificationToUser(userId, notification);
                         }
                     }
 
@@ -172,17 +174,6 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                         Toast.makeText(FollowUnfollowActivity.this, "Error toggling follow status: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-
-    private void sendNotificationToUser(String userId, Notification notification) {
-        DatabaseReference notificationRef = FirebaseDatabase.getInstance().getReference("notifications").child(userId);
-        String notificationId = notificationRef.push().getKey();
-        if (notificationId != null) {
-            notificationRef.child(notificationId).setValue(notification)
-                    .addOnSuccessListener(aVoid -> Log.d("Notification", "Notification sent successfully."))
-                    .addOnFailureListener(e -> Log.e("Notification", "Failed to send notification: " + e.getMessage()));
-        }
     }
 
 
@@ -233,6 +224,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
 
     private void setDetail(Users user) {
         txtprofileusername.setText(user.getUsername());
+        txtuserbio.setText(user.getBio());
 
         if (user.getProfilepicture() != null && !user.getProfilepicture().isEmpty()) {
             Uri profileImageUri = Uri.parse(user.getProfilepicture());

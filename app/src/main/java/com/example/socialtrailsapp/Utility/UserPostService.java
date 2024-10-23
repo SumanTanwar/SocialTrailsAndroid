@@ -85,7 +85,7 @@ public class UserPostService implements IUserPostInterface {
 
 
                 if (tempList.isEmpty()) {
-                    Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
+                    // Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
                     callback.onSuccess(postList);
                     return;
                 }
@@ -210,16 +210,16 @@ public class UserPostService implements IUserPostInterface {
     private void retrieveUserDetails(String userId, DataOperationCallback<Users> callback) {
 
         userService.getUserByID(userId, new DataOperationCallback<Users>() {
-                    @Override
-                    public void onSuccess(Users data) {
-                        callback.onSuccess(data);
-                    }
+            @Override
+            public void onSuccess(Users data) {
+                callback.onSuccess(data);
+            }
 
-                    @Override
-                    public void onFailure(String error) {
-                        callback.onFailure("User not found");
-                    }
-                });
+            @Override
+            public void onFailure(String error) {
+                callback.onFailure("User not found");
+            }
+        });
 
 
     }
@@ -368,6 +368,13 @@ public class UserPostService implements IUserPostInterface {
         followService.getPostsFromFollowedUsers(currentUserId, new DataOperationCallback<List<String>>() {
             @Override
             public void onSuccess(List<String> followedUserIds) {
+
+                if (followedUserIds.isEmpty()) {
+                    Log.d("followers", "No followed users");
+                    callback.onSuccess(new ArrayList<>()); // Return an empty list
+                    return;
+                }
+
                 Log.d("followers","Follower List " + followedUserIds.get(0));
 
                 List<UserPost> postList = new ArrayList<>();

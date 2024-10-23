@@ -2,6 +2,7 @@ package com.example.socialtrailsapp.Utility;
 
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
+import com.example.socialtrailsapp.ModelData.Notification;
 import com.example.socialtrailsapp.ModelData.UserFollow;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -10,6 +11,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -86,4 +88,38 @@ public class FollowService {
             }
         });
     }
+
+    public void sendNotificationToUser(String userId, Notification notification) {
+        DatabaseReference notificationRef = FirebaseDatabase.getInstance().getReference("notifications").child(userId);
+        String notificationId = notificationRef.push().getKey();
+        if (notificationId != null) {
+            notificationRef.child(notificationId).setValue(notification)
+                    .addOnSuccessListener(aVoid -> Log.d("Notification", "Notification sent successfully."))
+                    .addOnFailureListener(e -> Log.e("Notification", "Failed to send notification: " + e.getMessage()));
+        }
+    }
+
+    public void deleteNotificationForUser(String userId, String followerId) {
+        DatabaseReference notificationRef = FirebaseDatabase.getInstance().getReference("notifications").child(userId);
+
+        notificationRef.orderByChild("followerId").equalTo(followerId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            snapshot.getRef().removeValue()
+                                    .addOnSuccessListener(aVoid ->
+                                            Log.d("Notification", "Notification deleted successfully."))
+                                    .addOnFailureListener(e ->
+                                            Log.e("Notification", "Failed to delete notification: " + e.getMessage()));
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Log.e("Notification", "Error deleting notification: " + databaseError.getMessage());
+                    }
+                });
+    }
+
 }
