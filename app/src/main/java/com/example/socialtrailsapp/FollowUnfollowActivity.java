@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,20 +19,13 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
-import com.example.socialtrailsapp.ModelData.Notification;
 import com.example.socialtrailsapp.ModelData.UserPost;
-import com.example.socialtrailsapp.ModelData.UserFollow;
 import com.example.socialtrailsapp.ModelData.Users;
+import com.example.socialtrailsapp.Utility.FollowService;
+import com.example.socialtrailsapp.Utility.NotificationService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
-import com.example.socialtrailsapp.Utility.FollowService;
-
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +36,14 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
     private UserService userService;
     private UserPostService userPostService;
     private TextView txtprofileusername, txtuserbio, postscount;
-    private Button btnFollowUnfollow;
+    private Button btnFollowUnfollow, btnReject, btnConfirm, btnFollowBack;
     private SessionManager sessionManager;
     private List<UserPost> list;
     private ImageView profile_pic;
     private FollowService followService;
+    private NotificationService notificationService;
+
+    private LinearLayout backsection,confirmsection,followsection; // Declare backsection
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,14 +58,24 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         postscount = findViewById(R.id.userpostscount);
         btnFollowUnfollow = findViewById(R.id.btnFollowUnfollow);
         profile_pic = findViewById(R.id.profile_pic);
+        btnReject = findViewById(R.id.btnReject);
+        btnConfirm = findViewById(R.id.btnConfirm);
+        btnFollowBack = findViewById(R.id.btnFollowBack);
+        backsection = findViewById(R.id.backsection); // Initialize backsection
+        confirmsection = findViewById(R.id.confirmsection); // Initialize backsection
+        followsection = findViewById(R.id.followsection); // Initialize backsection
+
         sessionManager = SessionManager.getInstance(this);
         followService = new FollowService();
+        notificationService = new NotificationService();
 
-        userService.adminGetUserByID(userId, new DataOperationCallback<Users>() {
+        userService.getUserByID(userId, new DataOperationCallback<Users>() {
             @Override
             public void onSuccess(Users data) {
                 setDetail(data);
-                checkFollowingStatus(sessionManager.getUserID(), userId);
+                followsection.setVisibility(View.VISIBLE);
+                checkPendingFollowRequests(data.getUserId());
+                checkFollowBack(data.getUserId());
             }
 
             @Override
@@ -79,121 +86,48 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 Toast.makeText(FollowUnfollowActivity.this, "Something went wrong! Please try again later.", Toast.LENGTH_SHORT).show();
             }
         });
-
-        btnFollowUnfollow.setOnClickListener(v -> toggleFollow(sessionManager.getUserID(), userId));
+        followsection.setVisibility(View.GONE);
+        backsection.setVisibility(View.GONE);
+        confirmsection.setVisibility(View.GONE);
+        btnFollowUnfollow.setOnClickListener(v -> sendFollowRequest());
+        btnConfirm.setOnClickListener(v -> confirmFollowRequest());
+        btnReject.setOnClickListener(v -> rejectFollowRequest());
+        btnFollowBack.setOnClickListener(v -> followBack());
     }
 
-    private void checkFollowingStatus(String followersId, String userId) {
-        DatabaseReference followRef = FirebaseDatabase.getInstance().getReference("userfollow");
-        followRef.orderByChild("followersId").equalTo(followersId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        boolean isFollowing = false;
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            UserFollow userFollow = snapshot.getValue(UserFollow.class);
-                            if (userFollow != null && userFollow.getUserId().equals(userId)) {
-                                isFollowing = true;
-                                break;
-                            }
-                        }
-                        btnFollowUnfollow.setText(isFollowing ? "Unfollow" : "Follow");
-                        Log.d("FollowCheck", "Is following: " + isFollowing);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(FollowUnfollowActivity.this, "Error checking follow status: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void toggleFollow(String followersId, String userId) {
-        DatabaseReference followRef = FirebaseDatabase.getInstance().getReference("userfollow");
-        followRef.orderByChild("followersId").equalTo(followersId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        boolean isFollowing = false;
-                        String existingFollowKey = null;
-
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            UserFollow userFollow = snapshot.getValue(UserFollow.class);
-                            if (userFollow != null && userFollow.getUserId().equals(userId)) {
-                                isFollowing = true;
-                                existingFollowKey = snapshot.getKey();
-                                break;
-                            }
-                        }
-
-                        if (isFollowing) {
-                            // Unfollow
-                            if (existingFollowKey != null) {
-
-                                followService.removeFollow(existingFollowKey, new OperationCallback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        Toast.makeText(FollowUnfollowActivity.this, "Unfollowed successfully!", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                    @Override
-                                    public void onFailure(String error) {
-                                        Toast.makeText(FollowUnfollowActivity.this, "Failed to unfollow: " + error, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                                btnFollowUnfollow.setText("Follow");
-                                followService.deleteNotificationForUser(userId, sessionManager.getUserID());
-                            }
-                        } else {
-                            // Follow
-                            UserFollow userFollow = new UserFollow();
-                            userFollow.setUserId(userId);
-                            userFollow.setFollowersId(followersId);
-                            userFollow.setFollowingId(followersId);
-                            followService.addFollow(userFollow, new OperationCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    Toast.makeText(FollowUnfollowActivity.this, "Followed successfully!", Toast.LENGTH_SHORT).show();
-                                }
-
-                                @Override
-                                public void onFailure(String error) {
-                                    Toast.makeText(FollowUnfollowActivity.this, "Failed to follow: " + error, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            btnFollowUnfollow.setText("Unfollow");
-
-                            // Create notification
-                            Notification notification = new Notification(sessionManager.getUsername(), sessionManager.getProfileImage(), false);
-                            followService.sendNotificationToUser(userId, notification);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(FollowUnfollowActivity.this, "Error toggling follow status: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-
-    private void fetchNotifications(String userId) {
-        DatabaseReference notificationRef = FirebaseDatabase.getInstance().getReference("notifications").child(userId);
-        notificationRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void sendFollowRequest() {
+        String currentUserId = sessionManager.getUserID(); // Get current user ID
+        followService.sendFollowRequest(currentUserId, userId, new OperationCallback() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Notification notification = snapshot.getValue(Notification.class);
-                    if (notification != null && !notification.isRead()) {
-                        // Display notification (e.g., in a Toast or ListView)
-                        Toast.makeText(FollowUnfollowActivity.this, notification.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+            public void onSuccess() {
+                Toast.makeText(FollowUnfollowActivity.this, "Follow request sent!", Toast.LENGTH_SHORT).show();
+                followsection.setVisibility(View.GONE); // Disable button after request
+//              cancel request
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(FollowUnfollowActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void checkPendingFollowRequests(String userIdToCheck) {
+        String currentUserId = sessionManager.getUserID();
+        followService.checkPendingRequests(currentUserId, userIdToCheck, new DataOperationCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean hasPendingRequest) {
+                if (hasPendingRequest) {
+                    confirmsection.setVisibility(View.VISIBLE);
+                    followsection.setVisibility(View.GONE); // Hide follow button
+                } else {
+                    followsection.setVisibility(View.VISIBLE); // Show follow button if no pending requests
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("Notification", "Error fetching notifications: " + databaseError.getMessage());
+            public void onFailure(String error) {
+                // Handle error...
             }
         });
     }
@@ -203,21 +137,96 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess(List<UserPost> data) {
                 list = new ArrayList<>(data);
-                Log.d("Post count", "count: " + list.size());
                 postscount.setText(String.valueOf(list.size()));
                 List<String> imageUrls = new ArrayList<>();
+                List<String> postIds = new ArrayList<>();
+
                 for (UserPost post : list) {
                     imageUrls.add(post.getUploadedImageUris().get(0).toString());
+                    postIds.add(post.getPostId());
                 }
 
                 GridView gridView = findViewById(R.id.gallery_grid);
-                GalleryImageAdapter adapter = new GalleryImageAdapter(FollowUnfollowActivity.this, imageUrls, new ArrayList<>());
+                GalleryImageAdapter adapter = new GalleryImageAdapter(FollowUnfollowActivity.this, imageUrls, postIds);
                 gridView.setAdapter(adapter);
             }
 
             @Override
             public void onFailure(String error) {
                 Toast.makeText(getApplicationContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void confirmFollowRequest() {
+        String currentUserId = sessionManager.getUserID();
+        followService.confirmFollowRequest(currentUserId, userId, new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(FollowUnfollowActivity.this, "Follow request confirmed!", Toast.LENGTH_SHORT).show();
+                backsection.setVisibility(View.VISIBLE);
+                confirmsection.setVisibility(View.GONE);
+
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(FollowUnfollowActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void rejectFollowRequest() {
+        String currentUserId = sessionManager.getUserID();
+        followService.rejectFollowRequest(currentUserId, userId, new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(FollowUnfollowActivity.this, "Follow request rejected!", Toast.LENGTH_SHORT).show();
+                followsection.setVisibility(View.VISIBLE);
+                confirmsection.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(FollowUnfollowActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void checkFollowBack(String userIdToCheck) {
+        String currentUserId = sessionManager.getUserID();
+        followService.checkIfFollowed(currentUserId, userIdToCheck, new DataOperationCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean isFollowing) {
+                if (isFollowing) {
+                    backsection.setVisibility(View.VISIBLE); // Show the back section if already following
+                    followsection.setVisibility(View.GONE); // Show the back section if already following
+                } else {
+                    backsection.setVisibility(View.GONE); // Hide the back section if not following
+                    followsection.setVisibility(View.VISIBLE); // Show follow button
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                // Handle error...
+            }
+        });
+    }
+
+    private void followBack() {
+        String currentUserId = sessionManager.getUserID();
+        followService.followBack(currentUserId, userId, new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(FollowUnfollowActivity.this, "You are now following this user!", Toast.LENGTH_SHORT).show();
+                backsection.setVisibility(View.GONE);
+                // unfollow button show
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(FollowUnfollowActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -1,24 +1,28 @@
 package com.example.socialtrailsapp.ModelData;
 
 import com.example.socialtrailsapp.Utility.Utils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserFollow {
     private String followId;
     private String userId;
-    private String followersId;
-    private String followingId;
-    private String removedFollow;
+    private List<String> followerIds = new ArrayList<>();
+    private Map<String, Boolean> followingIds = new HashMap<>();
     private String createdOn;
 
     public UserFollow() {
+        followingIds = new HashMap<>();
+        followerIds = new ArrayList<>();
     }
 
-    public UserFollow(String userId, String followersId, String followingId, String removedFollow) {
+    public UserFollow(String userId) {
         this.userId = userId;
-        this.followersId = followersId;
-        this.followingId = followingId;
-        this.removedFollow = removedFollow;
         this.createdOn = Utils.getCurrentDatetime();
+        this.followingIds = new HashMap<>();
+        this.followerIds = new ArrayList<>();
     }
 
     public String getFollowId() {
@@ -37,28 +41,30 @@ public class UserFollow {
         this.userId = userId;
     }
 
-    public String getFollowersId() {
-        return followersId;
+    public List<String> getFollowerIds() {
+        return followerIds;
     }
 
-    public void setFollowersId(String followersId) {
-        this.followersId = followersId;
+    public void setFollowerIds(List<String> followerIds) {
+        this.followerIds = followerIds;
     }
 
-    public String getFollowingId() {
-        return followingId;
+    public Map<String, Boolean> getFollowingIds() {
+        return followingIds;
     }
 
-    public void setFollowingId(String followingId) {
-        this.followingId = followingId;
+    public void setFollowingIds(Map<String, Boolean> followingIds) {
+        this.followingIds = followingIds;
     }
 
-    public String getRemovedFollow() {
-        return removedFollow;
+    public void addFollowingId(String followingId, boolean isPendingRequest) {
+        followingIds.put(followingId, isPendingRequest);
     }
 
-    public void setRemovedFollow(String removedFollow) {
-        this.removedFollow = removedFollow;
+    public void addFollowerId(String followerId) {
+        if (!followerIds.contains(followerId)) {
+            followerIds.add(followerId);
+        }
     }
 
     public String getCreatedOn() {

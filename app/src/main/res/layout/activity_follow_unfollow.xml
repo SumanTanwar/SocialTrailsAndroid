@@ -130,7 +130,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:id="@+id/followsection"
+        android:visibility="gone">
+
+
 
         <Button
             android:id="@+id/btnFollowUnfollow"
@@ -138,7 +142,54 @@
             android:layout_height="wrap_content"
             android:text="Follow"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"/>
+
+            />
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/confirmsection"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnConfirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirm"
+            android:layout_marginTop="10dp"
+            /> <!-- Initially hidden -->
+
+        <Button
+            android:id="@+id/btnReject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reject"
+            android:layout_marginTop="10dp"
+            /> <!-- Initially hidden -->
+
+
+
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/backsection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/btnFollowBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Follow Back"
+            android:layout_marginTop="10dp"
+
+            />
 
     </LinearLayout>
     <GridView
