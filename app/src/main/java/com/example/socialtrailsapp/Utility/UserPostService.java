@@ -11,6 +11,7 @@ import com.example.socialtrailsapp.Interface.IUserPostInterface;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.PostComment;
 import com.example.socialtrailsapp.ModelData.UserPost;
+import com.example.socialtrailsapp.ModelData.Users;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -33,11 +34,15 @@ public class UserPostService implements IUserPostInterface {
     private static String _collectionName = "post";
     private PostImagesService postImagesService;
     private PostCommentService postCommentService;
+    private FollowService followService;
+    private UserService userService;
     public UserPostService() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         reference = database.getReference();
         postImagesService = new PostImagesService();
         postCommentService = new PostCommentService();
+        followService = new FollowService();
+        userService = new UserService();
     }
     @Override
     public void createPost(UserPost userPost, OperationCallback callback) {
@@ -62,7 +67,6 @@ public class UserPostService implements IUserPostInterface {
                     }
                 });
     }
-    @Override
     public void getAllUserPost(String userId, final DataOperationCallback<List<UserPost>> callback) {
         reference.child(_collectionName).addValueEventListener(new ValueEventListener() {
             @Override
@@ -73,11 +77,12 @@ public class UserPostService implements IUserPostInterface {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Log.d("FirebaseData", snapshot.toString());
                     UserPost post = snapshot.getValue(UserPost.class);
-                    if (post != null && userId.equals(post.getUserId()) && post.getPostdeleted() == false && (post.getAdmindeleted() == null || post.getAdmindeleted() == false)) {
+                    if (post != null && userId.equals(post.getUserId())) {
                         post.setPostId(snapshot.getKey());
                         tempList.add(post);
                     }
                 }
+
 
                 if (tempList.isEmpty()) {
                     Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
@@ -92,26 +97,15 @@ public class UserPostService implements IUserPostInterface {
                         public void onSuccess(List<Uri> imageUris) {
                             post.setUploadedImageUris(imageUris);
                             postList.add(post);
-                            countCommentsForPost(post.getPostId(), new DataOperationCallback<Integer>() {
-                                @Override
-                                public void onSuccess(Integer data) {
-                                    post.setCommentcount(data);  // Assuming UserPost has setCommentCount method
-                                    Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
-                                    if (pendingRequests.decrementAndGet() == 0) {
-                                        callback.onSuccess(postList);
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(String error) {
-
-                                }
-                            });
-
+                            Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
+                            if (pendingRequests.decrementAndGet() == 0) {
+                                callback.onSuccess(postList);
+                            }
                         }
 
                         @Override
                         public void onFailure(String error) {
+
                             if (pendingRequests.decrementAndGet() == 0) {
                                 callback.onSuccess(postList);
                             }
@@ -126,6 +120,110 @@ public class UserPostService implements IUserPostInterface {
             }
         });
     }
+    @Override
+    public void getAllUserPostDetail(String userId, final DataOperationCallback<List<UserPost>> callback) {
+        reference.child(_collectionName).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<UserPost> postList = new ArrayList<>();
+                List<UserPost> tempList = new ArrayList<>();
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    UserPost post = snapshot.getValue(UserPost.class);
+                    if (post != null && userId.equals(post.getUserId()) && !post.getPostdeleted() && (post.getAdmindeleted() == null || !post.getAdmindeleted())) {
+                        post.setPostId(snapshot.getKey());
+                        tempList.add(post);
+                    }
+                }
+
+                // If no posts were found, return an empty list
+                if (tempList.isEmpty()) {
+                    callback.onSuccess(postList);
+                    return;
+                }
+
+                AtomicInteger pendingRequests = new AtomicInteger(tempList.size());
+
+                for (UserPost post : tempList) {
+                    getAllPhotos(post.getPostId(), new DataOperationCallback<List<Uri>>() {
+                        @Override
+                        public void onSuccess(List<Uri> imageUris) {
+                            post.setUploadedImageUris(imageUris);
+                            Log.d("postimage", "in user post image url " + post.getUploadedImageUris().size() );
+
+                            retrieveUserDetails(post.getUserId(), new DataOperationCallback<Users>() {
+                                @Override
+                                public void onSuccess(Users userDetails) {
+                                    Log.d("postimage", "success of user detail");
+                                    post.setUsername(userDetails.getUsername());
+                                    post.setUserprofilepicture(userDetails.getProfilepicture());
+
+                                    countCommentsForPost(post.getPostId(), new DataOperationCallback<Integer>() {
+                                        @Override
+                                        public void onSuccess(Integer data) {
+                                            post.setCommentcount(data);
+                                            Log.d("postimage", "success of comment");
+                                            postList.add(post);
+                                            checkCompletion(pendingRequests, postList, callback);
+                                        }
+
+                                        @Override
+                                        public void onFailure(String error) {
+                                            postList.add(post); // Still add the post even if comment count fails
+                                            checkCompletion(pendingRequests, postList, callback);
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+                                    postList.add(post); // Still add the post even if user detail fails
+                                    checkCompletion(pendingRequests, postList, callback);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            postList.add(post); // Still add the post even if photo retrieval fails
+                            checkCompletion(pendingRequests, postList, callback);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                callback.onFailure(databaseError.getMessage());
+            }
+        });
+    }
+
+    private void checkCompletion(AtomicInteger pendingRequests, List<UserPost> postList, DataOperationCallback<List<UserPost>> callback) {
+        if (pendingRequests.decrementAndGet() == 0) {
+            Collections.sort(postList, (post1, post2) -> post2.getCreatedon().compareTo(post1.getCreatedon()));
+            Log.d("postimage", "size : " + postList.size());
+            callback.onSuccess(postList);
+        }
+    }
+
+    private void retrieveUserDetails(String userId, DataOperationCallback<Users> callback) {
+
+        userService.getUserByID(userId, new DataOperationCallback<Users>() {
+                    @Override
+                    public void onSuccess(Users data) {
+                        callback.onSuccess(data);
+                    }
+
+                    @Override
+                    public void onFailure(String error) {
+                        callback.onFailure("User not found");
+                    }
+                });
+
+
+    }
+
     private void getAllPhotos(String postId, DataOperationCallback<List<Uri>> callback)
     {
         postImagesService.getAllPhotosByPostId(postId, new DataOperationCallback<List<Uri>>() {
@@ -264,6 +362,42 @@ public class UserPostService implements IUserPostInterface {
             }
         });
 
+    }
+    @Override
+    public void retrievePostsForFollowedUsers(String currentUserId, final DataOperationCallback<List<UserPost>> callback) {
+        followService.getPostsFromFollowedUsers(currentUserId, new DataOperationCallback<List<String>>() {
+            @Override
+            public void onSuccess(List<String> followedUserIds) {
+                Log.d("followers","Follower List " + followedUserIds.get(0));
+
+                List<UserPost> postList = new ArrayList<>();
+                AtomicInteger pendingRequests = new AtomicInteger(followedUserIds.size());
+
+                for (String userId : followedUserIds) {
+                    getAllUserPostDetail(userId, new DataOperationCallback<List<UserPost>>() {
+                        @Override
+                        public void onSuccess(List<UserPost> posts) {
+                            postList.addAll(posts);
+                            if (pendingRequests.decrementAndGet() == 0) {
+                                callback.onSuccess(postList);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            if (pendingRequests.decrementAndGet() == 0) {
+                                callback.onSuccess(postList);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                callback.onFailure(error); // Handle error in fetching followed user IDs
+            }
+        });
     }
 
 }

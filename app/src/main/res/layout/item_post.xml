@@ -8,7 +8,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingTop="10dp"
+        android:paddingBottom="12dp">
+
 
         <ImageView
             android:id="@+id/userProfileImage"
@@ -50,7 +52,8 @@
             android:scaleType="fitCenter"
             android:layout_marginStart="5dp"
             android:focusable="false"
-            android:focusableInTouchMode="false"/>
+            android:focusableInTouchMode="false"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

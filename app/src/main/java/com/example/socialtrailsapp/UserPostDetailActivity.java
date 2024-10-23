@@ -3,6 +3,7 @@ package com.example.socialtrailsapp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -59,10 +60,16 @@ public class UserPostDetailActivity extends BottomMenuActivity {
     }
 
     private void loadPostDetails() {
-        userPostService.getAllUserPost(sessionManager.getUserID(), new DataOperationCallback<List<UserPost>>() {
+        String userId = sessionManager.getUserID();
+        userPostService.getAllUserPostDetail(userId, new DataOperationCallback<List<UserPost>>() {
             @Override
             public void onSuccess(List<UserPost> postList) {
-
+                if (postList.isEmpty()) {
+                    Toast.makeText(UserPostDetailActivity.this, "Post load failed! Please try again later.", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(UserPostDetailActivity.this, ViewProfileActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
                     userPosts.clear();
                     userPosts.addAll(postList);
                     postAdapter.notifyDataSetChanged();
@@ -79,6 +86,7 @@ public class UserPostDetailActivity extends BottomMenuActivity {
 
             @Override
             public void onFailure(String error) {
+                Log.d("detailpage","error" + error);
                 Toast.makeText(UserPostDetailActivity.this, "Post load failed! Please try again later.", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(UserPostDetailActivity.this, ViewProfileActivity.class);
                 startActivity(intent);
