@@ -107,11 +107,11 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
                     txtpostcaption.requestFocus();
                     return ;
                 }
-                if(tagLocation == null || tagLocation.isEmpty())
-                {
-                    Toast.makeText(getApplicationContext(), "Please tag the location", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+//                if(tagLocation == null || tagLocation.isEmpty())
+//                {
+//                    Toast.makeText(getApplicationContext(), "Please tag the location", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
                 if(imageUris.size() == 0)
                 {
                     Toast.makeText(getApplicationContext(), "Please select photo", Toast.LENGTH_SHORT).show();

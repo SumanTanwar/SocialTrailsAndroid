@@ -1,12 +1,16 @@
 
+
 package com.example.socialtrailsapp.Interface;
 
 import com.example.socialtrailsapp.ModelData.Users;
+
+package com.example.socialtrailsapp.Interface;
 
 import java.util.List;
 
 public interface IFollowService {
     void sendFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback);
+
 
     void cancelFollowRequest(String currentUserId, String userIdToUnfollow, OperationCallback callback);
 
@@ -29,5 +33,8 @@ public interface IFollowService {
     void getFollowingDetails(String userId, DataOperationCallback<List<Users>> callback);
 
     void fetchUserDetails(List<String> userIds, DataOperationCallback<List<Users>> callback);
-    // void getFollowAndFollowerIdsByUserId(String userId, DataOperationCallback<List<String>> callback);
+ 
+    void checkIfFollowed(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback);
+    void getFollowAndFollowerIdsByUserId(String userId, DataOperationCallback<List<String>> callback);
+
 }

@@ -107,6 +107,7 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
                 List<String> postIds = new ArrayList<>();
                 for (UserPost post : list) {
                     imageUrls.add(post.getUploadedImageUris().get(0).toString());
+                    postIds.add(post.getPostId());
                 }
 
                 // Set up the GridView
