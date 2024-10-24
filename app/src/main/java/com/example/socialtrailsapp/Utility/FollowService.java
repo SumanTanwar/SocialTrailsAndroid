@@ -300,6 +300,215 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
+  
+  
+    @Override
+    public void cancelFollowRequest(String currentUserId, String userIdToUnfollow, OperationCallback callback) {
+        reference.child(_collectionName).orderByChild("userId").equalTo(currentUserId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            UserFollow userFollow = ds.getValue(UserFollow.class);
+                            if (userFollow != null && userFollow.getFollowingIds().containsKey(userIdToUnfollow)) {
+                                userFollow.getFollowingIds().remove(userIdToUnfollow);
+                                ds.getRef().setValue(userFollow).addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        callback.onSuccess();
+                                    } else {
+                                        callback.onFailure("Failed to delete follow request.");
+                                    }
+                                });
+                                return; // Exit after deleting
+                            }
+                        }
+                        callback.onFailure("No follow request found to cancel.");
+                    }
+                    
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure("Error fetching data: " + error.getMessage());
+                    }
+                });
+    }
+
+
+     @Override
+    public void unfollowUser(String currentUserId, String userIdToUnfollow, OperationCallback callback) {
+        reference.child(_collectionName).orderByChild("userId").equalTo(currentUserId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            UserFollow userFollow = ds.getValue(UserFollow.class);
+                            if (userFollow != null && userFollow.getFollowingIds().containsKey(userIdToUnfollow)) {
+                                userFollow.getFollowingIds().remove(userIdToUnfollow);
+                                ds.getRef().setValue(userFollow).addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        callback.onSuccess();
+                                    } else {
+                                        callback.onFailure("Failed to unfollow user.");
+                                    }
+                                });
+                                return; // Exit after processing the user
+                            }
+                        }
+                        callback.onFailure("User not found in following list.");
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure("Error fetching data: " + error.getMessage());
+                    }
+                });
+    }
+  
+  public void checkUserFollowStatus(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback) {
+        reference.child(_collectionName).orderByChild("userId").equalTo(userIdToCheck)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        boolean isFollowed = false;
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            UserFollow userFollow = snapshot.getValue(UserFollow.class);
+                            if (userFollow != null && userFollow.getFollowingIds().containsKey(currentUserId)) {
+                                isFollowed = true;
+                                break;
+                            }
+                        }
+                        callback.onSuccess(isFollowed);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        callback.onFailure("Failed to check follow status.");
+                    }
+                });
+    }
+  
+     @Override
+    public void getFollowersDetails(String userId, DataOperationCallback<List<Users>> callback) {
+        reference.child(_collectionName).orderByChild("userId").equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<String> followerIds = new ArrayList<>();
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            UserFollow userFollow = ds.getValue(UserFollow.class);
+                            if (userFollow != null) {
+                                followerIds.addAll(userFollow.getFollowerIds());
+                            }
+                        }
+                        fetchUserDetails(followerIds, callback);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure("Error fetching followers: " + error.getMessage());
+                    }
+                });
+    }
+
+    @Override
+    public void getFollowingDetails(String userId, DataOperationCallback<List<Users>> callback) {
+        reference.child(_collectionName).orderByChild("userId").equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<String> followingIds = new ArrayList<>();
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            UserFollow userFollow = ds.getValue(UserFollow.class);
+                            if (userFollow != null) {
+                                followingIds.addAll(userFollow.getFollowingIds().keySet());
+                            }
+                        }
+                        fetchUserDetails(followingIds, callback);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure("Error fetching following details: " + error.getMessage());
+                    }
+                });
+    }
+
+    @Override
+    public void fetchUserDetails(List<String> userIds, DataOperationCallback<List<Users>> callback) {
+        List<Users> userDetails = new ArrayList<>();
+        if (userIds.isEmpty()) {
+            callback.onSuccess(userDetails); // Return empty list if no IDs
+            return;
+        }
+
+        int totalUsers = userIds.size();
+        final int[] fetchedCount = {0}; // Track fetched users
+
+        for (String userId : userIds) {
+            userService.getUserByID(userId, new DataOperationCallback<Users>() {
+                @Override
+                public void onSuccess(Users user) {
+                    userDetails.add(user);
+                    fetchedCount[0]++;
+                    if (fetchedCount[0] == totalUsers) {
+                        callback.onSuccess(userDetails); // All users fetched
+                    }
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    fetchedCount[0]++;
+                    // Log the error but don't break the loop
+                    if (fetchedCount[0] == totalUsers) {
+                        callback.onSuccess(userDetails); // Return whatever was fetched
+                    }
+                }
+            });
+        }
+    }
+
+    public void getFollowersCount(String userId, DataOperationCallback<Integer> callback) {
+        reference.child(_collectionName).orderByChild("userId").equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        int count = 0;
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            UserFollow userFollow = ds.getValue(UserFollow.class);
+                            if (userFollow != null) {
+                                count += userFollow.getFollowerIds().size(); // Count followers
+                            }
+                        }
+                        callback.onSuccess(count);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure("Error fetching followers count: " + error.getMessage());
+                    }
+                });
+    }
+
+    public void getFollowingCount(String userId, DataOperationCallback<Integer> callback) {
+        reference.child(_collectionName).orderByChild("userId").equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        int count = 0;
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            UserFollow userFollow = ds.getValue(UserFollow.class);
+                            if (userFollow != null) {
+                                count += userFollow.getFollowingIds().size(); // Count following
+                            }
+                        }
+                        callback.onSuccess(count);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure("Error fetching following count: " + error.getMessage());
+                    }
+                });
+    }
 
 }

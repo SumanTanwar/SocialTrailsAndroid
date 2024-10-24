@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.ModelData.UserPost;
+import com.example.socialtrailsapp.Utility.FollowService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
@@ -30,15 +32,15 @@ import java.util.List;
 public class ViewProfileActivity extends BottomMenuActivity {
 
     Button btnEdit;
-    TextView txtprofileuser,bio,postscount;
+    TextView txtprofileuser,bio,postscount,followersCount, followingsCount;
     ImageView profileImageView;
     List<UserPost> list ;
     SessionManager sessionManager;
     UserService userService;
     UserPostService userPostService;
+    FollowService followService;
     FirebaseAuth mAuth;
-
-    private static final int EDIT_PROFILE_REQUEST = 1;
+    LinearLayout followersList, followingsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +52,16 @@ public class ViewProfileActivity extends BottomMenuActivity {
         bio = findViewById(R.id.bio);
         profileImageView = findViewById(R.id.profileImageView);
         postscount = findViewById(R.id.posts_count);
+        followersCount = findViewById(R.id.followers_count);
+        followingsCount = findViewById(R.id.followings_count);
         mAuth = FirebaseAuth.getInstance();
         sessionManager = SessionManager.getInstance(this);
         userService = new UserService();
         userPostService = new UserPostService();
+        followService = new FollowService();
+
+        followersList = findViewById(R.id.followersList);
+        followingsList = findViewById(R.id.followingsList);
 
         if (sessionManager.userLoggedIn())
         {
@@ -74,6 +82,8 @@ public class ViewProfileActivity extends BottomMenuActivity {
 
             }
             getAllUserPost(sessionManager.getUserID());
+            getFollowersCount(sessionManager.getUserID());
+            getFollowingCount(sessionManager.getUserID());
         }
 
         btnEdit.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +94,23 @@ public class ViewProfileActivity extends BottomMenuActivity {
                 startActivity(intent);
                 finish();
 
+            }
+        });
+
+        followersList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ViewProfileActivity.this, FollowersList.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        followingsList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ViewProfileActivity.this, FollowingsList.class);
+                startActivity(intent);
+                finish();
             }
         });
     }
@@ -115,6 +142,33 @@ public class ViewProfileActivity extends BottomMenuActivity {
             public void onFailure(String error) {
 
                 Toast.makeText(getApplicationContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void getFollowersCount(String userId) {
+        followService.getFollowersCount(userId, new DataOperationCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer count) {
+                followersCount.setText(String.valueOf(count));
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(getApplicationContext(), "Error fetching followers count: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getFollowingCount(String userId) {
+        followService.getFollowingCount(userId, new DataOperationCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer count) {
+                followingsCount.setText(String.valueOf(count));
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(getApplicationContext(), "Error fetching following count: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -71,4 +71,5 @@ public class SearchUserActivity extends BottomMenuActivity implements SearchUser
         intent.putExtra("intentuserId", user.getUserId());
         startActivity(intent);
     }
+
 }

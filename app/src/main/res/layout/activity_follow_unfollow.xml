@@ -64,6 +64,7 @@
         </LinearLayout>
 
         <LinearLayout
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -76,8 +77,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="0"
-                android:textSize="18sp"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black"
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/followers"
@@ -128,13 +129,11 @@
 
 
     <LinearLayout
+        android:id="@+id/followsection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:id="@+id/followsection"
         android:visibility="gone">
-
-
 
         <Button
             android:id="@+id/btnFollowUnfollow"
@@ -142,11 +141,41 @@
             android:layout_height="wrap_content"
             android:text="Follow"
             android:layout_marginTop="10dp"
-
             />
-
-
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cancelRequestsection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btncancelRequest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancel Request"
+            android:layout_marginTop="10dp"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/unfollowsection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnUnfollow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Unfollow"
+            android:layout_marginTop="10dp"
+            />
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -160,7 +189,8 @@
             android:layout_height="wrap_content"
             android:text="Confirm"
             android:layout_marginTop="10dp"
-            /> <!-- Initially hidden -->
+            android:layout_weight="1"
+            />
 
         <Button
             android:id="@+id/btnReject"
@@ -168,18 +198,16 @@
             android:layout_height="wrap_content"
             android:text="Reject"
             android:layout_marginTop="10dp"
+            android:layout_weight="1"
             /> <!-- Initially hidden -->
-
-
-
-
-
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/backsection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
 
         <Button
@@ -193,7 +221,7 @@
 
     </LinearLayout>
     <GridView
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="10dp"
         android:id="@+id/gallery_grid"
         android:layout_width="match_parent"
         android:layout_height="450dp"
@@ -206,14 +234,3 @@
 
 
 </LinearLayout>
-
-
-
-
-
-
-
-
-
-
-

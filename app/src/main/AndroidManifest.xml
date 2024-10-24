@@ -17,6 +17,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SocialTrailsApp"
         tools:targetApi="31">
+      
+      <activity
+            android:name=".FollowingsList"
+            android:exported="false" />
+      
+          <activity
+                  android:name=".FollowersList"
+                      android:exported="false" />
         <activity
             android:name=".adminpanel.AdminPostDetailActivity"
             android:exported="false" />

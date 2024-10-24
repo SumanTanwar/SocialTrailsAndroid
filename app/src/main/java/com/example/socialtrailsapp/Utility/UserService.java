@@ -56,6 +56,10 @@ public class UserService implements IUserInterface {
 
     @Override
     public void getUserByID(String uid, DataOperationCallback<Users> callback) {
+        if (uid == null || uid.isEmpty()) {
+            callback.onFailure("User ID is null or empty");
+            return;
+        }
         reference.child(_collectionName).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
