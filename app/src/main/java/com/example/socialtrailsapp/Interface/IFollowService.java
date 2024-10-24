@@ -4,8 +4,6 @@ package com.example.socialtrailsapp.Interface;
 
 import com.example.socialtrailsapp.ModelData.Users;
 
-package com.example.socialtrailsapp.Interface;
-
 import java.util.List;
 
 public interface IFollowService {
@@ -20,21 +18,21 @@ public interface IFollowService {
 
     void checkUserFollowStatus(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback);
 
+    void checkPendingRequests(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback);
+
     void confirmFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback);
     void rejectFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback);
     void followBack(String currentUserId, String userIdToFollow, OperationCallback callback);
 
     void confirmFollowBack(String currentUserId, String userIdToFollow, OperationCallback callback);
-
-    void checkIfFollowed(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback);
-
     void getFollowersDetails(String userId, DataOperationCallback<List<Users>> callback);
 
     void getFollowingDetails(String userId, DataOperationCallback<List<Users>> callback);
 
     void fetchUserDetails(List<String> userIds, DataOperationCallback<List<Users>> callback);
- 
+
     void checkIfFollowed(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback);
+
     void getFollowAndFollowerIdsByUserId(String userId, DataOperationCallback<List<String>> callback);
 
 }

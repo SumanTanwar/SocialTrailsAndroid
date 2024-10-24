@@ -6,6 +6,7 @@ import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.IFollowService;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.UserFollow;
+import com.example.socialtrailsapp.ModelData.Users;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -14,7 +15,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import androidx.annotation.NonNull;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.List;
@@ -25,10 +25,12 @@ public class FollowService implements IFollowService {
 
     private DatabaseReference reference;
     private static String _collectionName = "userfollow";
+    UserService userService;
 
     public FollowService() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         reference = database.getReference();
+        userService = new UserService();
     }
     @Override
     public void sendFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback) {
@@ -192,8 +194,8 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
-
-    private void confirmFollowBack(String currentUserId, String userIdToFollow, OperationCallback callback) {
+    @Override
+    public void confirmFollowBack(String currentUserId, String userIdToFollow, OperationCallback callback) {
         reference.child(_collectionName)
                 .orderByChild("userId").equalTo(currentUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -386,8 +388,8 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
-  
-     @Override
+
+    @Override
     public void getFollowersDetails(String userId, DataOperationCallback<List<Users>> callback) {
         reference.child(_collectionName).orderByChild("userId").equalTo(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -409,6 +411,7 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
+
 
     @Override
     public void getFollowingDetails(String userId, DataOperationCallback<List<Users>> callback) {
@@ -432,12 +435,12 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
-
     @Override
     public void fetchUserDetails(List<String> userIds, DataOperationCallback<List<Users>> callback) {
         List<Users> userDetails = new ArrayList<>();
-        if (userIds.isEmpty()) {
-            callback.onSuccess(userDetails); // Return empty list if no IDs
+
+        if (userService == null) {
+            callback.onFailure("UserService is not initialized.");
             return;
         }
 
