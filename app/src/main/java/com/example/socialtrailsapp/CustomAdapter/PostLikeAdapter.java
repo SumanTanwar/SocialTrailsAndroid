@@ -2,6 +2,7 @@ package com.example.socialtrailsapp.CustomAdapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.FollowUnfollowActivity;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.PostLike;
@@ -56,13 +58,18 @@ public class PostLikeAdapter extends RecyclerView.Adapter<PostLikeAdapter.PostLi
         holder.txtUserName.setText(user.getUsername());
 
         if (user.getProfilepicture() != null && !user.getProfilepicture().isEmpty()) {
-            Glide.with(holder.itemView.getContext())
-                    .load(user.getProfilepicture())
-                    .placeholder(R.drawable.user)
+            Uri profileImageUri = Uri.parse(user.getProfilepicture());
+            Glide.with(context)
+                    .load(profileImageUri)
+                    .transform(new CircleCrop())
                     .into(holder.imgProfilePicture);
         } else {
-            holder.imgProfilePicture.setImageResource(R.drawable.user);
+            Glide.with(context)
+                    .load(R.drawable.user)
+                    .transform(new CircleCrop())
+                    .into(holder.imgProfilePicture);
         }
+
 
         holder.txtUserName.setOnClickListener(v -> {
             Intent intent = new Intent(context, AdminUserViewActivity.class);

@@ -33,15 +33,17 @@ import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.SearchUserActivity;
 import com.example.socialtrailsapp.UserPostEditActivity;
+import com.example.socialtrailsapp.Utility.MapLocationPinDialog;
 import com.example.socialtrailsapp.Utility.PostCommentService;
 import com.example.socialtrailsapp.Utility.PostLikeService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.Utils;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import androidx.fragment.app.FragmentActivity;
 public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostViewHolder> {
 
     private Context context;
@@ -88,6 +90,20 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
 
         holder.userName.setText(post.getUsername());
         holder.userLocation.setText(post.getLocation());
+       // holder.userLocation.setText("CN Tower, Toronto, Ontario");
+        holder.userLocation.setOnClickListener(view -> {
+
+//            double latitude = 43.6426;
+//            double longitude = -79.3871;
+
+            double latitude = post.getLatitude();
+            double longitude = post.getLongitude();
+            LatLng location = new LatLng(latitude, longitude);
+            MapLocationPinDialog mapDialog = new MapLocationPinDialog((FragmentActivity) context, location, post.getLocation());
+            mapDialog.show();
+        });
+
+
         holder.postCaption.setText(post.getCaptiontext());
         holder.detailrelativetime.setText(Utils.getRelativeTime(post.getCreatedon()));
 
