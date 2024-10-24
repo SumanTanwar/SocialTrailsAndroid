@@ -120,6 +120,19 @@
             android:textSize="14sp"
 
             android:textColor="@color/black"/>
+
+        <ImageButton
+            android:id="@+id/postreport"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/warning_issues"
+            android:contentDescription="Reort"
+            android:background="@null"
+            android:layout_marginStart="280dp"
+            android:scaleType="fitCenter"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
+
     </LinearLayout>
     <TextView
         android:id="@+id/detailrelativetime"

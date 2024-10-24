@@ -15,3 +15,4 @@ public enum UserRole {
         return role;
     }
 }
+
