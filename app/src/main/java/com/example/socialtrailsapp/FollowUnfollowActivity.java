@@ -139,7 +139,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                     backsection.setVisibility(View.GONE);
                 } else {
                     // Here we need to check if a request is pending
-                    followService.checkPendingFollowRequest(currentUserId, userId, new DataOperationCallback<Boolean>() {
+                    followService.checkPendingRequests(currentUserId, userId, new DataOperationCallback<Boolean>() {
                         @Override
                         public void onSuccess(Boolean isRequestPending) {
                             if (isRequestPending != null && isRequestPending) {
