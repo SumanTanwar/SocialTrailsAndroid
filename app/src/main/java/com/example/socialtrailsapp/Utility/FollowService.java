@@ -1,6 +1,9 @@
 package com.example.socialtrailsapp.Utility;
 
+import android.util.Log;
+
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
+import com.example.socialtrailsapp.Interface.IFollowService;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.UserFollow;
 import com.google.firebase.database.DataSnapshot;
@@ -12,11 +15,13 @@ import com.google.firebase.database.ValueEventListener;
 import androidx.annotation.NonNull;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
-public class FollowService {
+public class FollowService implements IFollowService {
 
     private DatabaseReference reference;
     private static String _collectionName = "userfollow";
@@ -25,7 +30,7 @@ public class FollowService {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         reference = database.getReference();
     }
-
+    @Override
     public void sendFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback) {
         DatabaseReference followRef = reference.child(_collectionName);
         followRef.orderByChild("userId").equalTo(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -68,7 +73,7 @@ public class FollowService {
             }
         });
     }
-
+    @Override
     public void checkPendingRequests(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback) {
         reference.child(_collectionName)
                 .orderByChild("userId").equalTo(userIdToCheck)
@@ -93,7 +98,7 @@ public class FollowService {
                     }
                 });
     }
-
+    @Override
     public void confirmFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback) {
         reference.child(_collectionName)
                 .orderByChild("userId").equalTo(userIdToFollow)
@@ -123,7 +128,7 @@ public class FollowService {
                     }
                 });
     }
-
+    @Override
     public void rejectFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback) {
         reference.child(_collectionName)
                 .orderByChild("userId").equalTo(userIdToFollow)
@@ -153,11 +158,10 @@ public class FollowService {
                     }
                 });
     }
-
+    @Override
     public void followBack(String currentUserId, String userIdToFollow, OperationCallback callback) {
         reference.child(_collectionName)
-                .orderByChild("userId")
-                .equalTo(userIdToFollow)
+                .orderByChild("userId").equalTo(userIdToFollow)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -168,7 +172,8 @@ public class FollowService {
                                     userFollow.addFollowerId(currentUserId);
                                     ds.getRef().setValue(userFollow).addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {
-                                            callback.onSuccess();
+                                            // Confirm the follow back in the current user's following list
+                                            confirmFollowBack(currentUserId, userIdToFollow, callback);
                                         } else {
                                             callback.onFailure("Failed to add follower.");
                                         }
@@ -188,6 +193,53 @@ public class FollowService {
                 });
     }
 
+    private void confirmFollowBack(String currentUserId, String userIdToFollow, OperationCallback callback) {
+        reference.child(_collectionName)
+                .orderByChild("userId").equalTo(currentUserId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                UserFollow userFollow = ds.getValue(UserFollow.class);
+                                if (userFollow != null) {
+                                    // Update the following IDs
+                                    userFollow.getFollowingIds().put(userIdToFollow, true);
+                                    ds.getRef().setValue(userFollow).addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            callback.onSuccess(); // Follow back confirmed
+                                        } else {
+                                            callback.onFailure("Failed to confirm follow back.");
+                                        }
+                                    });
+                                    return;
+                                }
+                            }
+                        } else {
+                            // Create a new UserFollow entry if none exists
+                            String followId = reference.child(_collectionName).push().getKey();
+                            UserFollow newUserFollow = new UserFollow(currentUserId);
+                            newUserFollow.setFollowId(followId);
+                            newUserFollow.addFollowingId(userIdToFollow, true); // Add the follow ID
+                            reference.child(_collectionName).child(followId).setValue(newUserFollow)
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            callback.onSuccess(); // Follow back confirmed with new entry
+                                        } else {
+                                            callback.onFailure("Failed to create follow back entry.");
+                                        }
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure("Error checking user: " + error.getMessage());
+                    }
+                });
+    }
+
+    @Override
     public void checkIfFollowed(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback) {
         reference.child("userfollow")
                 .orderByChild("userId")
@@ -212,4 +264,42 @@ public class FollowService {
                     }
                 });
     }
+    @Override
+    public void getFollowAndFollowerIdsByUserId(String userId, DataOperationCallback<List<String>> callback) {
+        Set<String> allIds = new HashSet<>(); // Use a Set to ensure uniqueness
+
+        reference.child(_collectionName)
+                .orderByChild("userId").equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            UserFollow userFollow = ds.getValue(UserFollow.class);
+                            if (userFollow != null) {
+                                // Add all following IDs where the value is true
+                                for (Map.Entry<String, Boolean> entry : userFollow.getFollowingIds().entrySet()) {
+                                    if (entry.getValue()) {
+                                        allIds.add(entry.getKey());
+                                        Log.d("followers", "following id : " + entry.getKey());
+                                    }
+                                }
+
+                                // Add all follower IDs
+                                Log.d("followers", "followerId : " + userFollow.getFollowerIds());
+                                allIds.addAll(userFollow.getFollowerIds()); // Add all follower IDs
+                            }
+                        }
+
+                        Log.d("followers", "following id " + allIds);
+                        callback.onSuccess(new ArrayList<>(allIds)); // Convert Set back to List before returning
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        callback.onFailure("Error fetching follow and follower IDs: " + error.getMessage());
+                    }
+                });
+    }
+
+
 }

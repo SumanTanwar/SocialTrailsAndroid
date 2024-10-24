@@ -38,6 +38,7 @@ public class MainActivity extends BottomMenuActivity {
     private List<UserPost> userPosts;
     private UserPostService userPostService;
     ImageView profileImageView,btnNotify;
+    private TextView emptyMessageTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +49,7 @@ public class MainActivity extends BottomMenuActivity {
         sessionManager = SessionManager.getInstance(this);
         btnNotify = findViewById(R.id.btnNotify);
         profileImageView = findViewById(R.id.profileImageView);
-
+        emptyMessageTextView = findViewById(R.id.emptyMessageTextView);
         Glide.with(this)
                 .load(R.drawable.user)
                 .transform(new CircleCrop())
@@ -108,6 +109,14 @@ public class MainActivity extends BottomMenuActivity {
                 userPosts.clear();
                 userPosts.addAll(postList);
                 postAdapter.notifyDataSetChanged();
+
+                if (userPosts.isEmpty()) {
+                    emptyMessageTextView.setVisibility(View.VISIBLE);
+                    postsRecyclerView.setVisibility(View.GONE);
+                } else {
+                    emptyMessageTextView.setVisibility(View.GONE);
+                    postsRecyclerView.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override

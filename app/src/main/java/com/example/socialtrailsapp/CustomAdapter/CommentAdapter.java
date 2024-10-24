@@ -37,11 +37,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     private PostCommentService postCommentService;
     private CommentActionListener actionListener;
     private String postId;
+    private String postUserId;
 
-    public CommentAdapter(Context context, List<PostComment> comments, String postId, CommentActionListener actionListener) {
+    public CommentAdapter(Context context, List<PostComment> comments, String postId,String postUserId, CommentActionListener actionListener) {
         this.context = context;
         this.comments = comments;
         this.postId = postId;
+        this.postUserId = postUserId;
         this.sessionManager = SessionManager.getInstance(context);
         this.postCommentService = new PostCommentService();
         this.actionListener = actionListener;
@@ -77,12 +79,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
         String currentUserId = sessionManager.getUserID();
         holder.cmtdeleteButton.setVisibility(View.GONE);
-        if(sessionManager.getroleType().equals(UserRole.USER.getRole()) && comment.getUserId().equals(currentUserId))
+        if(sessionManager.getroleType().equals(UserRole.USER.getRole()) && (comment.getUserId().equals(currentUserId) || currentUserId.equals(postUserId)))
         {
             holder.cmtdeleteButton.setVisibility(View.VISIBLE);
         } else if (sessionManager.getroleType().equals(UserRole.ADMIN.getRole()) || sessionManager.getroleType().equals(UserRole.MODERATOR.getRole())) {
             holder.cmtdeleteButton.setVisibility(View.VISIBLE);
         }
+
         else {
             holder.cmtdeleteButton.setVisibility(View.GONE); // Hide delete button
         }
