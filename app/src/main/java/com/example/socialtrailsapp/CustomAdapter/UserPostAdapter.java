@@ -137,7 +137,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         //comment
         holder.cmtpostcnt.setText(String.valueOf(post.getCommentcount()));
         holder.commentButton.setOnClickListener(view -> {
-            openCommentDialog(post.getPostId());
+            openCommentDialog(post.getPostId(),post.getUserId());
         });
     }
     @Override
@@ -234,8 +234,8 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
                 post.setLiked(data.isLike());
                 post.setLikecount(data.getCount());
 
-                holder.postlikecnt.setText(String.valueOf(data.getCount()));
-                holder.postlikeButton.setImageResource(data.isLike() ? R.drawable.heart_red : R.drawable.like);
+               // holder.postlikecnt.setText(String.valueOf(data.getCount()));
+               // holder.postlikeButton.setImageResource(data.isLike() ? R.drawable.heart_red : R.drawable.like);
 
             }
 
@@ -246,7 +246,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         });
     }
 
-    private void openCommentDialog(String postId) {
+    private void openCommentDialog(String postId,String userId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_comments, null);
 
@@ -262,7 +262,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
          noCommentsTextView = dialogView.findViewById(R.id.noCommentsTextView);
 
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        CommentAdapter commentAdapter = new CommentAdapter(context, new ArrayList<>(),postId, this::updateCommentCount);
+        CommentAdapter commentAdapter = new CommentAdapter(context, new ArrayList<>(),postId,userId, this::updateCommentCount);
         commentsRecyclerView.setAdapter(commentAdapter);
 
         // Fetch comments

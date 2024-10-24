@@ -49,7 +49,16 @@
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
 
-
+    <TextView
+        android:id="@+id/emptyMessageTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="You haven't followed anyone yet. Start following users to view their posts in your feed."
+        android:textSize="18sp"
+        android:padding="5dp"
+        android:layout_marginTop="300dp"
+        android:visibility="gone" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/dashpostsRecyclerView"
         android:layout_width="match_parent"

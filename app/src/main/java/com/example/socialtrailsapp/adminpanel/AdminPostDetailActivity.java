@@ -25,9 +25,11 @@ import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.PostComment;
 import com.example.socialtrailsapp.ModelData.PostLike;
 import com.example.socialtrailsapp.ModelData.UserPost;
+import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.Utility.PostCommentService;
 import com.example.socialtrailsapp.Utility.PostLikeService;
+import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.Utils;
 
@@ -45,12 +47,13 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
     private View likesSection;
     private View commentsSection;
     TextView postlikecnt,btnRemovepost,backButton;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLayoutInflater().inflate(R.layout.admin_activity_post_detail, findViewById(R.id.container));
-
+        sessionManager = SessionManager.getInstance(this);
         userPostService = new UserPostService();
         postLikeService = new PostLikeService();
         postCommentService = new PostCommentService();
@@ -65,8 +68,16 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
          postlikecnt = findViewById(R.id.postlikecnt);
         backButton = findViewById(R.id.backButton);
         btnRemovepost = findViewById(R.id.btnRemovepost);
+
         Intent intent = getIntent();
         postdetailId = intent.getStringExtra("postdetailId");
+
+        if(sessionManager.getroleType().equals(UserRole.MODERATOR.getRole()))
+        {
+            // moderators has no right to delete entire post
+            btnRemovepost.setVisibility(View.GONE);
+        }
+
 
         userPostService.getUserPostDetailById(postdetailId, new DataOperationCallback<UserPost>() {
             @Override
@@ -172,17 +183,17 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
 
         } else {
             commentsSection.setVisibility(View.VISIBLE);
-            fetchComments(post.getPostId());
+            fetchComments(post.getPostId(),post.getUserId());
 
         }
     }
 
-    private void fetchComments(String postId) {
+    private void fetchComments(String postId,String userid) {
         postCommentService.retrieveComments(postId, new DataOperationCallback<List<PostComment>>() {
             @Override
             public void onSuccess(List<PostComment> comments) {
                 commentsRecyclerView.setLayoutManager(new LinearLayoutManager(AdminPostDetailActivity.this));
-                CommentAdapter commentAdapter = new CommentAdapter(AdminPostDetailActivity.this, comments, postId, new CommentAdapter.CommentActionListener() {
+                CommentAdapter commentAdapter = new CommentAdapter(AdminPostDetailActivity.this, comments, postId,userid, new CommentAdapter.CommentActionListener() {
                     @Override
                     public void onCommentDeleted(String postId) {
                         updateCommentCount();
