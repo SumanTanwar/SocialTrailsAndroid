@@ -11,6 +11,8 @@ import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.PostImages;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -260,6 +262,52 @@ public class PostImagesService implements IPostImagesInterface {
                 if (callback != null) {
                     Log.d("deleteimage","failed order photo database" + databaseError.getMessage());
                     callback.onFailure("Database operation cancelled: " + databaseError.getMessage());
+                }
+            }
+        });
+    }
+    @Override
+    public void deleteAllPostImages(String postId, OperationCallback callback) {
+        Query photoRef = reference.child(_collectionName).orderByChild("postId").equalTo(postId);
+
+        photoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    List<Task<Void>> deleteTasks = new ArrayList<>();
+
+                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                        String photoPath = childSnapshot.child("imagePath").getValue(String.class);
+                        if (photoPath != null) {
+                            // Delete image from Firebase Storage
+                            deleteImageFromStorage(photoPath);
+
+                            // Remove the entry from the database
+                            deleteTasks.add(childSnapshot.getRef().removeValue());
+                        }
+                    }
+
+                    // Wait for all delete operations to complete
+                    Tasks.whenAllComplete(deleteTasks).addOnCompleteListener(task -> {
+                        if (callback != null) {
+                            callback.onSuccess();
+                        }
+                    }).addOnFailureListener(e -> {
+                        if (callback != null) {
+                            callback.onFailure("Failed to delete all post images: " + e.getMessage());
+                        }
+                    });
+                } else {
+                    if (callback != null) {
+                        callback.onFailure("No photos found for this postId.");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (callback != null) {
+                    callback.onFailure("Database operation cancelled: " + error.getMessage());
                 }
             }
         });

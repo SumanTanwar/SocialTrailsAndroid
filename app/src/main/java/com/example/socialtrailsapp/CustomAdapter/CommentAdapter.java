@@ -19,6 +19,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.PostComment;
+import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.Utility.PostCommentService;
 import com.example.socialtrailsapp.Utility.SessionManager;
@@ -75,9 +76,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         }
 
         String currentUserId = sessionManager.getUserID();
-        if (comment.getUserId().equals(currentUserId)) {
-            holder.cmtdeleteButton.setVisibility(View.VISIBLE); // Show delete button
-        } else {
+        holder.cmtdeleteButton.setVisibility(View.GONE);
+        if(sessionManager.getroleType().equals(UserRole.USER.getRole()) && comment.getUserId().equals(currentUserId))
+        {
+            holder.cmtdeleteButton.setVisibility(View.VISIBLE);
+        } else if (sessionManager.getroleType().equals(UserRole.ADMIN.getRole()) || sessionManager.getroleType().equals(UserRole.MODERATOR.getRole())) {
+            holder.cmtdeleteButton.setVisibility(View.VISIBLE);
+        }
+        else {
             holder.cmtdeleteButton.setVisibility(View.GONE); // Hide delete button
         }
 

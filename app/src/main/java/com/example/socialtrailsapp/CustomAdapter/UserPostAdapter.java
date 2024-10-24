@@ -355,21 +355,17 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         RecyclerView likesRecyclerView = dialogView.findViewById(R.id.likesRecyclerView);
         likesRecyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-        List<Users> likesWithUsers = new ArrayList<>();
-        SearchUserAdapter searchUserAdapter = new SearchUserAdapter(likesWithUsers, position -> {
-            Users user = likesWithUsers.get(position);
-            Intent intent = new Intent(context, FollowUnfollowActivity.class);
-            intent.putExtra("intentuserId", user.getUserId());
-            context.startActivity(intent);
-        });
-        likesRecyclerView.setAdapter(searchUserAdapter);
+        List<PostLike> likesWithUsers = new ArrayList<>();
+        PostLikeAdapter postLikeAdapter = new PostLikeAdapter(context,likesWithUsers);
+        likesRecyclerView.setAdapter(postLikeAdapter);
 
-        postLikeService.getLikesForPost(postId, new DataOperationCallback<List<Users>>() {
+        postLikeService.getLikesForPost(postId, new DataOperationCallback<List<PostLike>>() {
             @Override
-            public void onSuccess(List<Users> likes) {
+            public void onSuccess(List<PostLike> likes) {
+                // Assuming you have a method to convert PostLike to Users
                 likesWithUsers.clear();
                 likesWithUsers.addAll(likes);
-                searchUserAdapter.notifyDataSetChanged();
+                postLikeAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -380,5 +376,10 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
 
         dialog.show();
     }
+
+    private void deleteLike(String postId, int position) {
+
+    }
+
 
 }

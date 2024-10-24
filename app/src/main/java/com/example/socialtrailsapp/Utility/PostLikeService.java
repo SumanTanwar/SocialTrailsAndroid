@@ -6,10 +6,13 @@ import androidx.annotation.NonNull;
 
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.IPostLike;
+import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.LikeResult;
 import com.example.socialtrailsapp.ModelData.PostLike;
 import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.ModelData.Users;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -135,8 +138,8 @@ public class PostLikeService implements IPostLike {
         });
     }
     @Override
-    public void getLikesForPost(String postId, DataOperationCallback<List<Users>> callback) {
-        List<Users> likesWithUsers = new ArrayList<>();
+    public void getLikesForPost(String postId, DataOperationCallback<List<PostLike>> callback) {
+        List<PostLike> likesWithUsers = new ArrayList<>();
 
         reference.child(_collectionName).orderByChild("postId").equalTo(postId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -148,8 +151,9 @@ public class PostLikeService implements IPostLike {
                         userService.getUserByID(postLike.getUserId(), new DataOperationCallback<Users>() {
                             @Override
                             public void onSuccess(Users user) {
-
-                                likesWithUsers.add(user);
+                                postLike.setUsername(user.getUsername());
+                                postLike.setProfilepicture(user.getProfilepicture());
+                                likesWithUsers.add(postLike);
 
                                 // Check if we've processed all likes
                                 if (likesWithUsers.size() == snapshot.getChildrenCount()) {
@@ -175,5 +179,35 @@ public class PostLikeService implements IPostLike {
             }
         });
     }
+    @Override
+    public void removeLike(String postlikeId,String postId, OperationCallback callback) {
+        reference.child(_collectionName).child(postlikeId).removeValue()
+                .addOnSuccessListener(aVoid -> {
+                    userPostService.updateLikeCount(postId, -1, new DataOperationCallback<Integer>() {
+                        @Override
+                        public void onSuccess(Integer count) {
+                            if (callback != null) {
+                                // Indicate 'unlike'
+                                callback.onSuccess();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            if (callback != null) {
+                                callback.onFailure(error);
+                            }
+
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.onFailure(e.getMessage());
+                    }
+                });
+    }
+
 
 }
