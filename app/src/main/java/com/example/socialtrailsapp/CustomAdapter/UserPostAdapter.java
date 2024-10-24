@@ -28,6 +28,8 @@ import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.LikeResult;
 import com.example.socialtrailsapp.ModelData.PostComment;
 import com.example.socialtrailsapp.ModelData.PostLike;
+import com.example.socialtrailsapp.ModelData.Report;
+import com.example.socialtrailsapp.ModelData.ReportType;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
@@ -36,6 +38,7 @@ import com.example.socialtrailsapp.UserPostEditActivity;
 import com.example.socialtrailsapp.Utility.MapLocationPinDialog;
 import com.example.socialtrailsapp.Utility.PostCommentService;
 import com.example.socialtrailsapp.Utility.PostLikeService;
+import com.example.socialtrailsapp.Utility.ReportService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.Utils;
@@ -53,6 +56,8 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
     PostLikeService postLikeService;
     PostCommentService postCommentService;
     TextView noCommentsTextView;
+    ReportService repostService;
+
     public UserPostAdapter(Context context, List<UserPost> postList) {
         this.context = context;
         this.postList = postList;
@@ -60,6 +65,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         userPostService = new UserPostService();
         postLikeService = new PostLikeService();
         postCommentService = new PostCommentService();
+        repostService = new ReportService();
         setHasStableIds(true);
     }
 
@@ -111,9 +117,9 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         PostImageAdapter imageAdapter = new PostImageAdapter(context, post.getUploadedImageUris());
         holder.imagesRecyclerView.setAdapter(imageAdapter);
         if (post.getUserId().equals(userId)) {
-            holder.optionsButton.setVisibility(View.VISIBLE); // Show delete button
+            holder.optionsButton.setVisibility(View.VISIBLE);
         } else {
-            holder.optionsButton.setVisibility(View.GONE); // Hide delete button
+            holder.optionsButton.setVisibility(View.GONE);
         }
         holder.optionsButton.setOnClickListener(view -> showPopupMenu(view, post.getPostId(), holder.getAdapterPosition()));
 
@@ -155,6 +161,17 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         holder.commentButton.setOnClickListener(view -> {
             openCommentDialog(post.getPostId(),post.getUserId());
         });
+
+        // Report
+        if (post.getUserId().equals(userId)) {
+            holder.postreport.setVisibility(View.GONE);
+        } else {
+            holder.postreport.setVisibility(View.VISIBLE);
+        }
+        holder.postreport.setOnClickListener(view -> {
+            openReportDialog(post.getPostId());
+        });
+
     }
     @Override
     public long getItemId(int position) {
@@ -172,7 +189,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         TextView postCaption;
         TextView detailrelativetime, postlikecnt,cmtpostcnt;
         RecyclerView imagesRecyclerView;
-        ImageButton optionsButton, postlikeButton,commentButton;
+        ImageButton optionsButton, postlikeButton,commentButton,postreport;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -187,6 +204,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
             postlikecnt = itemView.findViewById(R.id.postlikecnt);
             cmtpostcnt = itemView.findViewById(R.id.cmtpostcnt);
             commentButton = itemView.findViewById(R.id.commentButton);
+            postreport = itemView.findViewById(R.id.postreport);
         }
     }
 
@@ -397,5 +415,46 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
 
     }
 
+    private void openReportDialog(String postId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_report, null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+
+        EditText reportEditText = dialogView.findViewById(R.id.report_edit_text);
+        Button reportButton = dialogView.findViewById(R.id.report_button);
+        Button cancelButton = dialogView.findViewById(R.id.cancel_button);
+
+        reportButton.setOnClickListener(v -> {
+            String reportReason = reportEditText.getText().toString().trim();
+            if (!reportReason.isEmpty()) {
+                reportPost(postId, reportReason,dialog);
+                dialog.dismiss();
+            } else {
+                Toast.makeText(context, "Please enter a reason for reporting.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void reportPost(String postId, String reason, AlertDialog dialog) {
+        Report report = new Report(sessionManager.getUserID(),postId, ReportType.POST.getReportType(), reason);
+        repostService.addReport(report, new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                dialog.dismiss();
+                Toast.makeText(context, "Report submitted successfully!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(String errMessage) {
+                Toast.makeText(context, "Something wrong ! Please try after some time", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
 }
