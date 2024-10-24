@@ -60,7 +60,7 @@ public class AdminCreateModeratorActivity extends AdminBottomMenuActivity {
     // Create a new moderator and send password reset email
     private void createModerator(String name, String email) {
         // Use a default temporary password
-        String temporaryPassword = "temporaryPassword123";
+        String temporaryPassword = "tempass123";
 
         mAuth.createUserWithEmailAndPassword(email, temporaryPassword)
                 .addOnCompleteListener(this, task -> {
