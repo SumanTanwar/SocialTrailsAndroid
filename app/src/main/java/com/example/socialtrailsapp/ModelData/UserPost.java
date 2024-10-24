@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class UserPost {
     private String postId,userId,captiontext,createdon,updatedon,location;
-    private Boolean postdeleted,flagged,moderationstatus,admindeleted;
+    private Boolean flagged,moderationstatus;
     private ArrayList<Uri> imageUris;
     private Double  latitude,longitude;
     public List<Uri> uploadedImageUris;
@@ -32,8 +32,7 @@ public class UserPost {
         this.latitude = latitude;
         this.longitude = longitude;
         this.createdon = Utils.getCurrentDatetime();
-        this.postdeleted = false;
-        this.admindeleted = false;
+
     }
 
     public UserPost(String postId, String captiontext, String location, Double latitude, Double longitude) {
@@ -84,13 +83,7 @@ public class UserPost {
         this.updatedon = updatedon;
     }
 
-    public Boolean getPostdeleted() {
-        return postdeleted;
-    }
 
-    public void setPostdeleted(Boolean postdeleted) {
-        this.postdeleted = postdeleted;
-    }
 
     public Boolean getFlagged() {
         return flagged;
@@ -148,13 +141,7 @@ public class UserPost {
         this.uploadedImageUris = uploadedImageUris;
     }
 
-    public Boolean getAdmindeleted() {
-        return admindeleted;
-    }
 
-    public void setAdmindeleted(Boolean admindeleted) {
-        this.admindeleted = admindeleted;
-    }
 
     public int getLikecount() {
         return likecount;
@@ -205,8 +192,7 @@ public class UserPost {
         result.put("latitude", latitude);
         result.put("longitude", longitude);
         result.put("createdon", createdon);
-        result.put("postdeleted", postdeleted);
-        result.put("admindeleted", admindeleted);
+
         return result;
     }
     public Map<String, Object> toMapUpdate() {

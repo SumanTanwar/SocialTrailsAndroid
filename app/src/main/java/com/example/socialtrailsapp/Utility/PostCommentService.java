@@ -12,6 +12,8 @@ import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -112,6 +114,37 @@ public class PostCommentService implements IPostComment {
                         if (comments.isEmpty() && callback != null) {
                             callback.onSuccess(comments); // Handle empty comments case
                         }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        if (callback != null) {
+                            callback.onFailure(databaseError.getMessage());
+                        }
+                    }
+                });
+    }
+    @Override
+    public void deleteAllCommentsForPost(String postId, OperationCallback callback) {
+        reference.child(_collectionName).orderByChild("postId").equalTo(postId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<Task<Void>> deleteTasks = new ArrayList<>();
+
+                        for (DataSnapshot commentSnapshot : snapshot.getChildren()) {
+                            deleteTasks.add(commentSnapshot.getRef().removeValue());
+                        }
+
+                        Tasks.whenAllComplete(deleteTasks).addOnCompleteListener(task -> {
+                            if (callback != null) {
+                                callback.onSuccess();
+                            }
+                        }).addOnFailureListener(e -> {
+                            if (callback != null) {
+                                callback.onFailure("Failed to delete comments: " + e.getMessage());
+                            }
+                        });
                     }
 
                     @Override

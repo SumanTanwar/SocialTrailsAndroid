@@ -14,6 +14,8 @@ import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -130,7 +132,7 @@ public class UserPostService implements IUserPostInterface {
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     UserPost post = snapshot.getValue(UserPost.class);
-                    if (post != null && userId.equals(post.getUserId()) && !post.getPostdeleted() && (post.getAdmindeleted() == null || !post.getAdmindeleted())) {
+                    if (post != null && userId.equals(post.getUserId())) {
                         post.setPostId(snapshot.getKey());
                         tempList.add(post);
                     }
@@ -246,24 +248,92 @@ public class UserPostService implements IUserPostInterface {
 
     }
     @Override
-    public void deleteUserPost(String postId,OperationCallback callback)
-    {
-        reference.child(_collectionName).child(postId).child("postdeleted").setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
+    public void deleteAllLikesForPost(String postId, OperationCallback callback) {
+        reference.child("postlike").orderByChild("postId").equalTo(postId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<Task<Void>> deleteTasks = new ArrayList<>();
+
+                        for (DataSnapshot likeSnapshot : snapshot.getChildren()) {
+                            deleteTasks.add(likeSnapshot.getRef().removeValue());
+                        }
+
+                        Tasks.whenAllComplete(deleteTasks).addOnCompleteListener(task -> {
+                            if (callback != null) {
+                                callback.onSuccess();
+                            }
+                        }).addOnFailureListener(e -> {
+                            if (callback != null) {
+                                callback.onFailure("Failed to delete likes: " + e.getMessage());
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        if (callback != null) {
+                            callback.onFailure(databaseError.getMessage());
+                        }
+                    }
+                });
+    }
+    @Override
+    public void deleteUserPost(String postId, OperationCallback callback) {
+        // First delete all associated comments
+        postCommentService.deleteAllCommentsForPost(postId, new OperationCallback() {
             @Override
-            public void onSuccess(Void unused) {
-                if (callback != null) {
-                    callback.onSuccess();
-                }
+            public void onSuccess() {
+                // Then delete all associated likes
+               deleteAllLikesForPost(postId, new OperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        // Now delete all associated images
+                        postImagesService.deleteAllPostImages(postId, new OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                // Finally, delete the post itself
+                                reference.child(_collectionName).child(postId).removeValue()
+                                        .addOnSuccessListener(unused -> {
+                                            if (callback != null) {
+                                                callback.onSuccess();
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            if (callback != null) {
+                                                callback.onFailure(e.getMessage());
+                                            }
+                                        });
+                            }
+
+                            @Override
+                            public void onFailure(String error) {
+                                if (callback != null) {
+                                    callback.onFailure("Failed to delete images: " + error);
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(String error) {
+                        if (callback != null) {
+                            callback.onFailure("Failed to delete likes: " + error);
+                        }
+                    }
+                });
             }
-        }).addOnFailureListener(new OnFailureListener() {
+
             @Override
-            public void onFailure(@NonNull Exception e) {
+            public void onFailure(String error) {
                 if (callback != null) {
-                    callback.onFailure(e.getMessage());
+                    callback.onFailure("Failed to delete comments: " + error);
                 }
             }
         });
     }
+
+
     @Override
     public void getPostByPostId(String postId, final DataOperationCallback<UserPost> callback) {
         reference.child(_collectionName).child(postId).addValueEventListener(new ValueEventListener() {
@@ -405,6 +475,67 @@ public class UserPostService implements IUserPostInterface {
 //                callback.onFailure(error); // Handle error in fetching followed user IDs
 //            }
 //        });
+    }
+
+    @Override
+    public void getUserPostDetailById(String postId, final DataOperationCallback<UserPost> callback) {
+        reference.child(_collectionName).child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserPost post = dataSnapshot.getValue(UserPost.class);
+                if (post != null) {
+                    post.setPostId(postId);
+
+                    // Fetch the image URIs for the post
+                    getAllPhotos(post.getPostId(), new DataOperationCallback<List<Uri>>() {
+                        @Override
+                        public void onSuccess(List<Uri> imageUris) {
+                            post.setUploadedImageUris(imageUris);
+
+                            // Retrieve user details
+                            retrieveUserDetails(post.getUserId(), new DataOperationCallback<Users>() {
+                                @Override
+                                public void onSuccess(Users userDetails) {
+                                    post.setUsername(userDetails.getUsername());
+                                    post.setUserprofilepicture(userDetails.getProfilepicture());
+
+                                    // Count comments for the post
+                                    countCommentsForPost(post.getPostId(), new DataOperationCallback<Integer>() {
+                                        @Override
+                                        public void onSuccess(Integer data) {
+                                            post.setCommentcount(data);
+                                            callback.onSuccess(post);
+                                        }
+
+                                        @Override
+                                        public void onFailure(String error) {
+                                            callback.onFailure(error);
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+                                    callback.onFailure(error);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            callback.onFailure(error);
+                        }
+                    });
+                } else {
+                    callback.onFailure("Post not found or user does not have access to it");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                callback.onFailure(databaseError.getMessage());
+            }
+        });
     }
 
 }

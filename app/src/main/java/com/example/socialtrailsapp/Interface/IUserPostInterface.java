@@ -13,4 +13,6 @@ public interface IUserPostInterface {
     void updateLikeCount(String postId, int change, DataOperationCallback<Integer> callback);
     void getAllUserPostDetail(String userId, final DataOperationCallback<List<UserPost>> callback);
     void retrievePostsForFollowedUsers(String currentUserId, final DataOperationCallback<List<UserPost>> callback);
+    void getUserPostDetailById(String postId, final DataOperationCallback<UserPost> callback);
+    void deleteAllLikesForPost(String postId, OperationCallback callback);
 }

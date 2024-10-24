@@ -13,4 +13,5 @@ public interface IPostImagesInterface {
     void getAllPhotosByPostId(String uid, DataOperationCallback<List<Uri>> callback);
     void deleteImage(String postId, String photoPath, OperationCallback callback);
     void updatePhotoOrder(String postId, OperationCallback callback);
+    void deleteAllPostImages(String postId, OperationCallback callback);
 }

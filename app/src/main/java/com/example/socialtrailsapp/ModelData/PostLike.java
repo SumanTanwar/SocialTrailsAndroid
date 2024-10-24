@@ -6,9 +6,9 @@ public class PostLike {
     private String postlikeId;
     private String postId;
     private String userId;
-    private String removedby;
-    private String removedrole;
     private String createdon;
+    private String username;
+    private String profilepicture;
 
     public PostLike() {
     }
@@ -43,21 +43,6 @@ public class PostLike {
         this.userId = userId;
     }
 
-    public String getRemovedby() {
-        return removedby;
-    }
-
-    public void setRemovedby(String removedby) {
-        this.removedby = removedby;
-    }
-
-    public String getRemovedrole() {
-        return removedrole;
-    }
-
-    public void setRemovedrole(String removedrole) {
-        this.removedrole = removedrole;
-    }
 
     public String getCreatedon() {
         return createdon;
@@ -65,5 +50,21 @@ public class PostLike {
 
     public void setCreatedon(String createdon) {
         this.createdon = createdon;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getProfilepicture() {
+        return profilepicture;
+    }
+
+    public void setProfilepicture(String profilepicture) {
+        this.profilepicture = profilepicture;
     }
 }

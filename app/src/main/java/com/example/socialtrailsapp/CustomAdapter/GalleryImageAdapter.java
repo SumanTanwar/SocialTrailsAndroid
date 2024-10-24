@@ -11,8 +11,11 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.UserPostDetailActivity;
+import com.example.socialtrailsapp.Utility.SessionManager;
+import com.example.socialtrailsapp.adminpanel.AdminPostDetailActivity;
 
 import java.util.List;
 
@@ -20,10 +23,12 @@ public class GalleryImageAdapter extends BaseAdapter {
     private Context mContext;
     private List<String> imageUrls;
     private List<String> postIds;
+    private SessionManager sessionManager;
     public GalleryImageAdapter(Context context, List<String> imageUrls,List<String> postIds) {
         mContext = context;
         this.imageUrls = imageUrls;
         this.postIds = postIds;
+        sessionManager = SessionManager.getInstance(context);
     }
 
     @Override
@@ -60,7 +65,11 @@ public class GalleryImageAdapter extends BaseAdapter {
                 .into(imageView);
 
         imageView.setOnClickListener(v -> {
-            Intent intent = new Intent(mContext, UserPostDetailActivity.class);
+            Intent intent = new Intent(mContext, AdminPostDetailActivity.class);
+            if(sessionManager.getroleType().equals(UserRole.USER.getRole())) {
+                 intent = new Intent(mContext, UserPostDetailActivity.class);
+            }
+
             intent.putExtra("postdetailId", postIds.get(position));
             mContext.startActivity(intent);
         });
