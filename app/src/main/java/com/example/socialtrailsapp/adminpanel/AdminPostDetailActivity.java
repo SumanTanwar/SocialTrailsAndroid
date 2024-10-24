@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,11 +28,13 @@ import com.example.socialtrailsapp.ModelData.PostLike;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.R;
+import com.example.socialtrailsapp.Utility.MapLocationPinDialog;
 import com.example.socialtrailsapp.Utility.PostCommentService;
 import com.example.socialtrailsapp.Utility.PostLikeService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.Utils;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
@@ -159,6 +162,21 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
 
         userName.setText(post.getUsername());
         userLocation.setText(post.getLocation());
+       // userLocation.setText("CN Tower, Toronto, Ontario");
+        userLocation.setOnClickListener(view -> {
+
+//           double latitude = 43.6426;
+//           double longitude = -79.3871;
+//           post.setLocation(userLocation.getText().toString());
+            double latitude = post.getLatitude();
+            double longitude = post.getLongitude();
+            LatLng location = new LatLng(latitude, longitude);
+            MapLocationPinDialog mapDialog = new MapLocationPinDialog((FragmentActivity) this, location, post.getLocation());
+            mapDialog.show();
+        });
+
+
+
         postCaption.setText(post.getCaptiontext());
         detailrelativetime.setText(Utils.getRelativeTime(post.getCreatedon()));
 
