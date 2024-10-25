@@ -1,27 +1,123 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:padding="16dp">
 
-    <TextView
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Admin Dashboard"
-        android:padding="16dp"/>
+        android:gravity="center"
+        android:layout_marginTop="50dp">
 
-    <Button
-        android:id="@+id/buttonListModerators"
-        android:layout_width="180dp"
-        android:layout_height="60dp"
-        android:text="List of Moderators"
-        android:layout_gravity="center"/>
+        <LinearLayout
+            android:id="@+id/Userlistsection"
+            android:layout_width="0dp"
+            android:layout_height="110dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_margin="10dp"
+            android:background="@color/background_color"
+            android:padding="8dp">
 
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/user" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Numbers of users"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/numberofusers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+               android:hint="5"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/PostlistSection"
+            android:layout_width="0dp"
+            android:layout_height="110dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="@color/background_color"
+            >
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/chat" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Numbers of Posts"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/numberofposts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="20"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="16dp">
+
+        <LinearLayout
+            android:id="@+id/Reportlistsection"
+            android:layout_width="wrap_content"
+            android:layout_height="110dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="@color/background_color">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/warning_issues" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Numbers of reprorts"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/numberofreportss"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="5"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Leverage these metrics to make data-driven decisions, optimize your operations, and enhance user experience. Your admin dashboard is your central hub for overseeing platform performance and ensuring a smooth and efficient management process "
+        android:textSize="16sp"
+        android:paddingTop="50dp"/>
 </LinearLayout>
-
-
