@@ -38,7 +38,6 @@
                 android:id="@+id/numberofusers"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-               android:hint="5"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -65,6 +64,7 @@
                 android:text="Numbers of Posts"
                 android:textSize="16sp"
                 android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/numberofposts"
                 android:layout_width="wrap_content"
