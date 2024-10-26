@@ -32,7 +32,7 @@ public class FollowService implements IFollowService {
         reference = database.getReference();
         userService = new UserService();
     }
-    @Override
+
     public void sendFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback) {
         DatabaseReference followRef = reference.child(_collectionName);
         followRef.orderByChild("userId").equalTo(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -75,7 +75,7 @@ public class FollowService implements IFollowService {
             }
         });
     }
-    @Override
+
     public void checkPendingRequests(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback) {
         reference.child(_collectionName)
                 .orderByChild("userId").equalTo(userIdToCheck)
@@ -100,7 +100,6 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
-    @Override
     public void confirmFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback) {
         reference.child(_collectionName)
                 .orderByChild("userId").equalTo(userIdToFollow)
@@ -130,7 +129,6 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
-    @Override
     public void rejectFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback) {
         reference.child(_collectionName)
                 .orderByChild("userId").equalTo(userIdToFollow)
@@ -160,10 +158,10 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
-    @Override
     public void followBack(String currentUserId, String userIdToFollow, OperationCallback callback) {
         reference.child(_collectionName)
-                .orderByChild("userId").equalTo(userIdToFollow)
+                .orderByChild("userId")
+                .equalTo(userIdToFollow)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -174,8 +172,7 @@ public class FollowService implements IFollowService {
                                     userFollow.addFollowerId(currentUserId);
                                     ds.getRef().setValue(userFollow).addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {
-                                            // Confirm the follow back in the current user's following list
-                                            confirmFollowBack(currentUserId, userIdToFollow, callback);
+                                            callback.onSuccess();
                                         } else {
                                             callback.onFailure("Failed to add follower.");
                                         }
@@ -194,54 +191,8 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
-    @Override
-    public void confirmFollowBack(String currentUserId, String userIdToFollow, OperationCallback callback) {
-        reference.child(_collectionName)
-                .orderByChild("userId").equalTo(currentUserId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            for (DataSnapshot ds : snapshot.getChildren()) {
-                                UserFollow userFollow = ds.getValue(UserFollow.class);
-                                if (userFollow != null) {
-                                    // Update the following IDs
-                                    userFollow.getFollowingIds().put(userIdToFollow, true);
-                                    ds.getRef().setValue(userFollow).addOnCompleteListener(task -> {
-                                        if (task.isSuccessful()) {
-                                            callback.onSuccess(); // Follow back confirmed
-                                        } else {
-                                            callback.onFailure("Failed to confirm follow back.");
-                                        }
-                                    });
-                                    return;
-                                }
-                            }
-                        } else {
-                            // Create a new UserFollow entry if none exists
-                            String followId = reference.child(_collectionName).push().getKey();
-                            UserFollow newUserFollow = new UserFollow(currentUserId);
-                            newUserFollow.setFollowId(followId);
-                            newUserFollow.addFollowingId(userIdToFollow, true); // Add the follow ID
-                            reference.child(_collectionName).child(followId).setValue(newUserFollow)
-                                    .addOnCompleteListener(task -> {
-                                        if (task.isSuccessful()) {
-                                            callback.onSuccess(); // Follow back confirmed with new entry
-                                        } else {
-                                            callback.onFailure("Failed to create follow back entry.");
-                                        }
-                                    });
-                        }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        callback.onFailure("Error checking user: " + error.getMessage());
-                    }
-                });
-    }
 
-    @Override
     public void checkIfFollowed(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback) {
         reference.child("userfollow")
                 .orderByChild("userId")
@@ -266,7 +217,7 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
-    @Override
+
     public void getFollowAndFollowerIdsByUserId(String userId, DataOperationCallback<List<String>> callback) {
         Set<String> allIds = new HashSet<>(); // Use a Set to ensure uniqueness
 
@@ -287,7 +238,7 @@ public class FollowService implements IFollowService {
                                 }
 
                                 // Add all follower IDs
-                                Log.d("followers", "followerId : " + userFollow.getFollowerIds());
+                                Log.d("followers", "followerId : " + userFollow.getFollowingIds());
                                 allIds.addAll(userFollow.getFollowerIds()); // Add all follower IDs
                             }
                         }
@@ -304,7 +255,7 @@ public class FollowService implements IFollowService {
     }
   
   
-    @Override
+
     public void cancelFollowRequest(String currentUserId, String userIdToUnfollow, OperationCallback callback) {
         reference.child(_collectionName).orderByChild("userId").equalTo(currentUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -336,7 +287,6 @@ public class FollowService implements IFollowService {
     }
 
 
-     @Override
     public void unfollowUser(String currentUserId, String userIdToUnfollow, OperationCallback callback) {
         reference.child(_collectionName).orderByChild("userId").equalTo(currentUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -389,7 +339,6 @@ public class FollowService implements IFollowService {
                 });
     }
 
-    @Override
     public void getFollowersDetails(String userId, DataOperationCallback<List<Users>> callback) {
         reference.child(_collectionName).orderByChild("userId").equalTo(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -413,7 +362,6 @@ public class FollowService implements IFollowService {
     }
 
 
-    @Override
     public void getFollowingDetails(String userId, DataOperationCallback<List<Users>> callback) {
         reference.child(_collectionName).orderByChild("userId").equalTo(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -435,7 +383,7 @@ public class FollowService implements IFollowService {
                     }
                 });
     }
-    @Override
+
     public void fetchUserDetails(List<String> userIds, DataOperationCallback<List<Users>> callback) {
         List<Users> userDetails = new ArrayList<>();
 

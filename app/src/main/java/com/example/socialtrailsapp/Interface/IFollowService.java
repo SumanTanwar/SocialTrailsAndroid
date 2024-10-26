@@ -23,8 +23,6 @@ public interface IFollowService {
     void confirmFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback);
     void rejectFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback);
     void followBack(String currentUserId, String userIdToFollow, OperationCallback callback);
-
-    void confirmFollowBack(String currentUserId, String userIdToFollow, OperationCallback callback);
     void getFollowersDetails(String userId, DataOperationCallback<List<Users>> callback);
 
     void getFollowingDetails(String userId, DataOperationCallback<List<Users>> callback);

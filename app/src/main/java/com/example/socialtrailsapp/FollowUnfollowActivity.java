@@ -12,14 +12,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
-import com.example.socialtrailsapp.ModelData.UserFollow;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.Utility.FollowService;
@@ -83,6 +80,9 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             public void onSuccess(Users data) {
                 setDetail(data);
                 checkUserFollowStatus();
+                followsection.setVisibility(View.VISIBLE);
+                checkPendingFollowRequests(data.getUserId());
+                checkFollowBack(data.getUserId());
             }
 
             @Override
@@ -168,47 +168,14 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         });
     }
 
-
-
-    private void getFollowersCount(String userId) {
-        followService.getFollowersCount(userId, new DataOperationCallback<Integer>() {
-            @Override
-            public void onSuccess(Integer count) {
-                followersCount.setText(String.valueOf(count));
-            }
-
-            @Override
-            public void onFailure(String error) {
-                Toast.makeText(getApplicationContext(), "Error fetching followers count: " + error, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void getFollowingCount(String userId) {
-        followService.getFollowingCount(userId, new DataOperationCallback<Integer>() {
-            @Override
-            public void onSuccess(Integer count) {
-                followingsCount.setText(String.valueOf(count));
-            }
-
-            @Override
-            public void onFailure(String error) {
-                Toast.makeText(getApplicationContext(), "Error fetching following count: " + error, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
-
     private void sendFollowRequest() {
-        String currentUserId = sessionManager.getUserID();
+        String currentUserId = sessionManager.getUserID(); // Get current user ID
         followService.sendFollowRequest(currentUserId, userId, new OperationCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request sent!", Toast.LENGTH_SHORT).show();
-                isRequestPending = true;
-                followsection.setVisibility(View.GONE);
-                cancelrequestsection.setVisibility(View.VISIBLE);
+                followsection.setVisibility(View.GONE); // Disable button after request
+//              cancel request
             }
 
             @Override
@@ -235,27 +202,25 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             }
         });
     }
-
-    private void unfollowUser() {
+    private void checkPendingFollowRequests(String userIdToCheck) {
         String currentUserId = sessionManager.getUserID();
-        followService.unfollowUser(currentUserId, userId, new OperationCallback() {
+        followService.checkPendingRequests(currentUserId, userIdToCheck, new DataOperationCallback<Boolean>() {
             @Override
-            public void onSuccess() {
-                Toast.makeText(FollowUnfollowActivity.this, "You have unfollowed this user.", Toast.LENGTH_SHORT).show();
-                followsection.setVisibility(View.VISIBLE);
-                unfollowsection.setVisibility(View.GONE);
-                backsection.setVisibility(View.GONE);
+            public void onSuccess(Boolean hasPendingRequest) {
+                if (hasPendingRequest) {
+                    confirmsection.setVisibility(View.VISIBLE);
+                    followsection.setVisibility(View.GONE); // Hide follow button
+                } else {
+                    followsection.setVisibility(View.VISIBLE); // Show follow button if no pending requests
+                }
             }
 
             @Override
             public void onFailure(String error) {
-                Toast.makeText(FollowUnfollowActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+                // Handle error...
             }
         });
     }
-
-
-
 
     private void getAllUserPost(String userId) {
         userPostService.getAllUserPost(userId, new DataOperationCallback<List<UserPost>>() {
@@ -291,6 +256,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request confirmed!", Toast.LENGTH_SHORT).show();
                 backsection.setVisibility(View.VISIBLE);
                 confirmsection.setVisibility(View.GONE);
+
             }
 
             @Override
@@ -307,7 +273,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request rejected!", Toast.LENGTH_SHORT).show();
                 followsection.setVisibility(View.VISIBLE);
-                btnFollowUnfollow.setText("Follow");
+                confirmsection.setVisibility(View.GONE);
             }
 
             @Override
@@ -317,18 +283,18 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         });
     }
 
+
     private void checkFollowBack(String userIdToCheck) {
         String currentUserId = sessionManager.getUserID();
         followService.checkIfFollowed(currentUserId, userIdToCheck, new DataOperationCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean isFollowing) {
                 if (isFollowing) {
-                    backsection.setVisibility(View.VISIBLE);
-                    followsection.setVisibility(View.GONE);
+                    backsection.setVisibility(View.VISIBLE); // Show the back section if already following
+                    followsection.setVisibility(View.GONE); // Show the back section if already following
                 } else {
-                    backsection.setVisibility(View.GONE);
-                    unfollowsection.setVisibility(View.VISIBLE);
-
+                    backsection.setVisibility(View.GONE); // Hide the back section if not following
+                    followsection.setVisibility(View.VISIBLE); // Show follow button
                 }
             }
 
@@ -346,11 +312,58 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "You are now following this user!", Toast.LENGTH_SHORT).show();
                 backsection.setVisibility(View.GONE);
+                // unfollow button show
             }
 
             @Override
             public void onFailure(String error) {
                 Toast.makeText(FollowUnfollowActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void unfollowUser() {
+        String currentUserId = sessionManager.getUserID();
+        followService.unfollowUser(currentUserId, userId, new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(FollowUnfollowActivity.this, "You have unfollowed this user.", Toast.LENGTH_SHORT).show();
+                followsection.setVisibility(View.VISIBLE);
+                unfollowsection.setVisibility(View.GONE);
+                backsection.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(FollowUnfollowActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getFollowersCount(String userId) {
+        followService.getFollowersCount(userId, new DataOperationCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer count) {
+                followersCount.setText(String.valueOf(count));
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(getApplicationContext(), "Error fetching followers count: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getFollowingCount(String userId) {
+        followService.getFollowingCount(userId, new DataOperationCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer count) {
+                followingsCount.setText(String.valueOf(count));
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(getApplicationContext(), "Error fetching following count: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -370,7 +383,6 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         // Retrieve the followers and following counts
         getFollowersCount(userId);
         getFollowingCount(userId);
-
         getAllUserPost(userId);
     }
 
