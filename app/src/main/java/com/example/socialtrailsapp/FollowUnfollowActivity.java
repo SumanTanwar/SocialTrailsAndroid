@@ -1,12 +1,19 @@
 package com.example.socialtrailsapp;
 
+import static android.view.View.VISIBLE;
+
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,10 +24,13 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
+import com.example.socialtrailsapp.ModelData.Report;
+import com.example.socialtrailsapp.ModelData.ReportType;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.Utility.FollowService;
 import com.example.socialtrailsapp.Utility.NotificationService;
+import com.example.socialtrailsapp.Utility.ReportService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
@@ -43,6 +53,10 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
 
     private LinearLayout backsection, confirmsection, followsection, unfollowsection, cancelrequestsection;
     private boolean isRequestPending = false;
+    private ReportService reportService;
+    private Context context;
+    private Users currentUser;
+    private ImageButton reportUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +78,8 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         btnReject = findViewById(R.id.btnReject);
         btnConfirm = findViewById(R.id.btnConfirm);
         btnFollowBack = findViewById(R.id.btnFollowBack);
+        reportUser = findViewById(R.id.reportuser);
+        reportUser.setVisibility(VISIBLE);
 
         cancelrequestsection = findViewById(R.id.cancelRequestsection);
         backsection = findViewById(R.id.backsection);
@@ -74,13 +90,18 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         sessionManager = SessionManager.getInstance(this);
         followService = new FollowService();
         notificationService = new NotificationService();
+        context = this;
+
+
+        reportService = new ReportService(); // Initialize ReportService
+
 
         userService.getUserByID(userId, new DataOperationCallback<Users>() {
             @Override
             public void onSuccess(Users data) {
                 setDetail(data);
                 checkUserFollowStatus();
-                followsection.setVisibility(View.VISIBLE);
+                followsection.setVisibility(VISIBLE);
                 checkPendingFollowRequests(data.getUserId());
                 checkFollowBack(data.getUserId());
             }
@@ -111,6 +132,36 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         btnConfirm.setOnClickListener(v -> confirmFollowRequest());
         btnReject.setOnClickListener(v -> rejectFollowRequest());
         btnFollowBack.setOnClickListener(v -> followBack());
+
+        userService.getUserByID(userId, new DataOperationCallback<Users>() {
+            @Override
+            public void onSuccess(Users data) {
+                currentUser = data; // Store the user data
+                setDetail(data);
+                Log.d("FollowUnfollowActivity", "Report button visibility after fetching user: " + reportUser.getVisibility());
+                reportUser.setVisibility(VISIBLE); // Ensure the report button is visible
+                checkUserFollowStatus();
+                followsection.setVisibility(VISIBLE);
+                checkPendingFollowRequests(data.getUserId());
+                checkFollowBack(data.getUserId());
+            }
+
+            @Override
+            public void onFailure(String errMessage) {
+                // Handle error
+            }
+        });
+
+        reportUser.setOnClickListener(view -> {
+            if (currentUser != null) {
+                openReportDialog(currentUser.getUserId()); // Use the stored user data
+            } else {
+                Toast.makeText(FollowUnfollowActivity.this, "User data not available", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
     }
 
     @Override
@@ -126,14 +177,14 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             public void onSuccess(Boolean isFollowing) {
                 if (isFollowing == null) {
                     // User does not exist in user follow table (i.e., no request sent)
-                    followsection.setVisibility(View.VISIBLE);
+                    followsection.setVisibility(VISIBLE);
                     cancelrequestsection.setVisibility(View.GONE);
                     unfollowsection.setVisibility(View.GONE);
                     confirmsection.setVisibility(View.GONE);
                     backsection.setVisibility(View.GONE);
                 } else if (isFollowing) {
                     // User is already followed
-                    unfollowsection.setVisibility(View.VISIBLE);
+                    unfollowsection.setVisibility(VISIBLE);
                     followsection.setVisibility(View.GONE);
                     cancelrequestsection.setVisibility(View.GONE);
                     backsection.setVisibility(View.GONE);
@@ -144,11 +195,11 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                         public void onSuccess(Boolean isRequestPending) {
                             if (isRequestPending != null && isRequestPending) {
                                 // Request is pending
-                                cancelrequestsection.setVisibility(View.VISIBLE);
+                                cancelrequestsection.setVisibility(VISIBLE);
                                 followsection.setVisibility(View.GONE);
                             } else {
                                 // No pending request, show follow section
-                                followsection.setVisibility(View.VISIBLE);
+                                followsection.setVisibility(VISIBLE);
                                 cancelrequestsection.setVisibility(View.GONE);
                             }
                         }
@@ -192,7 +243,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request canceled!", Toast.LENGTH_SHORT).show();
                 isRequestPending = false;
-                followsection.setVisibility(View.VISIBLE);
+                followsection.setVisibility(VISIBLE);
                 cancelrequestsection.setVisibility(View.GONE);
             }
 
@@ -208,10 +259,10 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess(Boolean hasPendingRequest) {
                 if (hasPendingRequest) {
-                    confirmsection.setVisibility(View.VISIBLE);
+                    confirmsection.setVisibility(VISIBLE);
                     followsection.setVisibility(View.GONE); // Hide follow button
                 } else {
-                    followsection.setVisibility(View.VISIBLE); // Show follow button if no pending requests
+                    followsection.setVisibility(VISIBLE); // Show follow button if no pending requests
                 }
             }
 
@@ -254,7 +305,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request confirmed!", Toast.LENGTH_SHORT).show();
-                backsection.setVisibility(View.VISIBLE);
+                backsection.setVisibility(VISIBLE);
                 confirmsection.setVisibility(View.GONE);
 
             }
@@ -272,7 +323,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request rejected!", Toast.LENGTH_SHORT).show();
-                followsection.setVisibility(View.VISIBLE);
+                followsection.setVisibility(VISIBLE);
                 confirmsection.setVisibility(View.GONE);
             }
 
@@ -290,11 +341,11 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess(Boolean isFollowing) {
                 if (isFollowing) {
-                    backsection.setVisibility(View.VISIBLE); // Show the back section if already following
+                    backsection.setVisibility(VISIBLE); // Show the back section if already following
                     followsection.setVisibility(View.GONE); // Show the back section if already following
                 } else {
                     backsection.setVisibility(View.GONE); // Hide the back section if not following
-                    followsection.setVisibility(View.VISIBLE); // Show follow button
+                    followsection.setVisibility(VISIBLE); // Show follow button
                 }
             }
 
@@ -328,7 +379,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "You have unfollowed this user.", Toast.LENGTH_SHORT).show();
-                followsection.setVisibility(View.VISIBLE);
+                followsection.setVisibility(VISIBLE);
                 unfollowsection.setVisibility(View.GONE);
                 backsection.setVisibility(View.GONE);
             }
@@ -386,4 +437,48 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         getAllUserPost(userId);
     }
 
+    private void openReportDialog(String userId) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_report, null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+
+        EditText reportEditText = dialogView.findViewById(R.id.report_edit_text);
+        Button reportButton = dialogView.findViewById(R.id.report_button);
+        Button cancelButton = dialogView.findViewById(R.id.cancel_button);
+
+        reportButton.setOnClickListener(v -> {
+            String reportReason = reportEditText.getText().toString().trim();
+            if (!reportReason.isEmpty()) {
+                reportUser(userId, reportReason,dialog);
+                dialog.dismiss();
+            } else {
+                Toast.makeText(context, "Please enter a reason for reporting.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void reportUser(String postId, String reason, AlertDialog dialog) {
+        Report report = new Report(sessionManager.getUserID(),postId, ReportType.USER.getReportType(), reason);
+        reportService.addReport(report, new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                dialog.dismiss();
+                Toast.makeText(context, "Report submitted successfully!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(String errMessage) {
+                Toast.makeText(context, "Something wrong ! Please try after some time", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 }
+
