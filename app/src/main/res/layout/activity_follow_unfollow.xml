@@ -129,20 +129,42 @@
 
 
     <LinearLayout
-        android:id="@+id/followsection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
+        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnFollowUnfollow"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/followsection"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Follow"
-            android:layout_marginTop="10dp"
-            />
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnFollowUnfollow"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Follow"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/reportuser"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/warning_issues"
+            android:contentDescription="Report user"
+            android:background="@null"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"
+            android:scaleType="fitCenter"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:visibility="visible"/> <!-- Keep this visible -->
     </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/cancelRequestsection"
