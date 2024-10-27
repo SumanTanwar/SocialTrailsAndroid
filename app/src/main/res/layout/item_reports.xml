@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/textReportId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ReportId"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/textReportType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ReportType"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/textStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Status"
+        android:textSize="16sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+
+    <Button
+        android:id="@+id/buttonViewDetails"
+        android:layout_width="150dp"
+        android:layout_height="45dp"
+        android:text="View Details"
+        android:textColor="@color/black"
+        android:textSize="15dp"
+        android:backgroundTint="@color/grey_background"
+        android:layout_marginTop="8dp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/darker_gray" />
+
+</LinearLayout>
