@@ -35,6 +35,7 @@ import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.SignInActivity;
+import com.example.socialtrailsapp.Utility.FollowService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
@@ -51,7 +52,10 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
     String userId;
     UserService userService;
     UserPostService userPostService;
-    TextView txtprofileusername,txtdetailmail,txtadminbio,profilereason,admindeletetxt,btnSuspendProfile,btnDeleteProfile,postscount;
+    FollowService followService;
+
+    TextView txtprofileusername,txtdetailmail,txtadminbio,profilereason,admindeletetxt,
+            btnSuspendProfile,btnDeleteProfile,postscount,followersCount, followingsCount;
     private SessionManager sessionManager;
     List<UserPost> list ;
     ImageView profile_pic;
@@ -63,6 +67,8 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
         userId =  getIntent().getStringExtra("intentuserId");
         userService = new UserService();
         userPostService = new UserPostService();
+        followService = new FollowService();
+
         btnSuspendProfile = findViewById(R.id.btnSuspendProfile);
         btnDeleteProfile = findViewById(R.id.btnDeleteProfile);
         txtprofileusername = findViewById(R.id.txtprofileusername);
@@ -71,6 +77,8 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
         admindeletetxt = findViewById(R.id.admindeletetxt);
         txtadminbio = findViewById(R.id.txtadminbio);
         postscount = findViewById(R.id.adminpostscount);
+        followersCount = findViewById(R.id.followers_count);
+        followingsCount = findViewById(R.id.followings_count);
         profile_pic = findViewById(R.id.profile_pic);
         sessionManager = SessionManager.getInstance(this);
 
@@ -285,5 +293,36 @@ private void adminUnDeleteProfile(String userId)
                     .into(profile_pic);
         }
         getAllUserPost(user.getUserId());
+        getFollowersCount(user.getUserId());
+        getFollowingCount(user.getUserId());
     }
+
+    private void getFollowersCount(String userId) {
+        followService.getFollowersCount(userId, new DataOperationCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer count) {
+                followersCount.setText(String.valueOf(count));
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(getApplicationContext(), "Error fetching followers count: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getFollowingCount(String userId) {
+        followService.getFollowingCount(userId, new DataOperationCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer count) {
+                followingsCount.setText(String.valueOf(count));
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(getApplicationContext(), "Error fetching following count: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }

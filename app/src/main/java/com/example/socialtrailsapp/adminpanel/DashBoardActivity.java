@@ -10,15 +10,21 @@ import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.Utility.PostImagesService;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DashBoardActivity extends AdminBottomMenuActivity {
 
-    private TextView numberofusers, numberofposts;
+    private TextView numberofusers, numberofposts, numberofreports;
     private UserService userService;
-    private UserPostService userPostService; // Make sure to declare userPostService
+    private UserPostService userPostService;
+    private DatabaseReference reportReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,11 +33,15 @@ public class DashBoardActivity extends AdminBottomMenuActivity {
 
         numberofusers = findViewById(R.id.numberofusers);
         numberofposts = findViewById(R.id.numberofposts);
-        userService = new UserService(); // Initialize userService here
-        userPostService = new UserPostService(); // Initialize userPostService here
+        numberofreports = findViewById(R.id.numberofreports);
+        userService = new UserService();
+        userPostService = new UserPostService();
+        reportReference = FirebaseDatabase.getInstance().getReference("report");
+
 
         getRegularUserList();
         getAllUserPost();
+        fetchTotalReports();
     }
 
     private void getRegularUserList() {
@@ -90,6 +100,19 @@ public class DashBoardActivity extends AdminBottomMenuActivity {
             @Override
             public void onFailure(String error) {
                 numberofposts.setText("0");
+            }
+        });
+    }
+    private void fetchTotalReports() {
+        reportReference.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            public void onDataChange(DataSnapshot snapshot) {
+                int reportCount = (int) snapshot.getChildrenCount();
+                numberofreports.setText(String.valueOf(reportCount));
+            }
+
+            public void onCancelled(DatabaseError error) {
+                numberofreports.setText("0"); // Handle error by setting reports to 0
             }
         });
     }
