@@ -47,7 +47,7 @@ public class AdminBottomMenuActivity extends AppCompatActivity {
                 }
                 else if(R.id.navigation_usersreport == item.getItemId())
                 {
-                    startActivity(new Intent(AdminBottomMenuActivity.this, DashBoardActivity.class));
+                    startActivity(new Intent(AdminBottomMenuActivity.this,AdminReportViewActivity.class));
                     return true;
                 }
                 else if(R.id.navigation_issuewarning == item.getItemId())

@@ -12,6 +12,9 @@ public class Report {
     private String status;
     private String createdon;
 
+   public  Report(){
+
+    }
     public Report(String reporterid, String reportedid, String reporttype, String reason) {
         this.reporterid = reporterid;
         this.reportedid = reportedid;
