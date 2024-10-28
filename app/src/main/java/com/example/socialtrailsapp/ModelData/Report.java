@@ -3,6 +3,9 @@ package com.example.socialtrailsapp.ModelData;
 
 import com.example.socialtrailsapp.Utility.Utils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Report {
     private String reportid;
     private String reporterid;
@@ -12,29 +15,24 @@ public class Report {
     private String reason;
     private String status;
     private String createdon;
-    private String reporterName; // name
 
+    private  String username;
+    private String userprofilepicture;
 
     public  Report(){
 
     }
-    public Report(String reporterid, String reportedid, String reporttype, String reason, String reporterName) {
+    public Report(String reporterid, String reportedid, String reporttype, String reason) {
         this.reporterid = reporterid;
         this.reportedid = reportedid;
         this.reporttype = reporttype;
         this.reason = reason;
         this.status = ReportStatus.PENDING.getReportStatus();
         this.createdon = Utils.getCurrentDatetime();
-        this.reporterName = reporterName; // Initialize reporter name
+
 
     }
-    public String getReporterName() {
-        return reporterName;
-    }
 
-    public void setReporterName(String reporterName) {
-        this.reporterName = reporterName;
-    }
 
     public String getReportid() {
         return reportid;
@@ -98,5 +96,34 @@ public class Report {
 
     public void setCreatedon(String createdon) {
         this.createdon = createdon;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUserprofilepicture() {
+        return userprofilepicture;
+    }
+
+    public void setUserprofilepicture(String userprofilepicture) {
+        this.userprofilepicture = userprofilepicture;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("reportid", reportid);
+        result.put("reporterid", reporterid);
+        result.put("reportedid", reportedid);
+        result.put("reportingid", reportingid);
+        result.put("reporttype", reporttype);
+        result.put("reason", reason);
+        result.put("status", status);
+        result.put("createdon", createdon);
+        return result;
     }
 }

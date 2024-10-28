@@ -2,6 +2,7 @@ package com.example.socialtrailsapp.CustomAdapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +13,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.FollowUnfollowActivity;
 import com.example.socialtrailsapp.ModelData.Report;
+import com.example.socialtrailsapp.ModelData.ReportType;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.UserPostDetailActivity;
+import com.example.socialtrailsapp.Utility.ReportService;
+import com.example.socialtrailsapp.Interface.DataOperationCallback;
+import com.example.socialtrailsapp.adminpanel.AdminUserViewActivity;
 
 import java.util.List;
 
@@ -24,9 +31,12 @@ public class AdminReportAdapter extends RecyclerView.Adapter<AdminReportAdapter.
     private Context context;
     private List<Report> reportList;
 
+
     public AdminReportAdapter(Context context, List<Report> reportList) {
         this.context = context;
         this.reportList = reportList;
+
+
     }
 
     @NonNull
@@ -40,46 +50,48 @@ public class AdminReportAdapter extends RecyclerView.Adapter<AdminReportAdapter.
     public void onBindViewHolder(@NonNull ReportViewHolder holder, int position) {
         Report report = reportList.get(position);
 
+        holder.status.setText("Status: " + report.getStatus());
+        holder.reportType.setText("Report Type: " + report.getReporttype());
+        holder.reportDate.setText("Reported On: " + report.getCreatedon());
 
-        holder.reporterName.setText("Reporter Name:   " + report.getReporterName());
-        holder.status.setText("Status:    " + report.getStatus());
-        holder.reportType.setText("Report Type:    " + report.getReporttype());
-        holder.reportDate.setText("Date:    " + report.getCreatedon());
+        if (report.getUserprofilepicture() != null) {
+            Uri profileImageUri = Uri.parse(report.getUserprofilepicture());
+            Glide.with(context)
+                    .load(profileImageUri)
+                    .transform(new CircleCrop())
+                    .into(holder.userProfileImage);
+        } else {
+            Glide.with(context)
+                    .load(R.drawable.user)
+                    .transform(new CircleCrop())
+                    .into(holder.userProfileImage);
+        }
+
+        holder.reporterName.setText(report.getUsername());
+        holder.eyeIcon.setOnClickListener(v -> {
+
+            String reportType = report.getReporttype();
+            String reportId = report.getReportedid(); // General report ID
 
 
-//        holder.eyeIcon.setOnClickListener(v -> {
-//            if (report == null) {
-//                Toast.makeText(context, "Report is null", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//
-//            String reportType = report.getReporttype();
-//            String reportId = report.getReportid(); // General report ID
-//
-//            if (reportId == null) {
-//                Toast.makeText(context, "Report ID is null", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//
-//            // Redirect based on report type
-//            if ("post".equalsIgnoreCase(reportType)) {
-//                Intent intent = new Intent(context, UserPostDetailActivity.class);
-//                intent.putExtra("postdetailId", reportId); // Pass the reportId as post ID
-//                context.startActivity(intent);
-//            } else if ("user".equalsIgnoreCase(reportType)) {
-//                Intent intent = new Intent(context, FollowUnfollowActivity.class);
-//                intent.putExtra("userId", reportId); // Pass the reportId as user ID
-//                context.startActivity(intent);
-//            } else {
-//                Toast.makeText(context, "No valid action for this report type", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+            // Redirect based on report type
+            if (ReportType.POST.getReportType().equalsIgnoreCase(reportType)) {
+                Intent intent = new Intent(context, UserPostDetailActivity.class);
+                intent.putExtra("postdetailId", reportId); // Pass the reportId as post ID
+                context.startActivity(intent);
+            } else if (ReportType.USER.getReportType().equalsIgnoreCase(reportType)) {
+                Intent intent = new Intent(context, AdminUserViewActivity.class);
+                intent.putExtra("intentuserId", reportId); // Pass the reportId as user ID
+                context.startActivity(intent);
+            } else {
+                Toast.makeText(context, "No valid action for this report type", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-
-        @Override
+    @Override
     public int getItemCount() {
-        return reportList.size();
+        return reportList != null ? reportList.size() : 0; // Safe check for null
     }
 
     static class ReportViewHolder extends RecyclerView.ViewHolder {
@@ -87,7 +99,7 @@ public class AdminReportAdapter extends RecyclerView.Adapter<AdminReportAdapter.
         TextView status;
         TextView reportType;
         TextView reportDate;
-        ImageView eyeIcon;
+        ImageView eyeIcon,userProfileImage;
 
         public ReportViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -96,6 +108,7 @@ public class AdminReportAdapter extends RecyclerView.Adapter<AdminReportAdapter.
             reportType = itemView.findViewById(R.id.reportType);
             reportDate = itemView.findViewById(R.id.reportDate);
             eyeIcon = itemView.findViewById(R.id.eyeIcon);
+            userProfileImage = itemView.findViewById(R.id.userProfileImage);
         }
     }
 }

@@ -57,8 +57,9 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
     PostCommentService postCommentService;
     TextView noCommentsTextView;
     ReportService repostService;
+    private boolean isFromDashboard;
 
-    public UserPostAdapter(Context context, List<UserPost> postList) {
+    public UserPostAdapter(Context context, List<UserPost> postList, boolean isFromDashboard) {
         this.context = context;
         this.postList = postList;
         sessionManager = SessionManager.getInstance(context);
@@ -66,6 +67,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         postLikeService = new PostLikeService();
         postCommentService = new PostCommentService();
         repostService = new ReportService();
+        this.isFromDashboard = isFromDashboard;
         setHasStableIds(true);
     }
 
@@ -96,7 +98,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
 
         holder.userName.setText(post.getUsername());
         holder.userLocation.setText(post.getLocation());
-       // holder.userLocation.setText("CN Tower, Toronto, Ontario");
+        // holder.userLocation.setText("CN Tower, Toronto, Ontario");
         holder.userLocation.setOnClickListener(view -> {
 
 //            double latitude = 43.6426;
@@ -264,13 +266,15 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         postLikeService.likeandUnlikePost(postId, userId, new DataOperationCallback<LikeResult>() {
             @Override
             public void onSuccess(LikeResult data) {
+                Log.d("like ",  (data.isLike() ? "liked" : "non"));
                 UserPost post = postList.get(position);
                 post.setLiked(data.isLike());
                 post.setLikecount(data.getCount());
 
-               // holder.postlikecnt.setText(String.valueOf(data.getCount()));
-               // holder.postlikeButton.setImageResource(data.isLike() ? R.drawable.heart_red : R.drawable.like);
-
+                if(isFromDashboard) {
+                    holder.postlikecnt.setText(String.valueOf(data.getCount()));
+                    holder.postlikeButton.setImageResource(data.isLike() ? R.drawable.heart_red : R.drawable.like);
+                }
             }
 
             @Override
@@ -293,7 +297,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
         RecyclerView commentsRecyclerView = dialogView.findViewById(R.id.commentsRecyclerView);
         EditText commentInput = dialogView.findViewById(R.id.commentInput);
         Button sendCommentButton = dialogView.findViewById(R.id.sendCommentButton);
-         noCommentsTextView = dialogView.findViewById(R.id.noCommentsTextView);
+        noCommentsTextView = dialogView.findViewById(R.id.noCommentsTextView);
 
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         CommentAdapter commentAdapter = new CommentAdapter(context, new ArrayList<>(),postId,userId, this::updateCommentCount);
@@ -442,18 +446,7 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
     }
 
     private void reportPost(String postId, String reason, AlertDialog dialog) {
-        // Assuming you have a method to get the user's name
-        String reporterName = sessionManager.getUsername(); // Retrieve the reporter's name
-
-        // Create the Report object with the reporter's name included
-        Report report = new Report(
-                sessionManager.getUserID(), // Reporter ID
-                postId,                     // Reported ID (post ID)
-                ReportType.POST.getReportType(), // Report type
-                reason,                     // Reason for the report
-                reporterName                // Add the reporter's name here
-        );
-
+        Report report = new Report(sessionManager.getUserID(),postId, ReportType.POST.getReportType(), reason);
         repostService.addReport(report, new OperationCallback() {
             @Override
             public void onSuccess() {
@@ -463,10 +456,9 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
 
             @Override
             public void onFailure(String errMessage) {
-                Toast.makeText(context, "Something went wrong! Please try after some time", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Something wrong ! Please try after some time", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
 
 }

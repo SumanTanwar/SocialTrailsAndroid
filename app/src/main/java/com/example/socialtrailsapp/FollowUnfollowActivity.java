@@ -51,7 +51,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
     private FollowService followService;
     private NotificationService notificationService;
 
-    private LinearLayout backsection, confirmsection, followsection, unfollowsection, cancelrequestsection;
+    private LinearLayout followbacksection, confirmsection, followsection, unfollowsection,cancelrequestsection;
     private boolean isRequestPending = false;
     private ReportService reportService;
     private Context context;
@@ -74,15 +74,15 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         profile_pic = findViewById(R.id.profile_pic);
         btnFollowUnfollow = findViewById(R.id.btnFollowUnfollow);
         btnUnfollow = findViewById(R.id.btnUnfollow);
-        btnCancelRequest = findViewById(R.id.btncancelRequest);
+      btnCancelRequest = findViewById(R.id.btnCancelRequest);
         btnReject = findViewById(R.id.btnReject);
         btnConfirm = findViewById(R.id.btnConfirm);
         btnFollowBack = findViewById(R.id.btnFollowBack);
         reportUser = findViewById(R.id.reportuser);
         reportUser.setVisibility(VISIBLE);
 
-        cancelrequestsection = findViewById(R.id.cancelRequestsection);
-        backsection = findViewById(R.id.backsection);
+       cancelrequestsection = findViewById(R.id.cancelrequestsection);
+        followbacksection = findViewById(R.id.followbacksection);
         confirmsection = findViewById(R.id.confirmsection);
         followsection = findViewById(R.id.followsection);
         unfollowsection = findViewById(R.id.unfollowsection);
@@ -96,29 +96,13 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         reportService = new ReportService(); // Initialize ReportService
 
 
-        userService.getUserByID(userId, new DataOperationCallback<Users>() {
-            @Override
-            public void onSuccess(Users data) {
-                setDetail(data);
-                checkUserFollowStatus();
-                followsection.setVisibility(VISIBLE);
-                checkPendingFollowRequests(data.getUserId());
-                checkFollowBack(data.getUserId());
-            }
 
-            @Override
-            public void onFailure(String errMessage) {
-                Intent intent = new Intent(FollowUnfollowActivity.this, SearchUserActivity.class);
-                startActivity(intent);
-                finish();
-                Toast.makeText(FollowUnfollowActivity.this, "Something went wrong! Please try again later.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        cancelrequestsection.setVisibility(View.GONE);
+      //  cancelrequestsection.setVisibility(View.GONE);
         followsection.setVisibility(View.GONE);
-        backsection.setVisibility(View.GONE);
+        followbacksection.setVisibility(View.GONE);
         confirmsection.setVisibility(View.GONE);
+        unfollowsection.setVisibility(View.GONE);
+        cancelrequestsection.setVisibility(View.GONE);
 
         btnCancelRequest.setOnClickListener(v -> cancelFollowRequest());
         btnFollowUnfollow.setOnClickListener(v -> {
@@ -139,11 +123,8 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 currentUser = data; // Store the user data
                 setDetail(data);
                 Log.d("FollowUnfollowActivity", "Report button visibility after fetching user: " + reportUser.getVisibility());
-                reportUser.setVisibility(VISIBLE); // Ensure the report button is visible
-                checkUserFollowStatus();
-                followsection.setVisibility(VISIBLE);
-                checkPendingFollowRequests(data.getUserId());
-                checkFollowBack(data.getUserId());
+                checkPendingFollowRequestsForCancel(data.getUserId());
+               // checkFollowBack(data.getUserId());
             }
 
             @Override
@@ -164,60 +145,6 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        checkUserFollowStatus();
-    }
-
-    private void checkUserFollowStatus() {
-        String currentUserId = sessionManager.getUserID();
-        followService.checkUserFollowStatus(currentUserId, userId, new DataOperationCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean isFollowing) {
-                if (isFollowing == null) {
-                    // User does not exist in user follow table (i.e., no request sent)
-                    followsection.setVisibility(VISIBLE);
-                    cancelrequestsection.setVisibility(View.GONE);
-                    unfollowsection.setVisibility(View.GONE);
-                    confirmsection.setVisibility(View.GONE);
-                    backsection.setVisibility(View.GONE);
-                } else if (isFollowing) {
-                    // User is already followed
-                    unfollowsection.setVisibility(VISIBLE);
-                    followsection.setVisibility(View.GONE);
-                    cancelrequestsection.setVisibility(View.GONE);
-                    backsection.setVisibility(View.GONE);
-                } else {
-                    // Here we need to check if a request is pending
-                    followService.checkPendingRequests(currentUserId, userId, new DataOperationCallback<Boolean>() {
-                        @Override
-                        public void onSuccess(Boolean isRequestPending) {
-                            if (isRequestPending != null && isRequestPending) {
-                                // Request is pending
-                                cancelrequestsection.setVisibility(VISIBLE);
-                                followsection.setVisibility(View.GONE);
-                            } else {
-                                // No pending request, show follow section
-                                followsection.setVisibility(VISIBLE);
-                                cancelrequestsection.setVisibility(View.GONE);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(String error) {
-                            handleError(error);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(String error) {
-                handleError(error);
-            }
-        });
-    }
 
     private void sendFollowRequest() {
         String currentUserId = sessionManager.getUserID(); // Get current user ID
@@ -225,8 +152,11 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request sent!", Toast.LENGTH_SHORT).show();
-                followsection.setVisibility(View.GONE); // Disable button after request
-//              cancel request
+                cancelrequestsection.setVisibility(VISIBLE);
+                unfollowsection.setVisibility(View.GONE);
+                followsection.setVisibility(View.GONE);
+                followsection.setVisibility(View.GONE);
+                followbacksection.setVisibility(View.GONE);
             }
 
             @Override
@@ -235,6 +165,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             }
         });
     }
+
 
     private void cancelFollowRequest() {
         String currentUserId = sessionManager.getUserID();
@@ -244,6 +175,9 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request canceled!", Toast.LENGTH_SHORT).show();
                 isRequestPending = false;
                 followsection.setVisibility(VISIBLE);
+                unfollowsection.setVisibility(View.GONE);
+                confirmsection.setVisibility(View.GONE);
+                followbacksection.setVisibility(View.GONE);
                 cancelrequestsection.setVisibility(View.GONE);
             }
 
@@ -253,25 +187,52 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             }
         });
     }
-    private void checkPendingFollowRequests(String userIdToCheck) {
+    private void checkPendingFollowRequestsForCancel(String userIdToCheck) {
         String currentUserId = sessionManager.getUserID();
-        followService.checkPendingRequests(currentUserId, userIdToCheck, new DataOperationCallback<Boolean>() {
+        followService.checkPendingRequestsForCancel(currentUserId, userIdToCheck, new DataOperationCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean hasPendingRequest) {
                 if (hasPendingRequest) {
-                    confirmsection.setVisibility(VISIBLE);
-                    followsection.setVisibility(View.GONE); // Hide follow button
+                    confirmsection.setVisibility(View.GONE);
+                    followsection.setVisibility(View.GONE);
+                    unfollowsection.setVisibility(View.GONE);
+                    followbacksection.setVisibility(View.GONE);
+                    cancelrequestsection.setVisibility(VISIBLE);// Hide follow button
                 } else {
-                    followsection.setVisibility(VISIBLE); // Show follow button if no pending requests
+                    checkPendingforFollowingUser(userIdToCheck);
                 }
             }
 
             @Override
             public void onFailure(String error) {
-                // Handle error...
+                checkPendingforFollowingUser(userIdToCheck);
             }
         });
     }
+
+    private void checkPendingforFollowingUser(String userIdToCheck) {
+        String currentUserId = sessionManager.getUserID();
+        followService.checkPendingforFollowingUser(currentUserId, userIdToCheck, new DataOperationCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean hasPendingRequest) {
+                if (hasPendingRequest) {
+                    confirmsection.setVisibility(VISIBLE);
+                    followsection.setVisibility(View.GONE);
+                    unfollowsection.setVisibility(View.GONE);
+                    followbacksection.setVisibility(View.GONE);
+                    cancelrequestsection.setVisibility(View.GONE);// Hide follow button
+                } else {
+                    checkFollowBack(userIdToCheck);
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                checkFollowBack(userIdToCheck);
+            }
+        });
+    }
+
 
     private void getAllUserPost(String userId) {
         userPostService.getAllUserPost(userId, new DataOperationCallback<List<UserPost>>() {
@@ -305,8 +266,14 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request confirmed!", Toast.LENGTH_SHORT).show();
-                backsection.setVisibility(VISIBLE);
-                confirmsection.setVisibility(View.GONE);
+                checkFollowBack(userId);
+
+//                followsection.setVisibility(View.GONE);
+//                unfollowsection.setVisibility(View.GONE);
+//                confirmsection.setVisibility(View.GONE);
+//                followbacksection.setVisibility(VISIBLE);
+//                cancelrequestsection.setVisibility(View.GONE);
+
 
             }
 
@@ -324,7 +291,10 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request rejected!", Toast.LENGTH_SHORT).show();
                 followsection.setVisibility(VISIBLE);
+                unfollowsection.setVisibility(View.GONE);
                 confirmsection.setVisibility(View.GONE);
+                followbacksection.setVisibility(View.GONE);
+                cancelrequestsection.setVisibility(View.GONE);
             }
 
             @Override
@@ -341,28 +311,67 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess(Boolean isFollowing) {
                 if (isFollowing) {
-                    backsection.setVisibility(VISIBLE); // Show the back section if already following
-                    followsection.setVisibility(View.GONE); // Show the back section if already following
+                    updateUIForUnFollowButton();
                 } else {
-                    backsection.setVisibility(View.GONE); // Hide the back section if not following
-                    followsection.setVisibility(VISIBLE); // Show follow button
+
+                    followService.checkIfFollowed(userIdToCheck, currentUserId, new DataOperationCallback<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean isFollowedBack) {
+                            if (isFollowedBack) {
+                                updateUIForUnFollowButton();
+                            } else {
+                                // Show follow button
+                                followsection.setVisibility(VISIBLE);
+                                unfollowsection.setVisibility(View.GONE);
+                                confirmsection.setVisibility(View.GONE);
+                                followbacksection.setVisibility(View.GONE);
+                                cancelrequestsection.setVisibility(View.GONE);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            followsection.setVisibility(VISIBLE);
+                            unfollowsection.setVisibility(View.GONE);
+                            confirmsection.setVisibility(View.GONE);
+                            followbacksection.setVisibility(View.GONE);
+                            cancelrequestsection.setVisibility(View.GONE);
+                        }
+                    });
+
+
+
                 }
             }
 
             @Override
             public void onFailure(String error) {
-                // Handle error...
+                followsection.setVisibility(VISIBLE);
+                unfollowsection.setVisibility(View.GONE);
+                confirmsection.setVisibility(View.GONE);
+                followbacksection.setVisibility(View.GONE);
+                cancelrequestsection.setVisibility(View.GONE);
             }
         });
     }
-
+    private void updateUIForUnFollowButton() {
+        followsection.setVisibility(View.GONE);
+        unfollowsection.setVisibility(VISIBLE);
+        confirmsection.setVisibility(View.GONE);
+        followbacksection.setVisibility(View.GONE);
+        cancelrequestsection.setVisibility(View.GONE);
+    }
     private void followBack() {
         String currentUserId = sessionManager.getUserID();
         followService.followBack(currentUserId, userId, new OperationCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "You are now following this user!", Toast.LENGTH_SHORT).show();
-                backsection.setVisibility(View.GONE);
+                followsection.setVisibility(View.GONE);
+                unfollowsection.setVisibility(VISIBLE);
+                confirmsection.setVisibility(View.GONE);
+                followbacksection.setVisibility(View.GONE);
+                cancelrequestsection.setVisibility(View.GONE);
                 // unfollow button show
             }
 
@@ -381,7 +390,9 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 Toast.makeText(FollowUnfollowActivity.this, "You have unfollowed this user.", Toast.LENGTH_SHORT).show();
                 followsection.setVisibility(VISIBLE);
                 unfollowsection.setVisibility(View.GONE);
-                backsection.setVisibility(View.GONE);
+                confirmsection.setVisibility(View.GONE);
+                followbacksection.setVisibility(View.GONE);
+                cancelrequestsection.setVisibility(View.GONE);
             }
 
             @Override
@@ -465,7 +476,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
     }
 
     private void reportUser(String userId, String reporterId, String reporterName, String reason, AlertDialog dialog) {
-        Report report = new Report(reporterId, userId, ReportType.USER.getReportType(), reason, reporterName); // Updated to include reporterName
+        Report report = new Report(reporterId, userId, ReportType.USER.getReportType(), reason); // Updated to include reporterName
         reportService.addReport(report, new OperationCallback() {
             @Override
             public void onSuccess() {

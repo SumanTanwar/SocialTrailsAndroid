@@ -3,6 +3,8 @@ package com.example.socialtrailsapp.adminpanel;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,26 +27,35 @@ public class AdminFollowingsActivity extends AdminBottomMenuActivity implements 
     private FollowingAdapter adapter;
     private List<Users> followingList; // List to hold followings
     private FollowService followService;
-
+    Button backButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_followings);
-
+       // setContentView(R.layout.activity_admin_followings);
+        getLayoutInflater().inflate(R.layout.activity_admin_followings, findViewById(R.id.container));
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        backButton = findViewById(R.id.backButton);
         // Initialize following list and FollowService
         followingList = new ArrayList<>();
         followService = new FollowService();
 
         // Initialize adapter with an empty list
-        adapter = new FollowingAdapter(followingList, this);
+        adapter = new FollowingAdapter(this,followingList, this);
         recyclerView.setAdapter(adapter);
 
         // Load followings for the specified user
         String userId = getIntent().getStringExtra("userId"); // Get user ID from intent
         loadFollowings(userId);
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AdminFollowingsActivity.this, AdminUserViewActivity.class);
+                intent.putExtra("intentuserId",userId);
+                startActivity(intent);
+            }
+        });
     }
 
     private void loadFollowings(String userId) {
@@ -71,7 +82,7 @@ public class AdminFollowingsActivity extends AdminBottomMenuActivity implements 
     public void onFollowingClick(int position) {
         Users selectedUser = followingList.get(position);
         Intent intent = new Intent(AdminFollowingsActivity.this, AdminUserViewActivity.class);
-        intent.putExtra("userId", selectedUser.getUserId());
+        intent.putExtra("intentuserId", selectedUser.getUserId());
         startActivity(intent);
     }
 
@@ -94,10 +105,6 @@ public class AdminFollowingsActivity extends AdminBottomMenuActivity implements 
             }
         });
     }
-    @Override
-    public void onUnfollowClick(int position) {
-        // Handle the remove action
-        onUnfollowClick(position);
-    }
+
 
 }

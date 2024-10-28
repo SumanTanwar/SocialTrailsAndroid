@@ -5,9 +5,12 @@ import android.widget.TextView;
 
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.ModelData.UserPost;
+import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.Utility.PostImagesService;
+import com.example.socialtrailsapp.Utility.ReportService;
+import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
 import com.google.firebase.database.DataSnapshot;
@@ -21,10 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DashBoardActivity extends AdminBottomMenuActivity {
 
-    private TextView numberofusers, numberofposts, numberofreports;
+    private TextView numberofusers, numberofposts, numberofreports,userRoleText;
     private UserService userService;
     private UserPostService userPostService;
-    private DatabaseReference reportReference;
+    private ReportService reportService;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +38,20 @@ public class DashBoardActivity extends AdminBottomMenuActivity {
         numberofusers = findViewById(R.id.numberofusers);
         numberofposts = findViewById(R.id.numberofposts);
         numberofreports = findViewById(R.id.numberofreports);
+        userRoleText = findViewById(R.id.userRoleText);
         userService = new UserService();
         userPostService = new UserPostService();
-        reportReference = FirebaseDatabase.getInstance().getReference("report");
+        reportService = new ReportService();
+        sessionManager = SessionManager.getInstance(this);
 
-
+        if(sessionManager.getroleType().equals(UserRole.MODERATOR.getRole()))
+        {
+            userRoleText.setText("MODERATOR");
+        }
+        else
+        {
+            userRoleText.setText("ADMIN");
+        }
         getRegularUserList();
         getAllUserPost();
         fetchTotalReports();
@@ -63,38 +76,10 @@ public class DashBoardActivity extends AdminBottomMenuActivity {
     }
 
     private void getAllUserPost() {
-        userService.getRegularUserList(new DataOperationCallback<List<Users>>() {
+        userPostService.getPostCount(new DataOperationCallback<Integer>() {
             @Override
-            public void onSuccess(List<Users> data) {
-                if (data != null && !data.isEmpty()) {
-                    AtomicInteger totalPosts = new AtomicInteger(0);
-                    AtomicInteger pendingRequests = new AtomicInteger(data.size());
-
-                    for (Users user : data) {
-                        String userId = user.getUserId();
-
-                        // Call the service method to get posts for each user
-                        userPostService.getAllUserPost(userId, new DataOperationCallback<List<UserPost>>() {
-                            @Override
-                            public void onSuccess(List<UserPost> posts) {
-                                totalPosts.addAndGet(posts.size());
-                                if (pendingRequests.decrementAndGet() == 0) {
-                                    numberofposts.setText(String.valueOf(totalPosts.get()));
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(String error) {
-                                // Handle failure but still decrement the count
-                                if (pendingRequests.decrementAndGet() == 0) {
-                                    numberofposts.setText(String.valueOf(totalPosts.get()));
-                                }
-                            }
-                        });
-                    }
-                } else {
-                    numberofposts.setText("0");
-                }
+            public void onSuccess(Integer data) {
+                numberofposts.setText(String.valueOf(data));
             }
 
             @Override
@@ -102,19 +87,22 @@ public class DashBoardActivity extends AdminBottomMenuActivity {
                 numberofposts.setText("0");
             }
         });
+
+
     }
     private void fetchTotalReports() {
-        reportReference.addListenerForSingleValueEvent(new ValueEventListener() {
-
-            public void onDataChange(DataSnapshot snapshot) {
-                int reportCount = (int) snapshot.getChildrenCount();
-                numberofreports.setText(String.valueOf(reportCount));
+        reportService.getReportCount(new DataOperationCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer data) {
+                numberofreports.setText(String.valueOf(data));
             }
 
-            public void onCancelled(DatabaseError error) {
-                numberofreports.setText("0"); // Handle error by setting reports to 0
+            @Override
+            public void onFailure(String error) {
+                numberofreports.setText("0");
             }
         });
+
     }
 
 }

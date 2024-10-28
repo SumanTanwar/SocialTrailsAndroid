@@ -37,7 +37,7 @@ public class FollowersList extends BottomMenuActivity implements FollowersAdapte
         followService = new FollowService();
 
         // Initialize adapter with an empty list
-        adapter = new FollowersAdapter(followersList, this);
+        adapter = new FollowersAdapter(this,followersList, this);
         recyclerView.setAdapter(adapter);
 
         // Load followers for the current user
@@ -69,15 +69,12 @@ public class FollowersList extends BottomMenuActivity implements FollowersAdapte
     @Override
     public void onFollowerClick(int position) {
         Users selectedUser = followersList.get(position);
-        Intent intent = new Intent(FollowersList.this, ViewProfileActivity.class);
-        intent.putExtra("userId", selectedUser.getUserId());
+        Intent intent = new Intent(FollowersList.this, FollowUnfollowActivity.class);
+        intent.putExtra("intentuserId", selectedUser.getUserId());
         startActivity(intent);
     }
 
-    @Override
-    public void onFollowClick(int position) {
-        // Implementation if needed for the user side
-    }
+
 
     @Override
     public void onRemoveClick(int position) {

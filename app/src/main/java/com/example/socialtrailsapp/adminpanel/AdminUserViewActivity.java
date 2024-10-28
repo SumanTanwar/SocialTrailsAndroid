@@ -34,6 +34,7 @@ import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.MainActivity;
 import com.example.socialtrailsapp.ModelData.UserPost;
+import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.SignInActivity;
@@ -90,7 +91,16 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
 
         followersList = findViewById(R.id.followersList);
         followingsList = findViewById(R.id.followingsList);
-
+        if(sessionManager.getroleType().equals(UserRole.MODERATOR.getRole()))
+        {
+            btnSuspendProfile.setVisibility(View.GONE);
+            btnDeleteProfile.setVisibility(View.GONE);
+        }
+        else
+        {
+            btnSuspendProfile.setVisibility(View.VISIBLE);
+            btnDeleteProfile.setVisibility(View.VISIBLE);
+        }
 
     //    btnSuspendProfile.setBackgroundResource(R.drawable.button_background);
        // btnSuspendProfile.setBackgroundColor(Color.LTGRAY);
@@ -115,6 +125,7 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AdminUserViewActivity.this, AdminFollowersActivity.class);
+                intent.putExtra("userId",userId);
                 startActivity(intent);
                 finish();
             }
@@ -123,6 +134,7 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AdminUserViewActivity.this, AdminFollowingsActivity.class);
+                intent.putExtra("userId",userId);
                 startActivity(intent);
                 finish();
             }

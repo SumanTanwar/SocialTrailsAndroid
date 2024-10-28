@@ -537,5 +537,20 @@ public class UserPostService implements IUserPostInterface {
             }
         });
     }
+    @Override
+    public void getPostCount(final DataOperationCallback<Integer> callback) {
+        reference.child(_collectionName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int count = (int) snapshot.getChildrenCount();
+                callback.onSuccess(count);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onFailure(error.getMessage());
+            }
+        });
+    }
 
 }
