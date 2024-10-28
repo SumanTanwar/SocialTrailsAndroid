@@ -1,5 +1,4 @@
 
-
 package com.example.socialtrailsapp.adminpanel;
 
 import android.os.Bundle;
@@ -33,6 +32,7 @@ public class AdminReportViewActivity extends AdminBottomMenuActivity {
         recyclerViewReports = findViewById(R.id.recyclerViewReports);
         reportsList = new ArrayList<>();
 
+        // Initialize the adapter
         reportsAdapter = new AdminReportAdapter(this, reportsList);
         recyclerViewReports.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewReports.setAdapter(reportsAdapter);
@@ -40,7 +40,7 @@ public class AdminReportViewActivity extends AdminBottomMenuActivity {
         // Initialize Firebase Database reference
         reportReference = FirebaseDatabase.getInstance().getReference("report");
 
-        // Fetch reports directly
+        // Fetch reports from Firebase
         fetchReports();
     }
 
@@ -56,7 +56,8 @@ public class AdminReportViewActivity extends AdminBottomMenuActivity {
                             reportsList.add(report);
                         }
                     }
-                    reportsAdapter.notifyDataSetChanged(); // Notify adapter of data change
+
+                    reportsAdapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(AdminReportViewActivity.this, "No reports found.", Toast.LENGTH_SHORT).show();
                 }
