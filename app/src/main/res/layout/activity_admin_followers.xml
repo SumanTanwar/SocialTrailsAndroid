@@ -6,13 +6,12 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Header layout with 'Regular Users' text on the left and Moderator section on the right -->
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp">
 
-        <!-- Title for Regular Users (left-aligned) -->
         <TextView
             android:id="@+id/regularUsersText"
             android:layout_width="wrap_content"
@@ -20,10 +19,16 @@
             android:text="Followers"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:layout_marginTop="20dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"/>
 
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"/>
 
     </RelativeLayout>
 

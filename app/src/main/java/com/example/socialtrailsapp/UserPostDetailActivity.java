@@ -50,7 +50,7 @@ public class UserPostDetailActivity extends BottomMenuActivity {
 
         sessionManager = SessionManager.getInstance(this);
         postsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        postAdapter = new UserPostAdapter(this, userPosts);
+        postAdapter = new UserPostAdapter(this, userPosts,false);
         postsRecyclerView.setAdapter(postAdapter);
         loadPostDetails();
 

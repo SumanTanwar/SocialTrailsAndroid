@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,8 +9,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -64,7 +62,6 @@
         </LinearLayout>
 
         <LinearLayout
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -101,7 +98,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-
                 android:layout_gravity="center"
                 android:textSize="18sp"
                 android:textColor="@color/black"/>
@@ -114,19 +110,38 @@
                 android:textSize="18sp"
                 android:textColor="@color/black"/>
         </LinearLayout>
-
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/txtuserbio"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:hint="Bio"
-        android:layout_marginLeft="10dp"
-        android:textColor="@color/black"
-        android:textSize="12dp"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical">
 
+        <TextView
+            android:id="@+id/txtuserbio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Bio"
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/black"
+            android:textSize="12sp"/>
+
+        <ImageButton
+            android:id="@+id/reportuser"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/warning_issues"
+            android:contentDescription="Report user"
+            android:background="@null"
+            android:layout_marginStart="10dp"
+            android:scaleType="fitCenter"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:visibility="visible"/>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -150,98 +165,76 @@
                 android:layout_marginTop="10dp" />
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/reportuser"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/warning_issues"
-            android:contentDescription="Report user"
-            android:background="@null"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="10dp"
-            android:scaleType="fitCenter"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:visibility="visible"/> <!-- Keep this visible -->
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/cancelRequestsection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <Button
-            android:id="@+id/btncancelRequest"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cancel Request"
-            android:layout_marginTop="10dp"
-            />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:id="@+id/confirmsection"
+            android:visibility="gone">
 
-    <LinearLayout
-        android:id="@+id/unfollowsection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
+            <Button
+                android:id="@+id/btnConfirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirm"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"/>
 
-        <Button
-            android:id="@+id/btnUnfollow"
+            <Button
+                android:id="@+id/btnReject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel Request"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/unfollowsection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Unfollow"
-            android:layout_marginTop="10dp"
-            />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:visibility="gone">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/confirmsection"
-        android:visibility="gone">
+            <Button
+                android:id="@+id/btnUnfollow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Unfollow"
+                android:layout_marginTop="10dp"/>
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/btnConfirm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Confirm"
-            android:layout_marginTop="10dp"
-            android:layout_weight="1"
-            />
-
-        <Button
-            android:id="@+id/btnReject"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reject"
-            android:layout_marginTop="10dp"
-            android:layout_weight="1"
-            /> <!-- Initially hidden -->
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/backsection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-
-        <Button
-            android:id="@+id/btnFollowBack"
+        <LinearLayout
+            android:id="@+id/followbacksection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Follow Back"
-            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
 
-            />
+            <Button
+                android:id="@+id/btnFollowBack"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Follow Back"
+                android:layout_marginTop="10dp"/>
+        </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/cancelrequestsection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnCancelRequest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cancel Request"
+                android:layout_marginTop="10dp"/>
+        </LinearLayout>
     </LinearLayout>
+
     <GridView
         android:layout_marginTop="10dp"
         android:id="@+id/gallery_grid"
@@ -252,7 +245,4 @@
         android:horizontalSpacing="0dp"
         android:stretchMode="columnWidth"
         android:gravity="center"/>
-
-
-
 </LinearLayout>

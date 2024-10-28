@@ -95,7 +95,7 @@ public class MainActivity extends BottomMenuActivity {
         userPosts = new ArrayList<>();
         sessionManager = SessionManager.getInstance(this);
         postsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        postAdapter = new UserPostAdapter(this, userPosts);
+        postAdapter = new UserPostAdapter(this, userPosts,true);
         postsRecyclerView.setAdapter(postAdapter);
         loadPostDetails();
 

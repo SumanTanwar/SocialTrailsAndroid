@@ -18,7 +18,7 @@ public interface IFollowService {
 
     void checkUserFollowStatus(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback);
 
-    void checkPendingRequests(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback);
+    void checkPendingRequestsForCancel(String currentUserId, String userIdToCheck, DataOperationCallback<Boolean> callback);
 
     void confirmFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback);
     void rejectFollowRequest(String currentUserId, String userIdToFollow, OperationCallback callback);

@@ -42,11 +42,12 @@
                 public void onSuccess(List<Users> users) {
                     if (users.isEmpty()) {
                         Toast.makeText(FollowingsList.this, "No followings found.", Toast.LENGTH_SHORT).show();
-                    } else
-                    followingUserList.addAll(users);
-                    Log.d("FollowingsList", "Loaded following users: " + followingUserList.size());
-                    followingAdapter = new FollowingAdapter(followingUserList, FollowingsList.this);
-                    recyclerView.setAdapter(followingAdapter);
+                    } else {
+                        followingUserList.addAll(users);
+                        Log.d("FollowingsList", "Loaded following users: " + followingUserList.size());
+                        followingAdapter = new FollowingAdapter(FollowingsList.this,followingUserList, FollowingsList.this);
+                        recyclerView.setAdapter(followingAdapter);
+                    }
                 }
 
                 @Override
@@ -64,19 +65,13 @@
             Toast.makeText(this, "Removed: " + userToRemove.getUsername(), Toast.LENGTH_SHORT).show();
             // Add your removal logic here, e.g., call a service to remove the user.
         }
-        @Override
-        public void onUnfollowClick(int position) {
-            // Handle unfollow action for regular user
-            Users userToUnfollow = followingUserList.get(position);
-            Toast.makeText(this, "Unfollowed: " + userToUnfollow.getUsername(), Toast.LENGTH_SHORT).show();
-            // Add your unfollow logic here, e.g., call a service to unfollow the user.
-        }
+
 
     @Override
         public void onFollowingClick(int position) {
             Users selectedUser = followingUserList.get(position);
-            Intent intent = new Intent(FollowingsList.this, ViewProfileActivity.class);
-            intent.putExtra("userId", selectedUser.getUserId());
+            Intent intent = new Intent(FollowingsList.this, FollowUnfollowActivity.class);
+            intent.putExtra("intentuserId", selectedUser.getUserId());
             startActivity(intent);
         }
     }

@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
+import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
+import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserService;
 
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class AdminListofUsersActivity extends AdminBottomMenuActivity implements
     private List<Users> usersList;
     private UserService userService;
     private LinearLayout moderatorSection;
-
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +50,19 @@ public class AdminListofUsersActivity extends AdminBottomMenuActivity implements
         // Load user list
         loadUserList();
         // Handle the click event for the moderator section
+
+        sessionManager = SessionManager.getInstance(this);
         moderatorSection = findViewById(R.id.moderatorSection);
+        if(sessionManager.getroleType().equals(UserRole.MODERATOR.getRole()))
+        {
+            moderatorSection.setVisibility(View.GONE);
+        }
+        else
+        {
+            moderatorSection.setVisibility(View.VISIBLE);
+        }
+
+
         moderatorSection.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
