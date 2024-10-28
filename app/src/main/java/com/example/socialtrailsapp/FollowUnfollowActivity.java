@@ -443,16 +443,17 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
 
-
         EditText reportEditText = dialogView.findViewById(R.id.report_edit_text);
         Button reportButton = dialogView.findViewById(R.id.report_button);
         Button cancelButton = dialogView.findViewById(R.id.cancel_button);
 
         reportButton.setOnClickListener(v -> {
             String reportReason = reportEditText.getText().toString().trim();
+            String reporterId = sessionManager.getUserID(); // Fetch reporter ID from session
+            String reporterName = sessionManager.getUsername(); // Fetch reporter name from session
+
             if (!reportReason.isEmpty()) {
-                reportUser(userId, reportReason,dialog);
-                dialog.dismiss();
+                reportUser(userId, reporterId, reporterName, reportReason, dialog);
             } else {
                 Toast.makeText(context, "Please enter a reason for reporting.", Toast.LENGTH_SHORT).show();
             }
@@ -463,8 +464,8 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
         dialog.show();
     }
 
-    private void reportUser(String postId, String reason, AlertDialog dialog) {
-        Report report = new Report(sessionManager.getUserID(),postId, ReportType.USER.getReportType(), reason);
+    private void reportUser(String userId, String reporterId, String reporterName, String reason, AlertDialog dialog) {
+        Report report = new Report(reporterId, userId, ReportType.USER.getReportType(), reason, reporterName); // Updated to include reporterName
         reportService.addReport(report, new OperationCallback() {
             @Override
             public void onSuccess() {
@@ -474,7 +475,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
 
             @Override
             public void onFailure(String errMessage) {
-                Toast.makeText(context, "Something wrong ! Please try after some time", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Something went wrong! Please try again later.", Toast.LENGTH_SHORT).show();
             }
         });
     }

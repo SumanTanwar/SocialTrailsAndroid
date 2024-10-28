@@ -1,3 +1,4 @@
+
 package com.example.socialtrailsapp.ModelData;
 
 import com.example.socialtrailsapp.Utility.Utils;
@@ -11,17 +12,28 @@ public class Report {
     private String reason;
     private String status;
     private String createdon;
+    private String reporterName; // name
 
-   public  Report(){
+
+    public  Report(){
 
     }
-    public Report(String reporterid, String reportedid, String reporttype, String reason) {
+    public Report(String reporterid, String reportedid, String reporttype, String reason, String reporterName) {
         this.reporterid = reporterid;
         this.reportedid = reportedid;
         this.reporttype = reporttype;
         this.reason = reason;
         this.status = ReportStatus.PENDING.getReportStatus();
         this.createdon = Utils.getCurrentDatetime();
+        this.reporterName = reporterName; // Initialize reporter name
+
+    }
+    public String getReporterName() {
+        return reporterName;
+    }
+
+    public void setReporterName(String reporterName) {
+        this.reporterName = reporterName;
     }
 
     public String getReportid() {

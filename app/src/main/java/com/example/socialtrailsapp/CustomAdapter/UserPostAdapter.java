@@ -442,7 +442,18 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
     }
 
     private void reportPost(String postId, String reason, AlertDialog dialog) {
-        Report report = new Report(sessionManager.getUserID(),postId, ReportType.POST.getReportType(), reason);
+        // Assuming you have a method to get the user's name
+        String reporterName = sessionManager.getUsername(); // Retrieve the reporter's name
+
+        // Create the Report object with the reporter's name included
+        Report report = new Report(
+                sessionManager.getUserID(), // Reporter ID
+                postId,                     // Reported ID (post ID)
+                ReportType.POST.getReportType(), // Report type
+                reason,                     // Reason for the report
+                reporterName                // Add the reporter's name here
+        );
+
         repostService.addReport(report, new OperationCallback() {
             @Override
             public void onSuccess() {
@@ -452,9 +463,10 @@ public class UserPostAdapter extends RecyclerView.Adapter<UserPostAdapter.PostVi
 
             @Override
             public void onFailure(String errMessage) {
-                Toast.makeText(context, "Something wrong ! Please try after some time", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Something went wrong! Please try after some time", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
 }
