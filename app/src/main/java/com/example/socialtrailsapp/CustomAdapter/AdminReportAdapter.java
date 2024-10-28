@@ -1,4 +1,3 @@
-
 package com.example.socialtrailsapp.CustomAdapter;
 
 import android.content.Context;
@@ -6,23 +5,28 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.socialtrailsapp.FollowUnfollowActivity;
 import com.example.socialtrailsapp.ModelData.Report;
 import com.example.socialtrailsapp.R;
-import com.example.socialtrailsapp.adminpanel.AdminReportDetailsActivity;
+import com.example.socialtrailsapp.UserPostDetailActivity;
+
 import java.util.List;
 
 public class AdminReportAdapter extends RecyclerView.Adapter<AdminReportAdapter.ReportViewHolder> {
 
     private Context context;
-    private List<Report> reportsList;
+    private List<Report> reportList;
 
-    public AdminReportAdapter(Context context, List<Report> reportsList) {
+    public AdminReportAdapter(Context context, List<Report> reportList) {
         this.context = context;
-        this.reportsList = reportsList;
+        this.reportList = reportList;
     }
 
     @NonNull
@@ -34,44 +38,64 @@ public class AdminReportAdapter extends RecyclerView.Adapter<AdminReportAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ReportViewHolder holder, int position) {
-        Report report = reportsList.get(position);
+        Report report = reportList.get(position);
 
-        // Show essential details
-        holder.textReportId.setText("Report ID: " + report.getReportid());
-        holder.textReportType.setText("Type: " + report.getReporttype());
-        holder.textStatus.setText("Status: " + report.getStatus());
 
-        // Set the onClickListener for the View Details button
-        holder.buttonViewDetails.setOnClickListener(v -> {
-            Intent intent = new Intent(context, AdminReportDetailsActivity.class);
-            intent.putExtra("reportId", report.getReportid());
-            intent.putExtra("reporterId", report.getReporterid());
-            intent.putExtra("reportedId", report.getReportedid());
-            intent.putExtra("reportType", report.getReporttype());
-            intent.putExtra("reason", report.getReason());
-            intent.putExtra("status", report.getStatus());
-            intent.putExtra("createdOn", report.getCreatedon());
-            context.startActivity(intent);
-        });
+        holder.reporterName.setText("Reporter Name:   " + report.getReporterName());
+        holder.status.setText("Status:    " + report.getStatus());
+        holder.reportType.setText("Report Type:    " + report.getReporttype());
+        holder.reportDate.setText("Date:    " + report.getCreatedon());
+
+
+//        holder.eyeIcon.setOnClickListener(v -> {
+//            if (report == null) {
+//                Toast.makeText(context, "Report is null", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//            String reportType = report.getReporttype();
+//            String reportId = report.getReportid(); // General report ID
+//
+//            if (reportId == null) {
+//                Toast.makeText(context, "Report ID is null", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//            // Redirect based on report type
+//            if ("post".equalsIgnoreCase(reportType)) {
+//                Intent intent = new Intent(context, UserPostDetailActivity.class);
+//                intent.putExtra("postdetailId", reportId); // Pass the reportId as post ID
+//                context.startActivity(intent);
+//            } else if ("user".equalsIgnoreCase(reportType)) {
+//                Intent intent = new Intent(context, FollowUnfollowActivity.class);
+//                intent.putExtra("userId", reportId); // Pass the reportId as user ID
+//                context.startActivity(intent);
+//            } else {
+//                Toast.makeText(context, "No valid action for this report type", Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
-    @Override
+
+        @Override
     public int getItemCount() {
-        return reportsList.size();
+        return reportList.size();
     }
 
-    public static class ReportViewHolder extends RecyclerView.ViewHolder {
-        TextView textReportId;
-        TextView textReportType;
-        TextView textStatus;
-        Button buttonViewDetails;
+    static class ReportViewHolder extends RecyclerView.ViewHolder {
+        TextView reporterName;
+        TextView status;
+        TextView reportType;
+        TextView reportDate;
+        ImageView eyeIcon;
 
         public ReportViewHolder(@NonNull View itemView) {
             super(itemView);
-            textReportId = itemView.findViewById(R.id.textReportId);
-            textReportType = itemView.findViewById(R.id.textReportType);
-            textStatus = itemView.findViewById(R.id.textStatus);
-            buttonViewDetails = itemView.findViewById(R.id.buttonViewDetails);
+            reporterName = itemView.findViewById(R.id.reporterName);
+            status = itemView.findViewById(R.id.status);
+            reportType = itemView.findViewById(R.id.reportType);
+            reportDate = itemView.findViewById(R.id.reportDate);
+            eyeIcon = itemView.findViewById(R.id.eyeIcon);
         }
     }
 }
