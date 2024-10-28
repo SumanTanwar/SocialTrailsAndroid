@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-       >
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -64,6 +64,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/followersList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -89,6 +90,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/followingsList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -99,8 +101,7 @@
                 android:id="@+id/followings_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
-
+                android:hint="0"
                 android:layout_gravity="center"
                 android:textSize="18sp"
                 android:textColor="@color/black"/>
@@ -166,9 +167,9 @@
             android:text="Suspend Profile"
             android:layout_margin="10dp"
             android:gravity="center"
-        android:background="@drawable/button_background"
-        android:padding="10dp"
-        android:textColor="@android:color/black" />
+            android:background="@drawable/button_background"
+            android:padding="10dp"
+            android:textColor="@android:color/black" />
 
         <TextView
             android:id="@+id/btnDeleteProfile"

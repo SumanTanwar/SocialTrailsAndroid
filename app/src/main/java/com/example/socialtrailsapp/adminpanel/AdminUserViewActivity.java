@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.app.AlertDialog;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
+import com.example.socialtrailsapp.FollowersList;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.MainActivity;
@@ -40,6 +42,7 @@ import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
 import com.example.socialtrailsapp.Utility.Utils;
+import com.example.socialtrailsapp.ViewProfileActivity;
 import com.example.socialtrailsapp.userSettingActivity;
 
 import org.w3c.dom.Text;
@@ -59,6 +62,9 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
     private SessionManager sessionManager;
     List<UserPost> list ;
     ImageView profile_pic;
+    LinearLayout followersList, followingsList;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +88,9 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
         profile_pic = findViewById(R.id.profile_pic);
         sessionManager = SessionManager.getInstance(this);
 
+        followersList = findViewById(R.id.followersList);
+        followingsList = findViewById(R.id.followingsList);
+
 
     //    btnSuspendProfile.setBackgroundResource(R.drawable.button_background);
        // btnSuspendProfile.setBackgroundColor(Color.LTGRAY);
@@ -101,7 +110,27 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
 
             }
         });
+
+        followersList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminUserViewActivity.this, AdminFollowersActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        followingsList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminUserViewActivity.this, AdminFollowingsActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
+
+
+
     private void getAllUserPost(String userId)
     {
         userPostService.getAllUserPost(userId, new DataOperationCallback<List<UserPost>>() {
