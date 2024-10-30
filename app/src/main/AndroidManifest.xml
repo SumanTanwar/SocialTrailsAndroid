@@ -17,18 +17,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SocialTrailsApp"
         tools:targetApi="31">
-        <activity
-            android:name=".adminpanel.AdminEditProfileActivity"
-            android:exported="false" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyA0fTMwiCSxxNp18DLvIfmCEwF1F2FW1PU" />
         <activity
             android:name=".adminpanel.AdminFollowingsActivity"
             android:exported="false" />
         <activity
             android:name=".adminpanel.AdminFollowersActivity"
             android:exported="false" />
-        <activity
-            android:name=".adminpanel.AdminReportDetailsActivity"
-            android:exported="false" />
+
         <activity
             android:name=".adminpanel.AdminReportViewActivity"
             android:exported="false" />
@@ -63,9 +61,7 @@
             android:name=".ViewProfileActivity"
             android:exported="false" />
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBdmLSrq0OuQob_ZvkV6zh9sVS2FmnYo4o" />
+
 
         <activity
             android:name=".adminpanel.AdminListofUsersActivity"

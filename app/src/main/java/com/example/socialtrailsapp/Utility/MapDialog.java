@@ -92,7 +92,7 @@ public class MapDialog extends Dialog implements OnMapReadyCallback {
 
     private void initializePlacesClient() {
         if (!Places.isInitialized()) {
-            Places.initialize(getContext(), "AIzaSyBdmLSrq0OuQob_ZvkV6zh9sVS2FmnYo4o"); // Replace with your actual API Key
+            Places.initialize(getContext(), "AIzaSyA0fTMwiCSxxNp18DLvIfmCEwF1F2FW1PU"); // Replace with your actual API Key
         }
         placesClient = Places.createClient(getContext());
     }
@@ -261,7 +261,7 @@ public class MapDialog extends Dialog implements OnMapReadyCallback {
     private void fetchPlaceFromLatLng(LatLng latLng) {
         new Thread(() -> {
             try {
-                String apiKey = "AIzaSyBdmLSrq0OuQob_ZvkV6zh9sVS2FmnYo4o"; // Replace with your actual API Key
+                String apiKey = "AIzaSyA0fTMwiCSxxNp18DLvIfmCEwF1F2FW1PU"; // Replace with your actual API Key
                 String urlString = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + latLng.latitude + "," + latLng.longitude + "&key=" + apiKey;
 
                 URL url = new URL(urlString);
