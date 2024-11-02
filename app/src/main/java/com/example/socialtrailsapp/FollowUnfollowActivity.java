@@ -24,6 +24,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.GalleryImageAdapter;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
+import com.example.socialtrailsapp.ModelData.Notification;
 import com.example.socialtrailsapp.ModelData.Report;
 import com.example.socialtrailsapp.ModelData.ReportType;
 import com.example.socialtrailsapp.ModelData.UserPost;
@@ -157,6 +158,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 followsection.setVisibility(View.GONE);
                 followsection.setVisibility(View.GONE);
                 followbacksection.setVisibility(View.GONE);
+                sendnotify(userId," has send follow request to you",currentUserId);
             }
 
             @Override
@@ -179,6 +181,8 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 confirmsection.setVisibility(View.GONE);
                 followbacksection.setVisibility(View.GONE);
                 cancelrequestsection.setVisibility(View.GONE);
+
+                sendnotify(userId," has cancelled the follow request",currentUserId);
             }
 
             @Override
@@ -267,7 +271,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "Follow request confirmed!", Toast.LENGTH_SHORT).show();
                 checkFollowBack(userId);
-
+                sendnotify(userId," has started following you",currentUserId);
 //                followsection.setVisibility(View.GONE);
 //                unfollowsection.setVisibility(View.GONE);
 //                confirmsection.setVisibility(View.GONE);
@@ -295,6 +299,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 confirmsection.setVisibility(View.GONE);
                 followbacksection.setVisibility(View.GONE);
                 cancelrequestsection.setVisibility(View.GONE);
+                sendnotify(userId," has rejected the following request",currentUserId);
             }
 
             @Override
@@ -372,6 +377,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 confirmsection.setVisibility(View.GONE);
                 followbacksection.setVisibility(View.GONE);
                 cancelrequestsection.setVisibility(View.GONE);
+                sendnotify(userId," has started following you",currentUserId);
                 // unfollow button show
             }
 
@@ -393,6 +399,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 confirmsection.setVisibility(View.GONE);
                 followbacksection.setVisibility(View.GONE);
                 cancelrequestsection.setVisibility(View.GONE);
+                sendnotify(userId," has unfollowed you",currentUserId);
             }
 
             @Override
@@ -489,6 +496,10 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
                 Toast.makeText(context, "Something went wrong! Please try again later.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void sendnotify(String  notifyto,String text,String notifyBy){
+        Notification notification = new Notification(notifyto, notifyBy, "follow",  " " + text ,notifyBy);
+        notificationService.sendNotificationToUser(notification);
     }
 
 

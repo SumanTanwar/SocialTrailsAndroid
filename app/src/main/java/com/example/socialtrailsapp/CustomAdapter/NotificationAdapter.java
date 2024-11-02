@@ -1,6 +1,7 @@
 package com.example.socialtrailsapp.CustomAdapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.example.socialtrailsapp.FollowUnfollowActivity;
+import com.example.socialtrailsapp.MainActivity;
 import com.example.socialtrailsapp.ModelData.Notification;
+import com.example.socialtrailsapp.ModelData.ReportType;
 import com.example.socialtrailsapp.R;
+import com.example.socialtrailsapp.UserPostDetailActivity;
+import com.example.socialtrailsapp.adminpanel.AdminUserViewActivity;
 
 import java.util.List;
 
@@ -39,11 +45,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Notification notification = notificationList.get(position);
 
-        // Set notification message
-        holder.txtNotificationMessage.setText(notification.getMessage());
+
 
         // Load the profile picture using Glide
-        String profileImageUrl = notification.getFollowerProfilePic();
+        String profileImageUrl = notification.getUserprofilepicture();
         if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
             Uri profileImageUri = Uri.parse(profileImageUrl);
             Glide.with(context)
@@ -56,6 +61,24 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     .transform(new CircleCrop())
                     .into(holder.profilePic);
         }
+
+
+        // Set notification message
+        holder.txtNotificationMessage.setText(notification.getUsername() +  notification.getMessage());
+        holder.txtNotificationMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (notification.getType().equalsIgnoreCase("post")) {
+                    Intent intent = new Intent(context, MainActivity.class);
+                    intent.putExtra("postdetailId", notification.getRelatedId()); // Pass the reportId as post ID
+                    context.startActivity(intent);
+                } else  {
+                    Intent intent = new Intent(context, FollowUnfollowActivity.class);
+                    intent.putExtra("intentuserId", notification.getRelatedId()); // Pass the reportId as user ID
+                    context.startActivity(intent);
+                }
+            }
+        });
     }
 
     @Override

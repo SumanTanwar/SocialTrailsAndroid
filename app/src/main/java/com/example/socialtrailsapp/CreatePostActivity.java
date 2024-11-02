@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -26,10 +27,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.socialtrailsapp.CustomAdapter.ImagePagerAdapter;
+import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.ILocationSetter;
 import com.example.socialtrailsapp.Interface.OperationCallback;
+import com.example.socialtrailsapp.ModelData.Notification;
 import com.example.socialtrailsapp.ModelData.UserPost;
+import com.example.socialtrailsapp.Utility.FollowService;
 import com.example.socialtrailsapp.Utility.MapDialog;
+import com.example.socialtrailsapp.Utility.NotificationService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.adminpanel.DashBoardActivity;
@@ -37,6 +42,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CreatePostActivity extends BottomMenuActivity  implements ImagePagerAdapter.OnImageRemovedListener, ILocationSetter {
     private SessionManager sessionManager;
@@ -50,7 +56,8 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
     EditText txtpostcaption;
     private LinearLayout myLinearLayout;
     UserPostService userPostService;
-
+    FollowService followService;
+    NotificationService notificationService;
     private double latitude,longitude;
     private String tagLocation;
     @Override
@@ -68,6 +75,8 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
         icon_add_location = findViewById(R.id.icon_add_location);
         txtselectedAddress = findViewById(R.id.txtselectedAddress);
         userPostService = new UserPostService();
+        followService = new FollowService();
+        notificationService = new NotificationService();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         adapter = new ImagePagerAdapter(imageUris, this,this);
@@ -107,11 +116,11 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
                     txtpostcaption.requestFocus();
                     return ;
                 }
-//                if(tagLocation == null || tagLocation.isEmpty())
-//                {
-//                    Toast.makeText(getApplicationContext(), "Please tag the location", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
+                if(tagLocation == null || tagLocation.isEmpty())
+                {
+                    Toast.makeText(getApplicationContext(), "Please tag the location", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if(imageUris.size() == 0)
                 {
                     Toast.makeText(getApplicationContext(), "Please select photo", Toast.LENGTH_SHORT).show();
@@ -119,9 +128,10 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
                 }
 
                 UserPost userPost = new UserPost(sessionManager.getUserID(),caption,tagLocation,latitude,longitude,imageUris);
-                userPostService.createPost(userPost, new OperationCallback() {
+                userPostService.createPost(userPost, new  DataOperationCallback<String>() {
                     @Override
-                    public void onSuccess() {
+                    public void onSuccess(String data) {
+                        sendnotify(data);
                         Intent intent = new Intent(CreatePostActivity.this, ViewProfileActivity.class);
                         startActivity(intent);
                         finish();
@@ -135,6 +145,22 @@ public class CreatePostActivity extends BottomMenuActivity  implements ImagePage
             }
         });
     }
+private void sendnotify(String postId){
+    followService.getFollowAndFollowerIdsByUserId(sessionManager.getUserID(), new DataOperationCallback<List<String>>() {
+        @Override
+        public void onSuccess(List<String> data) {
+            for (String userId : data) {
+                Notification notification = new Notification(userId, sessionManager.getUserID(), "post",  " just shared a new post .Check it out!",postId);
+                 notificationService.sendNotificationToUser(notification);
+            }
+        }
+
+        @Override
+        public void onFailure(String error) {
+
+        }
+    });
+}
 
     private void checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

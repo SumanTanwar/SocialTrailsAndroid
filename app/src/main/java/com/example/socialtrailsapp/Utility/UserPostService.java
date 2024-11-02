@@ -47,7 +47,7 @@ public class UserPostService implements IUserPostInterface {
         userService = new UserService();
     }
     @Override
-    public void createPost(UserPost userPost, OperationCallback callback) {
+    public void createPost(UserPost userPost, final DataOperationCallback<String> callback) {
         String newItemKey = reference.child(_collectionName).push().getKey();
         userPost.setPostId(newItemKey);
         reference.child(_collectionName).child(newItemKey).setValue(userPost.toMap())
@@ -55,8 +55,18 @@ public class UserPostService implements IUserPostInterface {
                     @Override
                     public void onSuccess(Void aVoid) {
                         if (callback != null) {
-                            postImagesService.uploadImages(newItemKey,userPost.getImageUris(),callback);
-                            callback.onSuccess();
+                            postImagesService.uploadImages(newItemKey, userPost.getImageUris(), new OperationCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    callback.onSuccess(newItemKey);
+                                }
+
+                                @Override
+                                public void onFailure(String errMessage) {
+                                    callback.onFailure(errMessage);
+                                }
+                            });
+
                         }
 
                     }

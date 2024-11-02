@@ -22,6 +22,7 @@ import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.UserPostDetailActivity;
 import com.example.socialtrailsapp.Utility.ReportService;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
+import com.example.socialtrailsapp.adminpanel.AdminPostDetailActivity;
 import com.example.socialtrailsapp.adminpanel.AdminUserViewActivity;
 
 import java.util.List;
@@ -76,7 +77,7 @@ public class AdminReportAdapter extends RecyclerView.Adapter<AdminReportAdapter.
 
             // Redirect based on report type
             if (ReportType.POST.getReportType().equalsIgnoreCase(reportType)) {
-                Intent intent = new Intent(context, UserPostDetailActivity.class);
+                Intent intent = new Intent(context, AdminPostDetailActivity.class);
                 intent.putExtra("postdetailId", reportId); // Pass the reportId as post ID
                 context.startActivity(intent);
             } else if (ReportType.USER.getReportType().equalsIgnoreCase(reportType)) {
