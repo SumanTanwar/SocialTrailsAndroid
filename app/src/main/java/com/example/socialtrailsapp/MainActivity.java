@@ -39,6 +39,8 @@ public class MainActivity extends BottomMenuActivity {
     private UserPostService userPostService;
     ImageView profileImageView,btnNotify;
     private TextView emptyMessageTextView;
+    private String postdetailId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +83,7 @@ public class MainActivity extends BottomMenuActivity {
         btnNotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, FollowNotificationActivity.class);
+                Intent intent = new Intent(MainActivity.this, NotificationsActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -89,7 +91,9 @@ public class MainActivity extends BottomMenuActivity {
 
         userPostService = new UserPostService();
 
+        Intent intent = getIntent();
 
+        postdetailId = intent.getStringExtra("postdetailId");
 
         postsRecyclerView = findViewById(R.id.dashpostsRecyclerView);
         userPosts = new ArrayList<>();
@@ -116,6 +120,14 @@ public class MainActivity extends BottomMenuActivity {
                 } else {
                     emptyMessageTextView.setVisibility(View.GONE);
                     postsRecyclerView.setVisibility(View.VISIBLE);
+                }
+                if (postdetailId != null) {
+                    for (int i = 0; i < userPosts.size(); i++) {
+                        if (userPosts.get(i).getPostId().equals(postdetailId)) {
+                            postsRecyclerView.scrollToPosition(i);
+                            break;
+                        }
+                    }
                 }
             }
 

@@ -1,29 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_marginTop="20dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp">
 
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/left"
+            android:background="?attr/selectableItemBackground"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp" />
+
         <TextView
+            android:id="@+id/regularUsersText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Notifications"
             android:textStyle="bold"
+            android:layout_marginTop="20dp"
             android:textSize="20sp"
-            android:layout_alignParentStart="true"
+            android:layout_toEndOf="@id/backButton"
             android:layout_centerVertical="true"/>
+
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewNotifications"
+        android:id="@+id/recycler_view_notifications"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="8dp"/>
+        android:padding="8dp" />
+
 </LinearLayout>

@@ -28,9 +28,6 @@
         android:textColor="@android:color/black"
         android:textSize="16sp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="42dp"
-        android:text="Follow" />
+
 
 </LinearLayout>
