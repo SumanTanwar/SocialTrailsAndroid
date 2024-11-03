@@ -7,24 +7,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Report {
-    private String reportid;
-    private String reporterid;
-    private String reportedid;
-    private String reportingid;
+    private String reportId;
+    private String reporterId;
+    private String reportedId;
+    private String reportingId;
     private String reporttype;
     private String reason;
     private String status;
     private String createdon;
-
-    private  String username;
+    private String reviewedby;
+    private String actiontakenby;
+    private String username;
     private String userprofilepicture;
 
-    public  Report(){
+    public Report() {
 
     }
     public Report(String reporterid, String reportedid, String reporttype, String reason) {
-        this.reporterid = reporterid;
-        this.reportedid = reportedid;
+        this.reporterId = reporterid;
+        this.reportedId = reportedid;
         this.reporttype = reporttype;
         this.reason = reason;
         this.status = ReportStatus.PENDING.getReportStatus();
@@ -33,37 +34,36 @@ public class Report {
 
     }
 
-
-    public String getReportid() {
-        return reportid;
+    public String getReportId() {
+        return reportId;
     }
 
-    public void setReportid(String reportid) {
-        this.reportid = reportid;
+    public void setReportId(String reportId) {
+        this.reportId = reportId;
     }
 
-    public String getReporterid() {
-        return reporterid;
+    public String getReporterId() {
+        return reporterId;
     }
 
-    public void setReporterid(String reporterid) {
-        this.reporterid = reporterid;
+    public void setReporterId(String reporterId) {
+        this.reporterId = reporterId;
     }
 
-    public String getReportedid() {
-        return reportedid;
+    public String getReportedId() {
+        return reportedId;
     }
 
-    public void setReportedid(String reportedid) {
-        this.reportedid = reportedid;
+    public void setReportedId(String reportedId) {
+        this.reportedId = reportedId;
     }
 
-    public String getReportingid() {
-        return reportingid;
+    public String getReportingId() {
+        return reportingId;
     }
 
-    public void setReportingid(String reportingid) {
-        this.reportingid = reportingid;
+    public void setReportingId(String reportingId) {
+        this.reportingId = reportingId;
     }
 
     public String getReporttype() {
@@ -114,16 +114,35 @@ public class Report {
         this.userprofilepicture = userprofilepicture;
     }
 
+    public String getReviewedby() {
+        return reviewedby;
+    }
+
+    public void setReviewedby(String reviewedby) {
+        this.reviewedby = reviewedby;
+    }
+
+    public String getActiontakenby() {
+        return actiontakenby;
+    }
+
+    public void setActiontakenby(String actiontakenby) {
+        this.actiontakenby = actiontakenby;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
-        result.put("reportid", reportid);
-        result.put("reporterid", reporterid);
-        result.put("reportedid", reportedid);
-        result.put("reportingid", reportingid);
+        result.put("reportId", reportId);
+        result.put("reporterId", reporterId);
+        result.put("reportedId", reportedId);
+        result.put("reportingId", reportingId);
         result.put("reporttype", reporttype);
         result.put("reason", reason);
         result.put("status", status);
         result.put("createdon", createdon);
+        result.put("reviewedby", reviewedby);
+        result.put("actiontakenby", actiontakenby);
         return result;
     }
+
 }

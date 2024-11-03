@@ -72,17 +72,19 @@ public class AdminReportAdapter extends RecyclerView.Adapter<AdminReportAdapter.
         holder.eyeIcon.setOnClickListener(v -> {
 
             String reportType = report.getReporttype();
-            String reportId = report.getReportedid(); // General report ID
+            String reportId = report.getReportedId(); // General report ID
 
 
             // Redirect based on report type
             if (ReportType.POST.getReportType().equalsIgnoreCase(reportType)) {
                 Intent intent = new Intent(context, AdminPostDetailActivity.class);
                 intent.putExtra("postdetailId", reportId); // Pass the reportId as post ID
+                intent.putExtra("reportId", report.getReportId()); // Pass the reportId as post ID
                 context.startActivity(intent);
             } else if (ReportType.USER.getReportType().equalsIgnoreCase(reportType)) {
                 Intent intent = new Intent(context, AdminUserViewActivity.class);
                 intent.putExtra("intentuserId", reportId); // Pass the reportId as user ID
+                intent.putExtra("reportId", report.getReportId()); // Pass the reportId as user ID
                 context.startActivity(intent);
             } else {
                 Toast.makeText(context, "No valid action for this report type", Toast.LENGTH_SHORT).show();

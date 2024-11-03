@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,12 +26,14 @@ import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.ModelData.PostComment;
 import com.example.socialtrailsapp.ModelData.PostLike;
+import com.example.socialtrailsapp.ModelData.Report;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.Utility.MapLocationPinDialog;
 import com.example.socialtrailsapp.Utility.PostCommentService;
 import com.example.socialtrailsapp.Utility.PostLikeService;
+import com.example.socialtrailsapp.Utility.ReportService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.Utils;
@@ -43,15 +46,18 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
     private UserPostService userPostService;
     private PostLikeService postLikeService;
     private PostCommentService postCommentService;
+    private ReportService reportService;
     private RecyclerView commentsRecyclerView;
     private RecyclerView likesRecyclerView;
 
     private TextView cmtpostcnt;
     private View likesSection;
-    private View commentsSection;
+    private View commentsSection,reportsection;
     TextView postlikecnt,btnRemovepost,backButton;
     private SessionManager sessionManager;
     String userId;
+    String reportId;
+    Button reviewedButton,actionButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,12 +74,23 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
         // Initialize sections
         likesSection = findViewById(R.id.likesSection); // Make sure this ID exists in your layout
         commentsSection = findViewById(R.id.commentsSection); // Make sure this ID exists in your layout
+        reportsection = findViewById(R.id.reportsection); // Make sure this ID exists in your layout
          postlikecnt = findViewById(R.id.postlikecnt);
         backButton = findViewById(R.id.backButton);
         btnRemovepost = findViewById(R.id.btnRemovepost);
+        reviewedButton = findViewById(R.id.reviewedButton);
+        actionButton = findViewById(R.id.actionButton);
+        reportService = new ReportService();
 
         Intent intent = getIntent();
         postdetailId = intent.getStringExtra("postdetailId");
+        reportId = intent.getStringExtra("reportId");
+
+        if(reportId != null && !reportId.isEmpty())
+        {
+            reportsection.setVisibility(View.VISIBLE);
+            getReportId();
+        }
 
         if(sessionManager.getroleType().equals(UserRole.MODERATOR.getRole()))
         {
@@ -126,6 +143,18 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
                         })
                         .setNegativeButton("No", null)
                         .show();
+            }
+        });
+        actionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionTakenforReport();
+            }
+        });
+        reviewedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startReviwedReport();
             }
         });
     }
@@ -225,6 +254,7 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
             fetchComments(post.getPostId(),post.getUserId());
 
         }
+
     }
 
     private void fetchComments(String postId,String userid) {
@@ -295,6 +325,85 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
         } else {
             likesSection.setVisibility(View.VISIBLE);
         }
+    }
+    private void getReportId()
+    {
+       reportService.fetchReportByReportedId(reportId, new DataOperationCallback<Report>() {
+           @Override
+           public void onSuccess(Report report) {
+               reviewedButton.setVisibility(View.VISIBLE);
+               actionButton.setVisibility(View.GONE);
+               ImageView userProfileImage = findViewById(R.id.rptuserProfileImage);
+               ((TextView) findViewById(R.id.reporterName)).setText(report.getUsername());
+               ((TextView) findViewById(R.id.reason)).setText("Reason: " + report.getReason());
+               ((TextView) findViewById(R.id.status)).setText("Status: " +report.getStatus());
+
+               ((TextView) findViewById(R.id.reportDate)).setText("Reported On: " + report.getCreatedon());
+               ((TextView) findViewById(R.id.reviewedBy)).setText("Reviewed By: " + report.getReviewedby());
+               ((TextView) findViewById(R.id.actiontakenBy)).setText("Action Taken By: " + report.getActiontakenby());
+               if(report.getReviewedby() != null && !report.getReviewedby().isEmpty())
+               {
+                   ((TextView) findViewById(R.id.reviewedBy)).setVisibility(View.VISIBLE);
+                   reviewedButton.setVisibility(View.GONE);
+                   if(report.getActiontakenby() == null || report.getActiontakenby().isEmpty()) {
+                       actionButton.setVisibility(View.VISIBLE);
+                   }
+                   if(report.getActiontakenby() != null && !report.getActiontakenby().isEmpty()) {
+                       ((TextView) findViewById(R.id.actiontakenBy)).setVisibility(View.VISIBLE);
+                   }
+
+               }
+
+               if (report.getUserprofilepicture() != null) {
+                   Uri profileImageUri = Uri.parse(report.getUserprofilepicture());
+                   Glide.with(AdminPostDetailActivity.this)
+                           .load(profileImageUri)
+                           .transform(new CircleCrop())
+                           .into(userProfileImage);
+               } else {
+                   Glide.with(AdminPostDetailActivity.this)
+                           .load(R.drawable.user)
+                           .transform(new CircleCrop())
+                           .into(userProfileImage);
+               }
+
+           }
+
+           @Override
+           public void onFailure(String error) {
+
+           }
+       });
+    }
+    private void startReviwedReport()
+    {
+        reportService.startReviewedReport(reportId, sessionManager.getUsername(), new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                getReportId();
+
+            }
+
+            @Override
+            public void onFailure(String errMessage) {
+
+            }
+        });
+    }
+    private void actionTakenforReport()
+    {
+        reportService.actionTakenReport(reportId, sessionManager.getUsername(), new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                getReportId();
+
+            }
+
+            @Override
+            public void onFailure(String errMessage) {
+
+            }
+        });
     }
 
 }
