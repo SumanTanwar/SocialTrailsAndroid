@@ -51,7 +51,7 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
     private View commentsSection;
     TextView postlikecnt,btnRemovepost,backButton;
     private SessionManager sessionManager;
-
+    String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +85,7 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
         userPostService.getUserPostDetailById(postdetailId, new DataOperationCallback<UserPost>() {
             @Override
             public void onSuccess(UserPost data) {
+                userId = data.getUserId();
                 setDetail(data);
             }
 
@@ -99,9 +100,19 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AdminPostDetailActivity.this, AdminUserViewActivity.class);
-                startActivity(intent);
-                finish();
+                if(userId.isEmpty())
+                {
+                    Intent intent = new Intent(AdminPostDetailActivity.this, AdminListofUsersActivity.class);
+
+                    startActivity(intent);
+                    finish();
+                }
+                else {
+                    Intent intent = new Intent(AdminPostDetailActivity.this, AdminUserViewActivity.class);
+                    intent.putExtra("intentuserId",userId);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
         btnRemovepost.setOnClickListener(new View.OnClickListener() {
@@ -124,9 +135,19 @@ public class AdminPostDetailActivity extends AdminBottomMenuActivity {
             public void onSuccess() {
 
                 Toast.makeText(AdminPostDetailActivity.this, "Post deleted successfully", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(AdminPostDetailActivity.this, AdminUserViewActivity.class);
-                startActivity(intent);
-                finish();
+                if(userId.isEmpty())
+                {
+                    Intent intent = new Intent(AdminPostDetailActivity.this, AdminListofUsersActivity.class);
+
+                    startActivity(intent);
+                    finish();
+                }
+                else {
+                    Intent intent = new Intent(AdminPostDetailActivity.this, AdminUserViewActivity.class);
+                    intent.putExtra("intentuserId",userId);
+                    startActivity(intent);
+                    finish();
+                }
             }
 
             @Override
