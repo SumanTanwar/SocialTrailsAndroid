@@ -33,12 +33,14 @@ import com.example.socialtrailsapp.FollowersList;
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
 import com.example.socialtrailsapp.Interface.OperationCallback;
 import com.example.socialtrailsapp.MainActivity;
+import com.example.socialtrailsapp.ModelData.Report;
 import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
 import com.example.socialtrailsapp.SignInActivity;
 import com.example.socialtrailsapp.Utility.FollowService;
+import com.example.socialtrailsapp.Utility.ReportService;
 import com.example.socialtrailsapp.Utility.SessionManager;
 import com.example.socialtrailsapp.Utility.UserPostService;
 import com.example.socialtrailsapp.Utility.UserService;
@@ -57,15 +59,16 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
     UserService userService;
     UserPostService userPostService;
     FollowService followService;
-
+    private ReportService reportService;
     TextView txtprofileusername,txtdetailmail,txtadminbio,profilereason,admindeletetxt,
             btnSuspendProfile,btnDeleteProfile,postscount,followersCount, followingsCount;
     private SessionManager sessionManager;
     List<UserPost> list ;
     ImageView profile_pic;
     LinearLayout followersList, followingsList;
-
-
+    String reportId;
+    Button reviewedButton,actionButton;
+    private View reportsection;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +94,18 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
 
         followersList = findViewById(R.id.followersList);
         followingsList = findViewById(R.id.followingsList);
+        reportsection = findViewById(R.id.reportsection);
+        reviewedButton = findViewById(R.id.reviewedButton);
+        actionButton = findViewById(R.id.actionButton);
+        reportService = new ReportService();
+
+        reportId = getIntent().getStringExtra("reportId");
+
+        if(reportId != null && !reportId.isEmpty())
+        {
+            reportsection.setVisibility(View.VISIBLE);
+            getReportId();
+        }
         if(sessionManager.getroleType().equals(UserRole.MODERATOR.getRole()))
         {
             btnSuspendProfile.setVisibility(View.GONE);
@@ -137,6 +152,18 @@ public class AdminUserViewActivity extends AdminBottomMenuActivity {
                 intent.putExtra("userId",userId);
                 startActivity(intent);
                 finish();
+            }
+        });
+        actionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionTakenforReport();
+            }
+        });
+        reviewedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startReviwedReport();
             }
         });
     }
@@ -365,5 +392,83 @@ private void adminUnDeleteProfile(String userId)
             }
         });
     }
+    private void getReportId()
+    {
+        reportService.fetchReportByReportedId(reportId, new DataOperationCallback<Report>() {
+            @Override
+            public void onSuccess(Report report) {
+                reviewedButton.setVisibility(View.VISIBLE);
+                actionButton.setVisibility(View.GONE);
+                ImageView userProfileImage = findViewById(R.id.rptuserProfileImage);
+                ((TextView) findViewById(R.id.reporterName)).setText(report.getUsername());
+                ((TextView) findViewById(R.id.reason)).setText("Reason: " + report.getReason());
+                ((TextView) findViewById(R.id.status)).setText("Status: " +report.getStatus());
 
+                ((TextView) findViewById(R.id.reportDate)).setText("Reported On: " + report.getCreatedon());
+                ((TextView) findViewById(R.id.reviewedBy)).setText("Reviewed By: " + report.getReviewedby());
+                ((TextView) findViewById(R.id.actiontakenBy)).setText("Action Taken By: " + report.getActiontakenby());
+                if(report.getReviewedby() != null && !report.getReviewedby().isEmpty())
+                {
+                    ((TextView) findViewById(R.id.reviewedBy)).setVisibility(View.VISIBLE);
+                    reviewedButton.setVisibility(View.GONE);
+                    if(report.getActiontakenby() == null || report.getActiontakenby().isEmpty()) {
+                        actionButton.setVisibility(View.VISIBLE);
+                    }
+                    if(report.getActiontakenby() != null && !report.getActiontakenby().isEmpty()) {
+                        ((TextView) findViewById(R.id.actiontakenBy)).setVisibility(View.VISIBLE);
+                    }
+
+                }
+
+                if (report.getUserprofilepicture() != null) {
+                    Uri profileImageUri = Uri.parse(report.getUserprofilepicture());
+                    Glide.with(AdminUserViewActivity.this)
+                            .load(profileImageUri)
+                            .transform(new CircleCrop())
+                            .into(userProfileImage);
+                } else {
+                    Glide.with(AdminUserViewActivity.this)
+                            .load(R.drawable.user)
+                            .transform(new CircleCrop())
+                            .into(userProfileImage);
+                }
+
+            }
+
+            @Override
+            public void onFailure(String error) {
+
+            }
+        });
+    }
+    private void startReviwedReport()
+    {
+        reportService.startReviewedReport(reportId, sessionManager.getUsername(), new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                getReportId();
+
+            }
+
+            @Override
+            public void onFailure(String errMessage) {
+
+            }
+        });
+    }
+    private void actionTakenforReport()
+    {
+        reportService.actionTakenReport(reportId, sessionManager.getUsername(), new OperationCallback() {
+            @Override
+            public void onSuccess() {
+                getReportId();
+
+            }
+
+            @Override
+            public void onFailure(String errMessage) {
+
+            }
+        });
+    }
 }
