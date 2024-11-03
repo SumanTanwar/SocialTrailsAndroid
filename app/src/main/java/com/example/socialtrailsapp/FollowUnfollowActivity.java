@@ -316,7 +316,30 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
             @Override
             public void onSuccess(Boolean isFollowing) {
                 if (isFollowing) {
-                    updateUIForUnFollowButton();
+                    followsection.setVisibility(View.GONE);
+                    unfollowsection.setVisibility(View.GONE);
+                    confirmsection.setVisibility(View.GONE);
+                    followbacksection.setVisibility(VISIBLE);
+                    cancelrequestsection.setVisibility(View.GONE);
+                    followService.checkIfFollowed(userIdToCheck, currentUserId, new DataOperationCallback<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean isFollowedBack) {
+                            if (isFollowedBack) {
+                                updateUIForUnFollowButton();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            followsection.setVisibility(View.GONE);
+                            unfollowsection.setVisibility(View.GONE);
+                            confirmsection.setVisibility(View.GONE);
+                            followbacksection.setVisibility(VISIBLE);
+                            cancelrequestsection.setVisibility(View.GONE);
+                        }
+                    });
+
+
                 } else {
 
                     followService.checkIfFollowed(userIdToCheck, currentUserId, new DataOperationCallback<Boolean>() {
@@ -368,7 +391,7 @@ public class FollowUnfollowActivity extends BottomMenuActivity {
     }
     private void followBack() {
         String currentUserId = sessionManager.getUserID();
-        followService.followBack(currentUserId, userId, new OperationCallback() {
+        followService.confirmFollowBack(currentUserId, userId, new OperationCallback() {
             @Override
             public void onSuccess() {
                 Toast.makeText(FollowUnfollowActivity.this, "You are now following this user!", Toast.LENGTH_SHORT).show();
