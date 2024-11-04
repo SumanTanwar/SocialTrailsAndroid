@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Issue Warning"
+        android:textSize="18dp"
+        android:layout_gravity="center"
+        android:textStyle="bold" />
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Why are you issuing warning?"
+        android:textSize="14dp"
+        android:layout_marginTop="5dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/report_paragraph"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your warning is anonymous. If someone is in immediate danger, call the local emergency service."
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/report_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:hint="Describe the issue here"
+        android:inputType="textMultiLine"
+        android:minHeight="100dp"
+        android:gravity="top|start"
+        android:padding="5dp"
+        android:background="@drawable/edit_text_border"
+        android:layout_marginTop="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/report_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Warning"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel" />
+    </LinearLayout>
+</LinearLayout>

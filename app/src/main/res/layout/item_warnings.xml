@@ -30,16 +30,16 @@
                 android:id="@+id/reporterName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reporter Name"
+                android:text="Name"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:paddingBottom="4dp" />
 
             <TextView
-                android:id="@+id/status"
+                android:id="@+id/reason"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Status"
+                android:text="Reason"
                 android:textSize="14sp"
                 android:paddingBottom="4dp" />
 
@@ -47,34 +47,27 @@
                 android:id="@+id/reportType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Report Type"
+                android:text="Type"
                 android:textSize="14sp"
                 android:paddingBottom="4dp" />
 
             <TextView
-                android:id="@+id/reportDate"
+                android:id="@+id/issueBy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Type"
+                android:textSize="14sp"
+                android:paddingBottom="4dp" />
+
+            <TextView
+                android:id="@+id/issueDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Date"
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/eyeIcon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/eye"
-            android:contentDescription="View Details"
-            android:layout_gravity="center_vertical"
-            android:padding="4dp" />
-        <ImageView
-            android:id="@+id/btnissuewarning"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/warning_issues"
-            android:contentDescription="Issue Warning"
-            android:layout_gravity="center_vertical"
-            android:padding="4dp" />
+
     </LinearLayout>
 
     <!-- Separator line -->
