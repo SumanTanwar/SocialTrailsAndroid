@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.socialtrailsapp.Interface.DataOperationCallback;
+import com.example.socialtrailsapp.Interface.INotification;
 import com.example.socialtrailsapp.ModelData.Notification;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.google.firebase.database.DataSnapshot;
@@ -20,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NotificationService {
+public class NotificationService implements INotification {
 
     private DatabaseReference reference;
     private static final String _collectionName = "notifications";
