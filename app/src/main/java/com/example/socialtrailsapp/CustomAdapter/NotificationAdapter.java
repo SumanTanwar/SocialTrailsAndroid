@@ -64,7 +64,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
 
         // Set notification message
-        holder.txtNotificationMessage.setText(notification.getUsername() +  notification.getMessage());
+        if(notification.getUsername() != null) {
+            holder.txtNotificationMessage.setText(notification.getUsername() + notification.getMessage());
+        }
+        else
+        {
+            holder.txtNotificationMessage.setText("Warning issue by admin : " + notification.getMessage());
+        }
         holder.txtNotificationMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
