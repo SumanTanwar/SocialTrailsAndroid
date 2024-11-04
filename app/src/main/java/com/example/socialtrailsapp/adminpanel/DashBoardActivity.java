@@ -8,6 +8,7 @@ import com.example.socialtrailsapp.ModelData.UserPost;
 import com.example.socialtrailsapp.ModelData.UserRole;
 import com.example.socialtrailsapp.ModelData.Users;
 import com.example.socialtrailsapp.R;
+import com.example.socialtrailsapp.Utility.IssueWarningSevice;
 import com.example.socialtrailsapp.Utility.PostImagesService;
 import com.example.socialtrailsapp.Utility.ReportService;
 import com.example.socialtrailsapp.Utility.SessionManager;
@@ -24,10 +25,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DashBoardActivity extends AdminBottomMenuActivity {
 
-    private TextView numberofusers, numberofposts, numberofreports,userRoleText;
+    private TextView numberofusers, numberofposts, numberofreports,numberofwarning,userRoleText;
     private UserService userService;
     private UserPostService userPostService;
     private ReportService reportService;
+    private IssueWarningSevice issueWarningSevice;
     private SessionManager sessionManager;
 
     @Override
@@ -38,12 +40,13 @@ public class DashBoardActivity extends AdminBottomMenuActivity {
         numberofusers = findViewById(R.id.numberofusers);
         numberofposts = findViewById(R.id.numberofposts);
         numberofreports = findViewById(R.id.numberofreports);
+        numberofwarning = findViewById(R.id.numberofwarning);
         userRoleText = findViewById(R.id.userRoleText);
         userService = new UserService();
         userPostService = new UserPostService();
         reportService = new ReportService();
         sessionManager = SessionManager.getInstance(this);
-
+        issueWarningSevice = new IssueWarningSevice();
         if(sessionManager.getroleType().equals(UserRole.MODERATOR.getRole()))
         {
             userRoleText.setText("MODERATOR");
@@ -55,6 +58,7 @@ public class DashBoardActivity extends AdminBottomMenuActivity {
         getRegularUserList();
         getAllUserPost();
         fetchTotalReports();
+        fetchTotalIssuedWarn();
     }
 
     private void getRegularUserList() {
@@ -100,6 +104,20 @@ public class DashBoardActivity extends AdminBottomMenuActivity {
             @Override
             public void onFailure(String error) {
                 numberofreports.setText("0");
+            }
+        });
+
+    }
+    private void fetchTotalIssuedWarn() {
+        issueWarningSevice.getWarningCount(new DataOperationCallback<Integer>() {
+            @Override
+            public void onSuccess(Integer data) {
+                numberofwarning.setText(String.valueOf(data));
+            }
+
+            @Override
+            public void onFailure(String error) {
+                numberofwarning.setText("0");
             }
         });
 

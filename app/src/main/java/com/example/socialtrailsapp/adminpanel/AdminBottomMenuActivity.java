@@ -52,7 +52,7 @@ public class AdminBottomMenuActivity extends AppCompatActivity {
                 }
                 else if(R.id.navigation_issuewarning == item.getItemId())
                 {
-                    startActivity(new Intent(AdminBottomMenuActivity.this, DashBoardActivity.class));
+                    startActivity(new Intent(AdminBottomMenuActivity.this, IssueWarningActivity.class));
                     return true;
                 }
                 else if(R.id.navigation_setting == item.getItemId())
